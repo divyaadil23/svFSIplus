@@ -39,6 +39,8 @@
 #include "Tensor4.h"
 
 #include "mat_fun.h"
+#include <fstream>
+#include "UAnisoHyper_inv.h"
 
 namespace mat_models_carray {
 
@@ -110,6 +112,8 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
   using namespace consts;
   using namespace mat_fun;
   using namespace utils;
+
+  std::cout << "get_pk2cc starts" << std::ends;
 
   using CArray2 = double[N][N];
   using CArray4 = double[N][N][N][N];
@@ -292,7 +296,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
     //
     case ConstitutiveModelType::stIso_nHook: {
       double g1 = 2.0 * stM.C10;
-
+      std::cout << "Neohooke starts" << std::ends;
       double Sb[N][N];
       for (int i = 0; i < nsd; i++) {
         for (int j = 0; j < nsd; j++) {
@@ -359,6 +363,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
     //  Mooney-Rivlin model
     //
     case ConstitutiveModelType::stIso_MR: {
+      std::cout << "Mooney Rivlin starts" << std::ends;
       double g1  = 2.0 * (stM.C10 + Inv1*stM.C01);
       double g2  = -2.0 * stM.C01;
 
@@ -1051,6 +1056,130 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
 
     } break;
 
+    // Universal Material Subroutine - stAnisoHyper_Inv
+    
+    case ConstitutiveModelType::stAnisoHyper_Inv: {
+      std::cout << "cann starts" << std::ends;
+
+      //Invariant definitions
+      double Ft[N][N];
+      mat_fun_carray::transpose<N>(F,Ft);
+      double C[N][N];
+      mat_fun_carray::mat_mul<N>(Ft,F,C);
+      double Inv[9];
+      Inv[0] = mat_fun_carray::mat_trace<N>(C);//Inv1
+      Inv[1] = 1/2*(Inv[0]*Inv[0] - mat_fun_carray::mat_ddot<N>(C,C));//Inv2
+      Inv[2] = (mat_fun_carray::mat_det<N>(C));//Inv3
+      //auto n0 = fl.col(0);
+      double prod1[N][N];
+      mat_fun_carray::mat_dyad_prod<N>(fl.col(0), fl.col(0), prod1);
+      Inv[3] = mat_fun_carray::mat_ddot<N>(C,prod1);//Inv4
+      double C2[N][N];
+      mat_fun_carray::mat_mul<N>(C,C,C2);
+      Inv[4] = mat_fun_carray::mat_ddot<N>(C2,prod1);//Inv5
+
+      double prod2[N][N];
+      mat_fun_carray::mat_dyad_prod<N>(fl.col(1), fl.col(1), prod2);
+      Inv[7] = mat_fun_carray::mat_ddot<N>(C,prod2);//Inv8
+      Inv[8] = mat_fun_carray::mat_ddot<N>(C2,prod2);//Inv9
+
+      double prod12[N][N];
+      mat_fun_carray::mat_dyad_prod<N>(fl.col(0), fl.col(1), prod12);
+      Inv[5] = mat_fun_carray::mat_ddot<N>(C,prod12);//Inv6
+      Inv[6] = mat_fun_carray::mat_ddot<N>(C2,prod12);//Inv7
+
+      //Invariant derivatives wrt F
+      double dInv1[N][N];
+      mat_fun_carray::mat_scmul(F,2,dInv1);
+
+      double dInv2[N][N];
+      double F3[N][N];
+      mat_fun_carray::mat_mul<N>(F,C,F3);
+      double term2[N][N];
+      mat_fun_carray::mat_scmul(F3,-2,term2);
+      double term1[N][N];
+      mat_fun_carray::mat_scmul(F,2*Inv1,term1);
+      mat_fun_carray::mat_sum(term1,term2,dInv2);
+
+      double dInv3[N][N];
+      double Finv[N][N];
+      mat_fun_carray::mat_inv(F,Finv);
+      double FinvT[N][N];
+      mat_fun_carray::transpose(Finv,FinvT);
+      mat_fun_carray::mat_scmul(FinvT,2*Inv[2],dInv3);
+
+      double dInv4[N][N];
+      double FN1[N][N];
+      mat_fun_carray::mat_mul<N>(F,prod1,FN1);
+      mat_fun_carray::mat_scmul(FN1,2,dInv4);
+
+      double dInv5[N][N];
+      double NC1[N][N];
+      mat_fun_carray::mat_mul<N>(prod1,C,NC1);
+      double CN1[N][N];
+      mat_fun_carray::mat_mul<N>(C,prod1,CN1);
+      double sum[N][N];
+      mat_fun_carray::mat_sum(NC1,CN1,sum);
+      double half[N][N];
+      mat_fun_carray::mat_mul<N>(F,sum,half);
+      mat_fun_carray::mat_scmul(half,2,dInv5);
+
+      double dInv6[N][N];
+      double FN12[N][N];
+      mat_fun_carray::mat_mul<N>(F,prod12,FN12);
+      mat_fun_carray::mat_scmul(FN12,2,dInv6);
+
+      double dInv7[N][N];
+      double NC12[N][N];
+      mat_fun_carray::mat_mul<N>(prod12,C,NC12);
+      double CN12[N][N];
+      mat_fun_carray::mat_mul<N>(C,prod12,CN12);
+      mat_fun_carray::mat_sum(NC12,CN12,sum);
+      mat_fun_carray::mat_mul<N>(F,sum,half);
+      mat_fun_carray::mat_scmul(half,2,dInv7);
+
+      double dInv8[N][N];
+      double FN2[N][N];
+      mat_fun_carray::mat_mul<N>(F,prod2,FN2);
+      mat_fun_carray::mat_scmul(FN2,2,dInv8);
+
+      double dInv9[N][N];
+      double NC2[N][N];
+      mat_fun_carray::mat_mul<N>(prod2,C,NC2);
+      double CN2[N][N];
+      mat_fun_carray::mat_mul<N>(C,prod2,CN2);
+      mat_fun_carray::mat_sum(NC2,CN2,sum);
+      mat_fun_carray::mat_mul<N>(F,sum,half);
+      mat_fun_carray::mat_scmul(half,2,dInv9);
+
+      //storing the invariant derivatives in array of pointers
+      double (*dInv[9])[N] = {dInv1, dInv2, dInv3, dInv4, dInv5, dInv6, dInv7, dInv8, dInv9};
+
+      //reading parameters
+      auto &w = stM.w;
+      std::cout << "w" << std::endl;
+      std::cout << w[0][1] << std::endl;
+      std::cout << w[1][1] << std::endl;
+      std::cout << w[0][5] << std::endl;
+      std::cout << w[1][5] << std::endl;
+
+      //Strain energy function and derivatives
+      double psi,dpsi[9],ddpsi[9];
+      UAnisoHyper_inv::uanisohyper_inv(Inv,w,psi,dpsi,ddpsi);
+
+      // Cauchy Stress
+      double S[N][N];
+      mat_fun_carray::mat_zero<N>(S);
+      for (int i = 0; i < 9; i++)
+      {
+        double prod[N][N];
+        mat_fun_carray::mat_scmul(dInv[i],Inv[i]*dpsi[i],prod);
+        mat_fun_carray::mat_sum(prod,S,S);
+      }
+
+      //Printing stresses
+      mat_fun_carray::print("Cauchy Stress",S);
+    } break;
     default:
       throw std::runtime_error("Undefined material constitutive model.");
   } 

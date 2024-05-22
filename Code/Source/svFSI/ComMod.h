@@ -55,6 +55,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
 
 /// @brief Fourier coefficients that are used to specify unsteady BCs
 //
@@ -380,6 +381,53 @@ class stModelType
 
     // Fiber reinforcement stress
     fibStrsType Tf;
+
+    //AnisoHyper (Universal) - READ ALL WEIGHTS FROM FILE. Define w as an array
+    /*double w[2][16] = {
+      {0,2.86,0,0,0,0,0,0,0,0,0,0,0,0,1.09,0},
+      {0,4.77,0,0,0,0,0,0,0,0,0,0,0,0,1.00,0}
+    }; */
+    // double w[2][16]= {
+    //   {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    //   {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+    // };
+    std::vector<std::vector<double>> w;
+    /*
+    void weights(double w[][16]){
+      w[2][16] = {
+      {0,2.86,0,0,0,0,0,0,0,0,0,0,0,0,1.09,0},
+      {0,4.77,0,0,0,0,0,0,0,0,0,0,0,0,1.00,0}
+      };
+        /*for (int i = 0; i < 2; i++)
+        {
+          for (int j = 0; j < 16; i++)
+          {
+            w[i][j] = 0;//initializing
+          }
+        }
+        w[0][1] = 2.86;
+        w[1][1] = 4.77;
+        w[0][14] = 1.05;
+        w[1][14] = 1.00;
+        /*std::ifstream myfile("/Users/divya/svFSIplus/Code/Source/svFSI/weights.txt");
+        int number;  //Variable to hold each number as it is read
+	
+        //Read number using the extraction (>>) operator
+        for (int i = 0; i < 2; i++)
+        {
+          for (int j = 0; j < 16; i++)
+          {
+            myfile>>w[i][j];
+          }
+        }
+        printf("%d",w[1][1]);
+        std::cout << "hi" << std::ends;
+        //Close the file stream
+	      myfile.close();
+        std::cout << "commod w" << std::ends;
+        std::cout << w[0][1] << std::ends;
+      }
+      weights(w);*/
 };
 
 /// @brief Fluid viscosity model type

@@ -180,6 +180,35 @@ void mat_mul(const double A[N][N], const Vector<double>& v, double result[N])
 }
 
 template <size_t N>
+double vec_dot(const Vector<double>& v, const Vector<double>& w)
+{
+  double sum = 0;
+  for (int i = 0; i < N; i++) {
+    sum += v(i)*w(i);
+}
+return sum;
+}
+
+template <size_t N>
+void mat_sum(const double A[N][N], const double B[N][N], double result[N][N])
+{
+  for (int i = 0; i < N; i++) {
+    for (int j = 0; j < N; j++) {
+    result[i][j] = A[i][j] + B[i][j];
+  }
+}
+}
+
+template <size_t N>
+void mat_scmul(const double A[N][N], const double a, double result[N][N])
+{
+  for (int i = 0; i < N; i++) {
+    for (int j = 0; j < N; j++) {
+    result[i][j] = a*A[i][j];
+  }
+}
+}
+template <size_t N>
 void mat_mul6x3(const double A[2*N][2*N], const Array<double>& B, Array<double>& C)
 {
   int B_num_rows = B.nrows();

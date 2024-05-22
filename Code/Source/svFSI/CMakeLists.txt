@@ -189,6 +189,7 @@ set(CSRCS
   Timer.h
 
   SPLIT.c
+  UAnisoHyper_inv.h UAnisoHyper_inv.cpp
 )
 
   # Set PETSc interace code.

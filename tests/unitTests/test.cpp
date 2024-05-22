@@ -84,3 +84,100 @@ TEST(UnitTestIso_2, MR) {
       
 }
 
+TEST(UnitTestIso_3, CANN) {
+    // Step 1: define parameters
+    std::cout << 'test'<<std::ends;
+    auto matType = consts::ConstitutiveModelType::stAnisoHyper_Inv;   // Material_model: options refer to consts.h 
+    auto volType = consts::ConstitutiveModelType::stVol_ST91;   // Dilational_penalty_model
+    double E = 1e6;   // Elasticity_modulus
+    double nu = 0.495;   // Poisson_ratio
+    double pen = 4e9;   // Penalty_parameter
+    double C01 = 0.1;   // additional parameter to C10 (optional)
+    //weights defined in function - see mat_models_carray.h
+
+    // Step 2: construct test object
+    UnitTestIso CANN(matType, E, nu, volType, pen, C01);
+    auto &dmn = CANN.com_mod.mockEq.mockDmn;
+    auto &stm = dmn.stM;
+    auto &w = stm.w;
+/*
+    //reading from file
+    //   FILE* myfile = std::fopen("/Users/divya/svFSIplus/Code/Source/svFSI/weights.txt","r");
+	ifstream file("/Users/divya/svFSIplus/Code/Source/svFSI/weights.txt");
+    if(!file.is_open()) {
+        cerr << "Fail! " << endl;
+        // return 1;
+    }
+    //std::cout << "contents of file:\n" << std::ifstream("/Users/divya/svFSIplus/Code/Source/svFSI/weights.csv").rdbuf() ;
+
+        //Read number using the extraction (>>) operator
+        for (int i = 0; i < 2; i++)
+        {
+          w.push_back({});
+          for (int j = 0; j < 16; j++)
+          {
+            // fscanf(myfile,"%d",&(w[i][j]));
+            // std::cout << w[i][j] << std::ends;
+            double n=j;
+            //file >> n;
+            //fscanf(file,"%d",&n);
+            std::cout << "n" <<std::endl;
+            std::cout << n <<std::endl;
+            if (!(file >> n)) {
+                cerr << "Fail! 2 " << endl;
+                // return 1;
+            }
+            w[i].push_back(n);
+          }
+        }
+        //Close the file stream
+	    //   std::fclose(myfile);
+        file.close();*/
+    ifstream file("/Users/divya/svFSIplus/Code/Source/svFSI/ParameterTable.txt");
+    if(!file.is_open()) {
+        cerr << "Failed to open file!" << endl;
+        // return 1;
+    }
+
+    //Read numbers using the extraction (>>) operator
+    for (int i = 0; i < 4; i++) {
+        w.push_back({});
+        for (int j = 0; j < 7; j++) {
+            if (j<=3){
+                int n;
+                file >> n;
+                cout << n << endl;
+                w[i].push_back(n);
+            }
+            else {
+                double n;
+                file >> n;
+                cout << n << endl;
+                w[i].push_back(n);
+            }
+            //double n;
+            //file >> n;
+            //cout << n << endl;
+            //w[i].push_back(n);
+            cout << j << endl;
+            cout << w[i][j] << endl;
+        }
+    }
+
+    // Close the file stream
+    file.close();
+      
+
+
+    // Step 3: define the input 
+    double F[3][3] = {};
+    F[0][0] = 1.0; F[1][1] = 1.0; F[2][2] = 1.0;   // set to Identity
+
+    // Step 4: define the reference output 
+    double S_ref[3][3] = {};
+    double Dm_ref[6][6] = {};
+
+    // Step 5: run unit test
+    CANN.runUnitTest(F, S_ref, Dm_ref);
+      
+}
