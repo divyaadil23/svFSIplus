@@ -562,9 +562,6 @@ void ten_ddot_2412(const double A[N][N][N][N], const double B[N][N][N][N], doubl
     }
   }
 }
-
-
-};
-
+}
 #endif
 

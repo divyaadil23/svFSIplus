@@ -1062,33 +1062,25 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       std::cout << "cann starts" << std::ends;
 
       //Invariant definitions
+      std::cout << "invar defns start" << std::ends;
       double Ft[N][N];
       mat_fun_carray::transpose<N>(F,Ft);
       double C[N][N];
       mat_fun_carray::mat_mul<N>(Ft,F,C);
-      double Inv[9];
+      double Inv[9] = {0,0,0,0,0,0,0,0,0};
       Inv[0] = mat_fun_carray::mat_trace<N>(C);//Inv1
       Inv[1] = 1/2*(Inv[0]*Inv[0] - mat_fun_carray::mat_ddot<N>(C,C));//Inv2
       Inv[2] = (mat_fun_carray::mat_det<N>(C));//Inv3
-      //auto n0 = fl.col(0);
       double prod1[N][N];
       mat_fun_carray::mat_dyad_prod<N>(fl.col(0), fl.col(0), prod1);
       Inv[3] = mat_fun_carray::mat_ddot<N>(C,prod1);//Inv4
       double C2[N][N];
       mat_fun_carray::mat_mul<N>(C,C,C2);
       Inv[4] = mat_fun_carray::mat_ddot<N>(C2,prod1);//Inv5
-
-      double prod2[N][N];
-      mat_fun_carray::mat_dyad_prod<N>(fl.col(1), fl.col(1), prod2);
-      Inv[7] = mat_fun_carray::mat_ddot<N>(C,prod2);//Inv8
-      Inv[8] = mat_fun_carray::mat_ddot<N>(C2,prod2);//Inv9
-
-      double prod12[N][N];
-      mat_fun_carray::mat_dyad_prod<N>(fl.col(0), fl.col(1), prod12);
-      Inv[5] = mat_fun_carray::mat_ddot<N>(C,prod12);//Inv6
-      Inv[6] = mat_fun_carray::mat_ddot<N>(C2,prod12);//Inv7
+      std::cout << "invar defns inv5 done" << std::endl;
 
       //Invariant derivatives wrt F
+      std::cout << "invar deriv start" << std::ends;
       double dInv1[N][N];
       mat_fun_carray::mat_scmul(F,2,dInv1);
 
@@ -1125,32 +1117,59 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       mat_fun_carray::mat_scmul(half,2,dInv5);
 
       double dInv6[N][N];
-      double FN12[N][N];
-      mat_fun_carray::mat_mul<N>(F,prod12,FN12);
-      mat_fun_carray::mat_scmul(FN12,2,dInv6);
-
+      mat_fun_carray::mat_zero(dInv6);
       double dInv7[N][N];
-      double NC12[N][N];
-      mat_fun_carray::mat_mul<N>(prod12,C,NC12);
-      double CN12[N][N];
-      mat_fun_carray::mat_mul<N>(C,prod12,CN12);
-      mat_fun_carray::mat_sum(NC12,CN12,sum);
-      mat_fun_carray::mat_mul<N>(F,sum,half);
-      mat_fun_carray::mat_scmul(half,2,dInv7);
-
+      mat_fun_carray::mat_zero(dInv7);
       double dInv8[N][N];
-      double FN2[N][N];
-      mat_fun_carray::mat_mul<N>(F,prod2,FN2);
-      mat_fun_carray::mat_scmul(FN2,2,dInv8);
-
+      mat_fun_carray::mat_zero(dInv8);
       double dInv9[N][N];
-      double NC2[N][N];
-      mat_fun_carray::mat_mul<N>(prod2,C,NC2);
-      double CN2[N][N];
-      mat_fun_carray::mat_mul<N>(C,prod2,CN2);
-      mat_fun_carray::mat_sum(NC2,CN2,sum);
-      mat_fun_carray::mat_mul<N>(F,sum,half);
-      mat_fun_carray::mat_scmul(half,2,dInv9);
+      mat_fun_carray::mat_zero(dInv9);
+
+      if (nfd==2) //2 fiber directions needs more invariants
+      {
+        std::cout << nfd << std::endl;
+        double prod12[N][N];
+        auto n0 = fl.col(0);
+        auto n1 = fl.col(1);
+        std::cout << n0[0] << std::endl;
+        std::cout << n1[0] << std::endl;
+        mat_fun_carray::mat_dyad_prod<N>(n0, n1, prod12);
+        std::cout << "prod12" << std::ends;
+        Inv[5] = mat_fun_carray::mat_ddot<N>(C,prod12);//Inv6
+        std::cout << "invar defns inv6 done" << std::ends;
+        Inv[6] = mat_fun_carray::mat_ddot<N>(C2,prod12);//Inv7
+        std::cout << "invar defns inv7 done" << std::ends;
+        double prod2[N][N];
+        mat_fun_carray::mat_dyad_prod<N>(fl.col(1), fl.col(1), prod2);
+        Inv[7] = mat_fun_carray::mat_ddot<N>(C,prod2);//Inv8
+        Inv[8] = mat_fun_carray::mat_ddot<N>(C2,prod2);//Inv9
+
+        //invariant derivatives
+         //dInv6
+        double FN12[N][N];
+        mat_fun_carray::mat_mul<N>(F,prod12,FN12);
+        mat_fun_carray::mat_scmul(FN12,2,dInv6);
+        //dInv7
+        double NC12[N][N];
+        mat_fun_carray::mat_mul<N>(prod12,C,NC12);
+        double CN12[N][N];
+        mat_fun_carray::mat_mul<N>(C,prod12,CN12);
+        mat_fun_carray::mat_sum(NC12,CN12,sum);
+        mat_fun_carray::mat_mul<N>(F,sum,half);
+        mat_fun_carray::mat_scmul(half,2,dInv7);
+        //dInv8
+        double FN2[N][N];
+        mat_fun_carray::mat_mul<N>(F,prod2,FN2);
+        mat_fun_carray::mat_scmul(FN2,2,dInv8);
+        //dInv9
+        double NC2[N][N];
+        mat_fun_carray::mat_mul<N>(prod2,C,NC2);
+        double CN2[N][N];
+        mat_fun_carray::mat_mul<N>(C,prod2,CN2);
+        mat_fun_carray::mat_sum(NC2,CN2,sum);
+        mat_fun_carray::mat_mul<N>(F,sum,half);
+        mat_fun_carray::mat_scmul(half,2,dInv9);
+      }
 
       //storing the invariant derivatives in array of pointers
       double (*dInv[9])[N] = {dInv1, dInv2, dInv3, dInv4, dInv5, dInv6, dInv7, dInv8, dInv9};
@@ -1166,6 +1185,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       //Strain energy function and derivatives
       double psi,dpsi[9],ddpsi[9];
       UAnisoHyper_inv::uanisohyper_inv(Inv,w,psi,dpsi,ddpsi);
+      // mat_fun_carray::uanisohyper_inv(Inv,w,psi,dpsi,ddpsi);
 
       // Cauchy Stress
       double S[N][N];
