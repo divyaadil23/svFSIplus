@@ -96,7 +96,7 @@ void uCANN_h2(const double x, const int kf, const double W, double &f, double &d
 }
 
 /// @brief Updates psi and its derivatives
-void uCANN(const double xInv,const int kf0, const int kf1, const int kf2, const double W0, const double W1,const double W2, double &psi, double dpsi[9], double ddpsi[9]){
+void uCANN(const double xInv,const int kInv,const int kf0, const int kf1, const int kf2, const double W0, const double W1,const double W2, double &psi, double dpsi[9], double ddpsi[9]){
     double f0,df0,ddf0;
     uCANN_h0(xInv, kf0, f0,df0,ddf0);
     double f1,df1,ddf1;
@@ -105,11 +105,13 @@ void uCANN(const double xInv,const int kf0, const int kf1, const int kf2, const 
     uCANN_h2(f1, kf2, W1,f2,df2,ddf2);
     //updating
     psi = psi + W2*f2;
-    for (int i = 0; i < 9; i++)
-    {
-        dpsi[i] = dpsi[i] + W2*df2*df1*df0;
-        ddpsi[i] = ddpsi[i] + W2*((ddf2*df1*df1+df2*ddf1)*df0*df0+df2*df1*ddf0);
-    }
+    dpsi[kInv-1] = dpsi[kInv-1] + W2*df2*df1*df0;
+    ddpsi[kInv-1] = ddpsi[kInv-1] + W2*((ddf2*df1*df1+df2*ddf1)*df0*df0+df2*df1*ddf0);
+    // for (int i = 0; i < 9; i++)
+    // {
+    //     dpsi[i] = dpsi[i] + W2*df2*df1*df0;
+    //     ddpsi[i] = ddpsi[i] + W2*((ddf2*df1*df1+df2*ddf1)*df0*df0+df2*df1*ddf0);
+    // }
     
 }
 
@@ -140,7 +142,9 @@ void uanisohyper_inv(const double aInv[9],const std::vector<std::vector<double>>
         double xInv = aInv[kInv-1] - ref[kInv-1];
 
         //psi and 1st and 2nd derivatives
-        uCANN(xInv,kf0,kf1,kf2,W0,W1,W2,psi,dpsi,ddpsi);
+        uCANN(xInv,kInv,kf0,kf1,kf2,W0,W1,W2,psi,dpsi,ddpsi);
+        //printing each row/term
+        // std::cout<< "dpsi after term" << i << "=" << dpsi[i]<<std::endl;
     }
 
 }

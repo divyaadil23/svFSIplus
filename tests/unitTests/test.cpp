@@ -146,21 +146,21 @@ TEST(UnitTestIso_3, CANN) {
             if (j<=3){
                 int n;
                 file >> n;
-                cout << n << endl;
+                //cout << n << endl;
                 w[i].push_back(n);
             }
             else {
                 double n;
                 file >> n;
-                cout << n << endl;
+                //cout << n << endl;
                 w[i].push_back(n);
             }
             //double n;
             //file >> n;
             //cout << n << endl;
             //w[i].push_back(n);
-            cout << j << endl;
-            cout << w[i][j] << endl;
+            // cout << j << endl;
+            // cout << w[i][j] << endl;
         }
     }
 

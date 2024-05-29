@@ -1062,22 +1062,31 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       std::cout << "cann starts" << std::ends;
 
       //Invariant definitions
-      std::cout << "invar defns start" << std::ends;
       double Ft[N][N];
       mat_fun_carray::transpose<N>(F,Ft);
       double C[N][N];
       mat_fun_carray::mat_mul<N>(Ft,F,C);
       double Inv[9] = {0,0,0,0,0,0,0,0,0};
+      mat_fun_carray::print("C",C);
       Inv[0] = mat_fun_carray::mat_trace<N>(C);//Inv1
-      Inv[1] = 1/2*(Inv[0]*Inv[0] - mat_fun_carray::mat_ddot<N>(C,C));//Inv2
+      // std::cout<<"C:C"<<mat_fun_carray::mat_ddot<N>(C,C)<<std::endl;
+      // std::cout<<"I1^2:"<<Inv[0]*Inv[0]<<std::endl;
+      // std::cout<<"diff:"<<Inv[0]*Inv[0] - mat_fun_carray::mat_ddot<N>(C,C)<<std::endl;
+      Inv[1] = 0.5*(Inv[0]*Inv[0] - mat_fun_carray::mat_ddot<N>(C,C));//Inv2
+      // std::cout<<"I2:"<<Inv[1]<<std::endl;
       Inv[2] = (mat_fun_carray::mat_det<N>(C));//Inv3
       double prod1[N][N];
-      mat_fun_carray::mat_dyad_prod<N>(fl.col(0), fl.col(0), prod1);
+      auto n0 = fl.col(0);
+      //std::cout << "Type of variable: " << typeid(n0).name() << std::endl;
+      //std::cout << "Size: " << n0.size() << std::endl;
+      std::cout << "n0: " << n0[0] << n0[1] << n0[2] << std::endl;
+      //mat_fun_carray::print_vec("Fiber Dir",n0);
+      mat_fun_carray::mat_dyad_prod<N>(n0, n0, prod1);
       Inv[3] = mat_fun_carray::mat_ddot<N>(C,prod1);//Inv4
       double C2[N][N];
       mat_fun_carray::mat_mul<N>(C,C,C2);
       Inv[4] = mat_fun_carray::mat_ddot<N>(C2,prod1);//Inv5
-      std::cout << "invar defns inv5 done" << std::endl;
+      //mat_fun_carray::print_vec("Inv",Inv);
 
       //Invariant derivatives wrt F
       std::cout << "invar deriv start" << std::ends;
@@ -1129,7 +1138,6 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       {
         std::cout << nfd << std::endl;
         double prod12[N][N];
-        auto n0 = fl.col(0);
         auto n1 = fl.col(1);
         std::cout << n0[0] << std::endl;
         std::cout << n1[0] << std::endl;
@@ -1176,11 +1184,9 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
 
       //reading parameters
       auto &w = stM.w;
-      std::cout << "w" << std::endl;
-      std::cout << w[0][1] << std::endl;
-      std::cout << w[1][1] << std::endl;
-      std::cout << w[0][5] << std::endl;
-      std::cout << w[1][5] << std::endl;
+      std::cout << "mu1/2"<< w[0][6] << std::endl;
+      std::cout << "b" << w[1][5] << std::endl;
+      std::cout << "a/2b"<< w[1][6] << std::endl;
 
       //Strain energy function and derivatives
       double psi,dpsi[9],ddpsi[9];
@@ -1190,11 +1196,17 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       // Cauchy Stress
       double S[N][N];
       mat_fun_carray::mat_zero<N>(S);
+      double prod[N][N];
+      double prodF[N][N];
       for (int i = 0; i < 9; i++)
       {
-        double prod[N][N];
-        mat_fun_carray::mat_scmul(dInv[i],Inv[i]*dpsi[i],prod);
-        mat_fun_carray::mat_sum(prod,S,S);
+        std::cout<< "Inv"<<i+1<<":"<<Inv[i]<<std::endl;
+        std::cout<< "dpsi"<<i+1<<":"<<dpsi[i]<<std::endl;
+        mat_fun_carray::print("dInv",dInv[i]);
+        // mat_fun_carray::mat_scmul(dInv[i],Inv[i]*dpsi[i],prod);
+        mat_fun_carray::mat_scmul(dInv[i],dpsi[i]/Inv[2],prod);
+        mat_fun_carray::mat_mul(prod,Ft,prodF);
+        mat_fun_carray::mat_sum(prodF,S,S);
       }
 
       //Printing stresses

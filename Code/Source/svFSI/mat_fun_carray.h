@@ -54,6 +54,25 @@ void mat_zero(double A[N][N][N])
 {
   memset(A, 0, N*sizeof(A[0]));
 }
+// /// @brief Print a 1D array. 
+// // Template function to print a one-dimensional C-style array
+// template <size_t N>
+// void print_vec(const std::string& name, const double (&A)[N]) {
+//     std::cout << name << ": ";
+//     for (size_t j = 0; j < N; ++j) {
+//         std::cout << A[j] << " ";
+//     }
+//     std::cout << std::endl;
+// }
+
+// // Function to print a std::vector
+// void print_vec(const std::string& name, const std::vector<double>& vec) {
+//     std::cout << name << ": ";
+//     for (const auto& elem : vec) {
+//         std::cout << elem << " ";
+//     }
+//     std::cout << std::endl;
+// }
 
 /// @brief Print a 2D array. 
 //
