@@ -464,6 +464,7 @@ const std::string ConstitutiveModelParameters::HOLZAPFEL_MODEL = "Holzapfel";
 const std::string ConstitutiveModelParameters::LEE_SACKS = "Lee-Sacks";
 const std::string ConstitutiveModelParameters::NEOHOOKEAN_MODEL = "neoHookean";
 const std::string ConstitutiveModelParameters::STVENANT_KIRCHHOFF_MODEL = "stVenantKirchhoff";
+const std::string ConstitutiveModelParameters::CANN_MODEL = "CANN";
 
 /// @brief Supported constitutive model types and their aliases.
 const std::map<std::string, std::string> ConstitutiveModelParameters::constitutive_model_types = {
@@ -481,6 +482,9 @@ const std::map<std::string, std::string> ConstitutiveModelParameters::constituti
 
   {ConstitutiveModelParameters::STVENANT_KIRCHHOFF_MODEL, ConstitutiveModelParameters::STVENANT_KIRCHHOFF_MODEL},
   {"stVK",                                                ConstitutiveModelParameters::STVENANT_KIRCHHOFF_MODEL},
+
+  {ConstitutiveModelParameters::CANN_MODEL, ConstitutiveModelParameters::CANN_MODEL},
+  {"CANN", ConstitutiveModelParameters::CANN_MODEL},
 }; 
 
 /// @brief Define a map to set the parameters for each constitutive model.
@@ -722,6 +726,19 @@ void StVenantKirchhoffParameters::print_parameters()
 {
 }
 
+/// @brief There are no parameters associated with a CANN model.
+CANNParameters::CANNParameters()
+{
+}
+
+void CANNParameters::set_values(tinyxml2::XMLElement* con_params)
+{
+  value_set = true;
+}
+
+void CANNParameters::print_parameters()
+{
+}
 ConstitutiveModelParameters::ConstitutiveModelParameters()
 {
   // A parameter that must be defined.

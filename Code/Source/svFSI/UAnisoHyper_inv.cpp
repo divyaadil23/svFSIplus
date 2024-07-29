@@ -127,7 +127,8 @@ void uanisohyper_inv(const double aInv[9],const std::vector<std::vector<double>>
     double W0=0,W1=0,W2=0;//weight for layers
     //reference config
     double ref[9] = {3, 3, 1, 1, 1, 1, 1, 1, 1};
-    for (int i = 0; i < 4; i++) //each row of param table
+    int nRows = w.size();
+    for (int i = 0; i < nRows; i++) //each row of param table
     {
         //extract invariant, activation function and weight
         kInv = w[i][0];

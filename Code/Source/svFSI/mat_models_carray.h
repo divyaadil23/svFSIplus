@@ -113,7 +113,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
   using namespace mat_fun;
   using namespace utils;
 
-  std::cout << "get_pk2cc starts" << std::ends;
+  //std::cout << "get_pk2cc starts" << std::ends;
 
   using CArray2 = double[N][N];
   using CArray4 = double[N][N][N][N];
@@ -296,7 +296,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
     //
     case ConstitutiveModelType::stIso_nHook: {
       double g1 = 2.0 * stM.C10;
-      std::cout << "Neohooke starts" << std::ends;
+      //std::cout << "Neohooke starts" << std::ends;
       double Sb[N][N];
       for (int i = 0; i < nsd; i++) {
         for (int j = 0; j < nsd; j++) {
@@ -320,6 +320,8 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
           S[i][j] = J2d*Sb[i][j] - r1*Ci[i][j];
         }
       }
+      //Printing stresses
+      mat_fun_carray::print("2nd PK Stress - NH:",S);
 
       double Ci_S_prod[N][N][N][N];
       double S_Ci_prod[N][N][N][N];
@@ -1061,58 +1063,56 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
     case ConstitutiveModelType::stAnisoHyper_Inv: {
       std::cout << "cann starts" << std::ends;
 
-      //Invariant definitions
+      //(Barred) Invariant definitions
       double Ft[N][N];
       mat_fun_carray::transpose<N>(F,Ft);
       double C[N][N];
       mat_fun_carray::mat_mul<N>(Ft,F,C);
       double Inv[9] = {0,0,0,0,0,0,0,0,0};
       mat_fun_carray::print("C",C);
-      Inv[0] = mat_fun_carray::mat_trace<N>(C);//Inv1
-      // std::cout<<"C:C"<<mat_fun_carray::mat_ddot<N>(C,C)<<std::endl;
-      // std::cout<<"I1^2:"<<Inv[0]*Inv[0]<<std::endl;
-      // std::cout<<"diff:"<<Inv[0]*Inv[0] - mat_fun_carray::mat_ddot<N>(C,C)<<std::endl;
-      Inv[1] = 0.5*(Inv[0]*Inv[0] - mat_fun_carray::mat_ddot<N>(C,C));//Inv2
-      // std::cout<<"I2:"<<Inv[1]<<std::endl;
+      Inv[0] = J2d*mat_fun_carray::mat_trace<N>(C);//Inv1
+      // std::cout << "Inv1" << Inv[0] <<std::ends;
+      Inv[1] = 0.5*(Inv[0]*Inv[0] - J4d*mat_fun_carray::mat_ddot<N>(C,C));//Inv2
       Inv[2] = (mat_fun_carray::mat_det<N>(C));//Inv3
       double prod1[N][N];
       auto n0 = fl.col(0);
-      //std::cout << "Type of variable: " << typeid(n0).name() << std::endl;
-      //std::cout << "Size: " << n0.size() << std::endl;
-      std::cout << "n0: " << n0[0] << n0[1] << n0[2] << std::endl;
+      // std::cout << "n0: " << n0[0] << n0[1] << n0[2] << std::endl;
       //mat_fun_carray::print_vec("Fiber Dir",n0);
       mat_fun_carray::mat_dyad_prod<N>(n0, n0, prod1);
-      Inv[3] = mat_fun_carray::mat_ddot<N>(C,prod1);//Inv4
+      Inv[3] = J2d*mat_fun_carray::mat_ddot<N>(C,prod1);//Inv4
       double C2[N][N];
       mat_fun_carray::mat_mul<N>(C,C,C2);
-      Inv[4] = mat_fun_carray::mat_ddot<N>(C2,prod1);//Inv5
+      Inv[4] = J4d*mat_fun_carray::mat_ddot<N>(C2,prod1);//Inv5
       //mat_fun_carray::print_vec("Inv",Inv);
 
-      //Invariant derivatives wrt F
-      std::cout << "invar deriv start" << std::ends;
+      //Invariant derivatives wrt C
+      // std::cout << "invar deriv start" << std::ends;
       double dInv1[N][N];
-      mat_fun_carray::mat_scmul(F,2,dInv1);
+      // mat_fun_carray::print("Ci",Ci);
+      // std::cout << -Inv[0]/3 << std::ends;
+      mat_fun_carray::mat_scmul(Ci,-Inv[0]/3,dInv1);
+      // mat_fun_carray::print("first term dInv1",dInv1);
+      double term1[N][N];
+      mat_fun_carray::mat_scmul(Idm,J2d,term1);
+      mat_fun_carray::mat_sum(dInv1,term1,dInv1);
 
       double dInv2[N][N];
-      double F3[N][N];
-      mat_fun_carray::mat_mul<N>(F,C,F3);
       double term2[N][N];
-      mat_fun_carray::mat_scmul(F3,-2,term2);
-      double term1[N][N];
-      mat_fun_carray::mat_scmul(F,2*Inv1,term1);
+      double temp = mat_fun_carray::mat_trace<N>(C2);
+      mat_fun_carray::mat_scmul(Ci,temp/3,term2);
+      // mat_fun_carray::print("first term dInv2",term2);
+      mat_fun_carray::mat_scmul(dInv1,Inv[0],term1);
       mat_fun_carray::mat_sum(term1,term2,dInv2);
+      mat_fun_carray::mat_scmul(C,-J4d,term1);
+      mat_fun_carray::mat_sum(dInv2,term1,dInv2);
 
       double dInv3[N][N];
-      double Finv[N][N];
-      mat_fun_carray::mat_inv(F,Finv);
-      double FinvT[N][N];
-      mat_fun_carray::transpose(Finv,FinvT);
-      mat_fun_carray::mat_scmul(FinvT,2*Inv[2],dInv3);
+      mat_fun_carray::mat_scmul(Ci,Inv[2],dInv3);
 
       double dInv4[N][N];
-      double FN1[N][N];
-      mat_fun_carray::mat_mul<N>(F,prod1,FN1);
-      mat_fun_carray::mat_scmul(FN1,2,dInv4);
+      mat_fun_carray::mat_scmul(Ci,-Inv[3]/3,term1);
+      mat_fun_carray::mat_scmul(prod1,J2d,term2);
+      mat_fun_carray::mat_sum(term1,term2,dInv4);
 
       double dInv5[N][N];
       double NC1[N][N];
@@ -1121,9 +1121,9 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       mat_fun_carray::mat_mul<N>(C,prod1,CN1);
       double sum[N][N];
       mat_fun_carray::mat_sum(NC1,CN1,sum);
-      double half[N][N];
-      mat_fun_carray::mat_mul<N>(F,sum,half);
-      mat_fun_carray::mat_scmul(half,2,dInv5);
+      mat_fun_carray::mat_scmul(sum,J4d,term2);
+      mat_fun_carray::mat_scmul(Ci,-Inv[4]/3,term1);
+      mat_fun_carray::mat_sum(term1,term2,dInv5);
 
       double dInv6[N][N];
       mat_fun_carray::mat_zero(dInv6);
@@ -1139,44 +1139,46 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
         std::cout << nfd << std::endl;
         double prod12[N][N];
         auto n1 = fl.col(1);
-        std::cout << n0[0] << std::endl;
-        std::cout << n1[0] << std::endl;
+        // std::cout << n0[0] << std::endl;
+        // std::cout << n1[0] << std::endl;
         mat_fun_carray::mat_dyad_prod<N>(n0, n1, prod12);
-        std::cout << "prod12" << std::ends;
-        Inv[5] = mat_fun_carray::mat_ddot<N>(C,prod12);//Inv6
-        std::cout << "invar defns inv6 done" << std::ends;
-        Inv[6] = mat_fun_carray::mat_ddot<N>(C2,prod12);//Inv7
-        std::cout << "invar defns inv7 done" << std::ends;
+        // std::cout << "prod12" << std::ends;
+        Inv[5] = J2d*mat_fun_carray::mat_ddot<N>(C,prod12);//Inv6
+        // std::cout << "invar defns inv6 done" << std::ends;
+        Inv[6] = J4d*mat_fun_carray::mat_ddot<N>(C2,prod12);//Inv7
+        // std::cout << "invar defns inv7 done" << std::ends;
         double prod2[N][N];
         mat_fun_carray::mat_dyad_prod<N>(fl.col(1), fl.col(1), prod2);
-        Inv[7] = mat_fun_carray::mat_ddot<N>(C,prod2);//Inv8
-        Inv[8] = mat_fun_carray::mat_ddot<N>(C2,prod2);//Inv9
+        Inv[7] = J2d*mat_fun_carray::mat_ddot<N>(C,prod2);//Inv8
+        Inv[8] = J4d*mat_fun_carray::mat_ddot<N>(C2,prod2);//Inv9
 
-        //invariant derivatives
+        //invariant derivatives wrt C
          //dInv6
-        double FN12[N][N];
-        mat_fun_carray::mat_mul<N>(F,prod12,FN12);
-        mat_fun_carray::mat_scmul(FN12,2,dInv6);
+        mat_fun_carray::mat_scmul(Ci,-Inv[5]/3,term1);
+        mat_fun_carray::mat_scmul(prod12,J2d,term2);
+        mat_fun_carray::mat_sum(term1,term2,dInv6);
         //dInv7
         double NC12[N][N];
         mat_fun_carray::mat_mul<N>(prod12,C,NC12);
         double CN12[N][N];
         mat_fun_carray::mat_mul<N>(C,prod12,CN12);
         mat_fun_carray::mat_sum(NC12,CN12,sum);
-        mat_fun_carray::mat_mul<N>(F,sum,half);
-        mat_fun_carray::mat_scmul(half,2,dInv7);
+        mat_fun_carray::mat_scmul(sum,J4d,term2);
+        mat_fun_carray::mat_scmul(Ci,-Inv[6]/3,term1);
+        mat_fun_carray::mat_sum(term1,term2,dInv7);
         //dInv8
-        double FN2[N][N];
-        mat_fun_carray::mat_mul<N>(F,prod2,FN2);
-        mat_fun_carray::mat_scmul(FN2,2,dInv8);
+        mat_fun_carray::mat_scmul(Ci,-Inv[7]/3,term1);
+        mat_fun_carray::mat_scmul(prod2,J2d,term2);
+        mat_fun_carray::mat_sum(term1,term2,dInv8);
         //dInv9
         double NC2[N][N];
         mat_fun_carray::mat_mul<N>(prod2,C,NC2);
         double CN2[N][N];
         mat_fun_carray::mat_mul<N>(C,prod2,CN2);
         mat_fun_carray::mat_sum(NC2,CN2,sum);
-        mat_fun_carray::mat_mul<N>(F,sum,half);
-        mat_fun_carray::mat_scmul(half,2,dInv9);
+        mat_fun_carray::mat_scmul(sum,J4d,term2);
+        mat_fun_carray::mat_scmul(Ci,-Inv[8]/3,term1);
+        mat_fun_carray::mat_sum(term1,term2,dInv9);
       }
 
       //storing the invariant derivatives in array of pointers
@@ -1184,33 +1186,33 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
 
       //reading parameters
       auto &w = stM.w;
-      std::cout << "mu1/2"<< w[0][6] << std::endl;
-      std::cout << "b" << w[1][5] << std::endl;
-      std::cout << "a/2b"<< w[1][6] << std::endl;
+      // std::cout << "mu1/2"<< w[0][6] << std::endl;
+      // std::cout << "b" << w[1][5] << std::endl;
+      // std::cout << "a/2b"<< w[1][6] << std::endl;
 
       //Strain energy function and derivatives
       double psi,dpsi[9],ddpsi[9];
       UAnisoHyper_inv::uanisohyper_inv(Inv,w,psi,dpsi,ddpsi);
       // mat_fun_carray::uanisohyper_inv(Inv,w,psi,dpsi,ddpsi);
+      // std::cout << "strain energy done" << std::endl;
 
-      // Cauchy Stress
+      // 2nd PK Stress
       double S[N][N];
       mat_fun_carray::mat_zero<N>(S);
       double prod[N][N];
-      double prodF[N][N];
+      //double prodF[N][N];
+      double Fi[N][N];
       for (int i = 0; i < 9; i++)
       {
         std::cout<< "Inv"<<i+1<<":"<<Inv[i]<<std::endl;
         std::cout<< "dpsi"<<i+1<<":"<<dpsi[i]<<std::endl;
         mat_fun_carray::print("dInv",dInv[i]);
-        // mat_fun_carray::mat_scmul(dInv[i],Inv[i]*dpsi[i],prod);
-        mat_fun_carray::mat_scmul(dInv[i],dpsi[i]/Inv[2],prod);
-        mat_fun_carray::mat_mul(prod,Ft,prodF);
-        mat_fun_carray::mat_sum(prodF,S,S);
+        mat_fun_carray::mat_scmul(dInv[i],2*dpsi[i],prod);
+        mat_fun_carray::mat_sum(prod,S,S);
       }
 
       //Printing stresses
-      mat_fun_carray::print("Cauchy Stress",S);
+      mat_fun_carray::print("2nd PK Stress",S);
     } break;
     default:
       throw std::runtime_error("Undefined material constitutive model.");

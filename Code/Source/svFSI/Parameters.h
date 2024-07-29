@@ -503,6 +503,15 @@ class StVenantKirchhoffParameters : public ParameterLists
     bool value_set = false;
 };
 
+class CANNParameters : public ParameterLists
+{ 
+  public:
+    CANNParameters();
+    void set_values(tinyxml2::XMLElement* modl_params);
+    void print_parameters();
+    bool value_set = false;
+};
+
 /// @brief The ConstitutiveModelParameters class store parameters
 /// for various constitutive models.
 class ConstitutiveModelParameters : public ParameterLists
@@ -521,6 +530,7 @@ class ConstitutiveModelParameters : public ParameterLists
     static const std::string LEE_SACKS;
     static const std::string NEOHOOKEAN_MODEL;
     static const std::string STVENANT_KIRCHHOFF_MODEL;
+    static const std::string CANN_MODEL;
     static const std::map<std::string, std::string> constitutive_model_types;
 
     // Constitutive model type.

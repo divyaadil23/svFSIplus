@@ -10,7 +10,8 @@
   <Searched_file_name_to_trigger_stop> STOP_SIM </Searched_file_name_to_trigger_stop> 
 
   <Save_results_to_VTK_format> 1 </Save_results_to_VTK_format> 
-  <Name_prefix_of_saved_VTK_files> result </Name_prefix_of_saved_VTK_files> 
+  <!-- <Name_prefix_of_saved_VTK_files> result </Name_prefix_of_saved_VTK_files>  -->
+  <Name_prefix_of_saved_VTK_files> result_NH </Name_prefix_of_saved_VTK_files> 
   <Increment_in_saving_VTK_files> 1 </Increment_in_saving_VTK_files> 
   <Start_saving_after_time_step> 1 </Start_saving_after_time_step> 
 
@@ -64,7 +65,8 @@
    <Max_iterations> 3 </Max_iterations> 
    <Tolerance> 1e-9 </Tolerance> 
 
-   <Constitutive_model type="nHK"> </Constitutive_model>
+   <!-- <Constitutive_model type="nHK"> </Constitutive_model> -->
+   <Constitutive_model type="CANN"> </Constitutive_model>
    <Density> 1000.0 </Density> 
    <Elasticity_modulus> 240.56596E6 </Elasticity_modulus>
    <Poisson_ratio> 0.5 </Poisson_ratio>

@@ -57,6 +57,8 @@
 #include <vector>
 #include <fstream>
 
+using namespace std;
+
 /// @brief Fourier coefficients that are used to specify unsteady BCs
 //
 class fcType
@@ -391,7 +393,43 @@ class stModelType
     //   {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
     //   {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
     // };
-    std::vector<std::vector<double>> w;
+    std::vector<std::vector<double>> w = {
+      {1,1,1,1,1.0,1.0,40.0943265e6},
+      {3,1,2,1,1.0,1.0,1e09}
+    };
+    // ifstream file("/Users/divya/svFSIplus/Code/Source/svFSI/ParameterTable_NH.txt");
+    // if(!file.is_open()) {
+    //     cerr << "Failed to open file!" << endl;
+    //     // return 1;
+    // }
+
+    // //Read numbers using the extraction (>>) operator
+    // for (int i = 0; i < 4; i++) {
+    //     w.push_back({});
+    //     for (int j = 0; j < 7; j++) {
+    //         if (j<=3){
+    //             int n;
+    //             file >> n;
+    //             //cout << n << endl;
+    //             w[i].push_back(n);
+    //         }
+    //         else {
+    //             double n;
+    //             file >> n;
+    //             //cout << n << endl;
+    //             w[i].push_back(n);
+    //         }
+    //         //double n;
+    //         //file >> n;
+    //         //cout << n << endl;
+    //         //w[i].push_back(n);
+    //         // cout << j << endl;
+    //         // cout << w[i][j] << endl;
+    //     }
+    // }
+
+    // // Close the file stream
+    // file.close();
     /*
     void weights(double w[][16]){
       w[2][16] = {

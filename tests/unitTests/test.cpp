@@ -38,7 +38,7 @@ TEST(UnitTestIso_1, nHK) {
     // Step 1: define parameters
     auto matType = consts::ConstitutiveModelType::stIso_nHook;   // Material_model: options refer to consts.h 
     auto volType = consts::ConstitutiveModelType::stVol_ST91;   // Dilational_penalty_model
-    double E = 1e6;   // Elasticity_modulus
+    double E = 240.56596e6;   // Elasticity_modulus
     double nu = 0.5;   // Poisson_ratio
     double pen = 4e9;   // Penalty_parameter
     double C01;   // additional parameter to C10 (optional)
@@ -133,39 +133,40 @@ TEST(UnitTestIso_3, CANN) {
         //Close the file stream
 	    //   std::fclose(myfile);
         file.close();*/
-    ifstream file("/Users/divya/svFSIplus/Code/Source/svFSI/ParameterTable.txt");
-    if(!file.is_open()) {
-        cerr << "Failed to open file!" << endl;
-        // return 1;
-    }
 
-    //Read numbers using the extraction (>>) operator
-    for (int i = 0; i < 4; i++) {
-        w.push_back({});
-        for (int j = 0; j < 7; j++) {
-            if (j<=3){
-                int n;
-                file >> n;
-                //cout << n << endl;
-                w[i].push_back(n);
-            }
-            else {
-                double n;
-                file >> n;
-                //cout << n << endl;
-                w[i].push_back(n);
-            }
-            //double n;
-            //file >> n;
-            //cout << n << endl;
-            //w[i].push_back(n);
-            // cout << j << endl;
-            // cout << w[i][j] << endl;
-        }
-    }
+    // ifstream file("/Users/divya/svFSIplus/Code/Source/svFSI/ParameterTable.txt");
+    // if(!file.is_open()) {
+    //     cerr << "Failed to open file!" << endl;
+    //     // return 1;
+    // }
 
-    // Close the file stream
-    file.close();
+    // //Read numbers using the extraction (>>) operator
+    // for (int i = 0; i < 4; i++) {
+    //     w.push_back({});
+    //     for (int j = 0; j < 7; j++) {
+    //         if (j<=3){
+    //             int n;
+    //             file >> n;
+    //             //cout << n << endl;
+    //             w[i].push_back(n);
+    //         }
+    //         else {
+    //             double n;
+    //             file >> n;
+    //             //cout << n << endl;
+    //             w[i].push_back(n);
+    //         }
+    //         //double n;
+    //         //file >> n;
+    //         //cout << n << endl;
+    //         //w[i].push_back(n);
+    //         // cout << j << endl;
+    //         // cout << w[i][j] << endl;
+    //     }
+    // }
+
+    // // Close the file stream
+    // file.close();
       
 
 
