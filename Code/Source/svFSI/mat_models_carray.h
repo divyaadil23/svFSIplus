@@ -1058,6 +1058,244 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
 
     } break;
 
+    //  HO (Holzapfel-Ogden) model for myocardium with full invariants for the anisotropy terms (modified-anisotropy)
+    case ConstitutiveModelType::stIso_HO_ma: {
+      if (nfd != 2) {
+        //err = "Min fiber directions not defined for Holzapfel material model (2)"
+      }
+
+    // Compute fiber-based full invariants (not isochoric)
+      double C_fl[N];
+      mat_fun_carray::mat_mul(C, fl.rcol(0), C_fl);
+      double Inv4 = mat_fun_carray::norm<N>(fl.rcol(0), C_fl);
+
+      mat_fun_carray::mat_mul(C, fl.rcol(1), C_fl);
+      double Inv6 = mat_fun_carray::norm<N>(fl.rcol(1), C_fl);
+
+      mat_fun_carray::mat_mul(C, fl.rcol(0), C_fl);
+      double Inv8 = mat_fun_carray::norm<N>(fl.rcol(1), C_fl);
+
+      double Eff = Inv4 - 1.0;
+      double Ess = Inv6 - 1.0;
+      double Efs = Inv8;
+
+      // Smoothed Heaviside function
+      c4f  = 1.0 / (1.0 + exp(-stM.khs*Eff));
+      c4s  = 1.0 / (1.0 + exp(-stM.khs*Ess));
+      
+      // Approx. derivative of smoothed heaviside function
+      dc4f = 0.25*stM.khs*exp(-stM.khs*abs(Eff));
+      dc4s = 0.25*stM.khs*exp(-stM.khs*abs(Ess));
+
+      // Isochoric stress and stiffness
+      double g1 = stM.a * exp(stM.b*(Inv1-3.0));
+      double Sb[N][N];
+      for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+          Sb[i][j] = g1*Idm[i][j];
+        }
+      }
+      double r1 = J2d/nd*mat_fun_carray::mat_ddot(C,Sb);
+      g1 = g1*2.0*J4d*stM.b;
+         
+         CCb  = g1 * TEN_DYADPROD(IDm, IDm, nsd)
+      
+      double g2 = 2.0 * stM.afs * Efs * exp(stM.bfs*Efs*Efs);
+
+      double Hfs[N][N];
+      mat_fun_carray::mat_symm_prod<N>(fl.rcol(0), fl.rcol(1), Hfs);
+      //auto Hfs = mat_symm_prod(fl.col(0), fl.col(1), nsd);
+
+
+      Efs = Efs * Efs;
+      g1 = 2.0*J4d*stM.b*g1;
+      g2 = 4.0*J4d*stM.afs*(1.0 + 2.0*stM.bfs*Efs)* exp(stM.bfs*Efs);
+
+      CArray4 Idm_prod;
+      mat_fun_carray::ten_dyad_prod<N>(Idm, Idm, Idm_prod);
+
+      CArray4 Hfs_prod;
+      mat_fun_carray::ten_dyad_prod<N>(Hfs, Hfs, Hfs_prod);
+
+      CArray4 CCb;
+
+      for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+          for (int k = 0; k < N; k++) {
+            for (int l = 0; l < N; l++) {
+              CCb[i][j][k][l] = g1 * Idm_prod[i][j][k][l]  +  g2 * Hfs_prod[i][j][k][l];
+            }
+          }
+        }
+      }
+      //auto CCb  = g1 * ten_dyad_prod(Idm, Idm, nsd) + g2 * ten_dyad_prod(Hfs, Hfs, nsd);
+
+      //  Fiber reinforcement/active stress
+      if (Eff > 0.0) {
+        g1 = Tfa;
+        g1 = g1 + 2.0 * stM.aff * Eff * exp(stM.bff*Eff*Eff);
+
+        double Hff[N][N];
+        mat_fun_carray::mat_dyad_prod<N>(fl.col(0), fl.col(0), Hff);
+        //auto Hff = mat_dyad_prod(fl.col(0), fl.col(0), nsd);
+
+        for (int i = 0; i < N; i++) {
+          for (int j = 0; j < N; j++) {
+            Sb[i][j] += g1 * Hff[i][j]; 
+          }
+        }
+        //Sb  = Sb + g1*Hff;
+
+        Eff = Eff * Eff;
+        g1  = 4.0*J4d*stM.aff*(1.0 + 2.0*stM.bff*Eff)*exp(stM.bff*Eff);
+
+        CArray4 Hff_prod;
+        mat_fun_carray::ten_dyad_prod<N>(Hff, Hff, Hff_prod);
+
+        for (int i = 0; i < N; i++) {
+          for (int j = 0; j < N; j++) {
+            for (int k = 0; k < N; k++) {
+              for (int l = 0; l < N; l++) {
+                CCb[i][j][k][l] += g1 * Hff_prod[i][j][k][l];
+              }
+            }
+          }
+        }
+        //CCb = CCb + g1*ten_dyad_prod(Hff, Hff, nsd);
+      }
+
+      if (Ess > 0.0) {
+        g2 = 2.0 * stM.ass * Ess * exp(stM.bss*Ess*Ess);
+
+        double Hss[N][N];
+        mat_fun_carray::mat_dyad_prod<N>(fl.col(1), fl.col(1), Hss);
+        //auto Hss = mat_dyad_prod(fl.col(1), fl.col(1), nsd);
+
+        for (int i = 0; i < N; i++) {
+          for (int j = 0; j < N; j++) {
+            Sb[i][j] += g2 * Hss[i][j];
+          }
+        }
+        //Sb  = Sb + g2*Hss;
+
+        Ess = Ess * Ess;
+        g2 = 4.0 * J4d * stM.ass  *  (1.0 + 2.0*stM.bss*Ess)  *  exp(stM.bss * Ess);
+
+        CArray4 Hss_prod;
+        mat_fun_carray::ten_dyad_prod<N>(Hss, Hss, Hss_prod);
+
+        for (int i = 0; i < N; i++) {
+          for (int j = 0; j < N; j++) {
+            for (int k = 0; k < N; k++) {
+              for (int l = 0; l < N; l++) {
+                CCb[i][j][k][l] += g2 * Hss_prod[i][j][k][l];
+              }
+            }
+          }
+        }
+        //CCb = CCb + g2*ten_dyad_prod(Hss, Hss, nsd);
+
+      }
+
+      double r1 = J2d * mat_fun_carray::mat_ddot<N>(C, Sb) / nd;
+      //double r1 = J2d*mat_ddot(C, Sb, nsd) / nd;
+
+      for (int i = 0; i < nsd; i++) {
+        for (int j = 0; j < nsd; j++) {
+          S[i][j] = J2d*Sb[i][j] - r1*Ci[i][j];
+        }
+      }
+      //S  = J2d*Sb - r1*Ci;
+
+      CArray4 Ci_C_prod;
+      mat_fun_carray::ten_dyad_prod<N>(Ci, C, Ci_C_prod);
+      double PP[N][N][N][N];
+
+      for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+          for (int k = 0; k < N; k++) {
+            for (int l = 0; l < N; l++) {
+              PP[i][j][k][l] = Ids[i][j][k][l] - (1.0/nd) * Ci_C_prod[i][j][k][l];
+            }
+          }
+        }
+      }
+      //auto PP = ten_ids(nsd) - (1.0/nd) * ten_dyad_prod(Ci, C, nsd);
+
+      mat_fun_carray::ten_ddot<N>(CCb, PP, CC);
+      //CC = ten_ddot(CCb, PP, nsd);
+
+      CArray4 CC_t;
+      mat_fun_carray::ten_transpose<N>(CC, CC_t);
+      //CC  = ten_transpose(CC, nsd);
+
+      mat_fun_carray::ten_ddot<N>(PP, CC_t, CC);
+      //CC  = ten_ddot(PP, CC, nsd);
+
+      CArray4 Ci_S_prod;
+      mat_fun_carray::ten_dyad_prod<N>(Ci, S, Ci_S_prod);
+
+      CArray4 S_Ci_prod;
+      mat_fun_carray::ten_dyad_prod<N>(S, Ci, S_Ci_prod);
+
+      for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+          for (int k = 0; k < N; k++) {
+            for (int l = 0; l < N; l++) {
+              CC[i][j][k][l] -= (2.0/nd) * (Ci_S_prod[i][j][k][l] + S_Ci_prod[i][j][k][l]);
+            }
+          }
+        }
+      }
+      // CC  = CC - (2.0/nd) * ( ten_dyad_prod(Ci, S, nsd) + ten_dyad_prod(S, Ci, nsd) );
+
+      for (int i = 0; i < nsd; i++) {
+        for (int j = 0; j < nsd; j++) {
+          S[i][j] += p * J * Ci[i][j];
+        }
+      }
+      //S = S + p*J*Ci;
+
+      CArray4 Ci_sym_prod;
+      mat_fun_carray::ten_symm_prod<N>(Ci, Ci, Ci_sym_prod);
+
+      CArray4 Ci_Ci_prod;
+      mat_fun_carray::ten_dyad_prod<N>(Ci, Ci, Ci_Ci_prod);
+
+      for (int i = 0; i < nsd; i++) {
+        for (int j = 0; j < nsd; j++) {
+          for (int k = 0; k < nsd; k++) {
+            for (int l = 0; l < nsd; l++) {
+              CC[i][j][k][l] += 2.0*(r1 - p*J) * Ci_sym_prod[i][j][k][l]  + (pl*J - 2.0*r1/nd) * Ci_Ci_prod[i][j][k][l];
+            }
+          }
+        }
+      }
+      //CC  = CC + 2.0*(r1 - p*J) * ten_symm_prod(Ci, Ci, nsd) + (pl*J - 2.0*r1/nd) * ten_dyad_prod(Ci, Ci, nsd);
+
+      if (cep_mod.cem.aStrain) {
+        double S_prod[N][N];
+        mat_fun_carray::mat_mul<N>(Fai, S, S_prod);
+        //S = mat_mul(Fai, S);
+
+        double Fai_t[N][N];
+        mat_fun_carray::transpose<N>(Fai, Fai_t);
+        mat_fun_carray::mat_mul<N>(S_prod, Fai_t, S);
+        //S = mat_mul(S, transpose(Fai));
+
+        mat_fun_carray::ten_dyad_prod<N>(Fai, Fai, CCb);
+        //CCb = ten_dyad_prod(Fai, Fai, nsd);
+
+        CArray4 CC_dot;
+        mat_fun_carray::ten_ddot_3424<N>(CC, CCb, CC_dot);
+        //CC = ten_ddot_3424(CC, CCb, nsd);
+
+        mat_fun_carray::ten_ddot_2412<N>(CCb, CC_dot, CC);
+        //CC = ten_ddot_2412(CCb, CC, nsd);
+      }
+
+    } break;
+
     // Universal Material Subroutine - stAnisoHyper_Inv
     
     case ConstitutiveModelType::stAnisoHyper_Inv: {
@@ -1185,7 +1423,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       double (*dInv[9])[N] = {dInv1, dInv2, dInv3, dInv4, dInv5, dInv6, dInv7, dInv8, dInv9};
 
       //reading parameters
-      auto &w = stM.w;
+      auto &w = *(stM.w);
       // std::cout << "mu1/2"<< w[0][6] << std::endl;
       // std::cout << "b" << w[1][5] << std::endl;
       // std::cout << "a/2b"<< w[1][6] << std::endl;

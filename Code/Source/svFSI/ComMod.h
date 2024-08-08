@@ -385,6 +385,12 @@ class stModelType
     fibStrsType Tf;
 
     //AnisoHyper (Universal) - READ ALL WEIGHTS FROM FILE. Define w as an array
+    std::vector<std::vector<double>>* w; //pointer to vector of vectors
+    // Constructor
+    stModelType(std::vector<std::vector<double>>& vec) : w(&vec) {}
+    ///@brief Function to read the parameter table and populate the vector
+    void readParameterTable(std::vector<std::vector<double>>& w);
+
     /*double w[2][16] = {
       {0,2.86,0,0,0,0,0,0,0,0,0,0,0,0,1.09,0},
       {0,4.77,0,0,0,0,0,0,0,0,0,0,0,0,1.00,0}
@@ -393,10 +399,11 @@ class stModelType
     //   {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
     //   {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
     // };
-    std::vector<std::vector<double>> w = {
-      {1,1,1,1,1.0,1.0,40.0943265e6},
-      {3,1,2,1,1.0,1.0,1e09}
-    };
+    // std::vector<std::vector<double>> w = {
+    //   {1,1,1,1,1.0,1.0,40.0943265e6},
+    //   {3,1,2,1,1.0,1.0,1e09}
+    // };
+    // std::vector<std::vector<double>> w;
     // ifstream file("/Users/divya/svFSIplus/Code/Source/svFSI/ParameterTable_NH.txt");
     // if(!file.is_open()) {
     //     cerr << "Failed to open file!" << endl;
@@ -404,7 +411,7 @@ class stModelType
     // }
 
     // //Read numbers using the extraction (>>) operator
-    // for (int i = 0; i < 4; i++) {
+    // for (int i = 0; i < 2; i++) {
     //     w.push_back({});
     //     for (int j = 0; j < 7; j++) {
     //         if (j<=3){
