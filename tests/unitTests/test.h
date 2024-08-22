@@ -129,6 +129,32 @@ public:
     }
 };
 
+// Class to contain CANN material parameters
+class CANNParams : public MatParams {
+public:
+    std::vector<std::vector<double>> w;  //Parameter Table
+
+    // Default constructor
+    CANNParams() :  {
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 7; j++)
+            {
+                w[i][j] = 0;
+            }
+        }
+    }
+
+    // Constructor with parameters
+    HolzapfelOgdenParams(std::vector<std::vector<double>> w) : {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 7; j++)
+            {
+                this->w[i][j] = w[i][j];
+            }
+        }
+    }
+};
+
 // Class to contain volumetric penalty parameters (just the penalty parameter)
 class VolumetricPenaltyParams : public MatParams {
 public:
@@ -1292,6 +1318,74 @@ public:
     }
 };
 
+/**
+ * @brief Class for testing the CANN material model.
+ *
+ * This class provides methods to set up and test the CANN model, including 
+ * computing the strain energy and printing material parameters.
+ */
+class TestCANN : public TestMaterialModel {
+public:
+
+    /**
+     * @brief Parameters for the Neo-Hookean material model.
+     */
+    CANNParams params;
+
+    /**
+     * @brief Constructor for the TestCANN class.
+     *
+     * Initializes the CANN material parameters for svFSIplus.
+     *
+     * @param[in] params_ Parameters for the CANN material model.
+     */
+    TestCANN(const CANNParams &params_) : TestMaterialModel( consts::ConstitutiveModelType::stAnisoHyper_Inv, consts::ConstitutiveModelType::stVol_ST91),
+        params(params_) 
+        {
+        // Set CANN material parameters for svFSIplus
+        auto &dmn = com_mod.mockEq.mockDmn;
+        std::vector<std::vector<double>> w;
+        for (int i = 0; i < 2; i++)
+        {
+            for (int j = 0; j < 7; j++)
+            {
+                w[i][j] = params.w[i][j];
+            }
+            
+        }
+    }
+
+    /**
+     * @brief Prints the CANN material parameters.
+     */
+    void printMaterialParameters() {
+        for (int i = 0; i < 2; i++)
+        {
+            for (int j = 0; j < 7; j++)
+            {
+                std::cout << "w[" << i << "][" << j << "]:" << params.w[i][j] << std::endl;
+            }
+            
+        }
+    }
+
+    /**
+     * @brief Computes the strain energy for the CANN material model.
+     *
+     * @param[in] F Deformation gradient.
+     * @return Strain energy density for the CANN material model.
+     */
+    double computeStrainEnergy(const double F[3][3]) {
+        // Compute solid mechanics terms
+        solidMechanicsTerms smTerms = calcSolidMechanicsTerms(F);
+
+        // Strain energy density for Neo-Hookean material model
+        // Psi_iso = C10 * (Ib1 - 3)
+        double Psi_iso = params.C10 * (smTerms.Ib1 - 3.);
+
+        return Psi_iso;
+    }
+};
 
 /**
  * @brief Class for testing the quadratic volumetric penalty model.
