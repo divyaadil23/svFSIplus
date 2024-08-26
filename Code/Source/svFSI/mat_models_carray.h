@@ -1526,6 +1526,43 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
 
       //Printing stresses
       mat_fun_carray::print("2nd PK Stress",S);
+
+      // Stiffness Tensor
+      CArray4 dCidC[N][N][N][N];
+      for (int i = 0; i < N; i++){
+        for (int j = 0; j < N; j++){
+          for (int k = 0; k < N; k++){
+            for (int l = 0; l < N; l++){
+              dCidC[i][j][k][l] = -0.5*(Ci[i][k]*Ci[j][l] + Ci[i][l]*Ci[j][k]);
+            }
+          }
+        }
+      }
+      // Inv1 contribution
+      CArray4 CC_I1[N][N][N][N];
+      for (int i = 0; i < N; i++){
+        for (int j = 0; j < N; j++){
+          for (int k = 0; k < N; k++){
+            for (int l = 0; l < N; l++){
+              CC_I1[i][j][k][l] = -1/3*(dInv1[i][j]*Ci[k][l] + Inv[0]*dCidC[k][l][i][j] + J2d*Ci[i][j]*Idm[k][l]);
+              CC[i][j][k][l] = ddpsi[0]*CC_I1[i][j][k][l]; //CC = dpsi/dI1*CC_I1 initializing
+            }
+          }
+        }
+      }
+      // Inv2 to 9 contributions
+      CArray4 CC_Inv[N][N][N][N];
+      for (int i = 0; i < N; i++){
+        for (int j = 0; j < N; j++){
+          for (int k = 0; k < N; k++){
+            for (int l = 0; l < N; l++){
+              //Inv 2
+              CC_Inv[i][j][k][l] = dInv1[i][j]*dInv1[k][l] + Inv[0]*CC_I1[i][j][k][l] + 1/3*mat_fun_carray::mat_trace(C2)*dCidC[i][j][k][l] + 
+              CC[i][j][k][l] = ddpsi[0]*CC_I1[i][j][k][l]; //CC = dpsi/dI1*CC_I1 initializing
+            }
+          }
+        }
+      }
     } break;
     default:
       throw std::runtime_error("Undefined material constitutive model.");
