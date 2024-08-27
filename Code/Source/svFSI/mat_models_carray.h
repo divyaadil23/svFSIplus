@@ -1552,12 +1552,13 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       }
       // Inv2 to 9 contributions
       CArray4 CC_Inv[N][N][N][N];
+      CArray2 dJ4ddC[N][N];
       for (int i = 0; i < N; i++){
         for (int j = 0; j < N; j++){
           for (int k = 0; k < N; k++){
             for (int l = 0; l < N; l++){
               //Inv 2
-              CC_Inv[i][j][k][l] = dInv1[i][j]*dInv1[k][l] + Inv[0]*CC_I1[i][j][k][l] + 1/3*mat_fun_carray::mat_trace(C2)*dCidC[i][j][k][l] + 
+              CC_Inv[i][j][k][l] = dInv1[i][j]*dInv1[k][l] + Inv[0]*CC_I1[i][j][k][l] + 1/3*J4d*mat_fun_carray::mat_trace(C2)*dCidC[i][j][k][l] + (Ci[k][l]*mat_fun_carray::mat_trace(C2)/3 + 1)*
               CC[i][j][k][l] = ddpsi[0]*CC_I1[i][j][k][l]; //CC = dpsi/dI1*CC_I1 initializing
             }
           }
