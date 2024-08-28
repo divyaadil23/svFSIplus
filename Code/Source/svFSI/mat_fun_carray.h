@@ -226,6 +226,7 @@ void mat_scmul(const double A[N][N], const double a, double result[N][N])
     result[i][j] = a*A[i][j];
   }
 }
+
 }
 template <size_t N>
 void mat_mul6x3(const double A[2*N][2*N], const Array<double>& B, Array<double>& C)

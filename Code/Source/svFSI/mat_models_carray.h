@@ -1133,278 +1133,269 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
 
     } break;
 
-    //  HO (Holzapfel-Ogden) model for myocardium with full invariants for the anisotropy terms (modified-anisotropy)
-    case ConstitutiveModelType::stIso_HO_ma: {
-      if (nfd != 2) {
-        //err = "Min fiber directions not defined for Holzapfel material model (2)"
-      }
+    // //  HO (Holzapfel-Ogden) model for myocardium with full invariants for the anisotropy terms (modified-anisotropy)
+    // case ConstitutiveModelType::stIso_HO_ma: {
+    //   if (nfd != 2) {
+    //     //err = "Min fiber directions not defined for Holzapfel material model (2)"
+    //   }
 
-    // Compute fiber-based full invariants (not isochoric)
-      double C_fl[N];
-      mat_fun_carray::mat_mul(C, fl.rcol(0), C_fl);
-      double Inv4 = mat_fun_carray::norm<N>(fl.rcol(0), C_fl);
+    // // Compute fiber-based full invariants (not isochoric)
+    //   double C_fl[N];
+    //   mat_fun_carray::mat_mul(C, fl.rcol(0), C_fl);
+    //   double Inv4 = mat_fun_carray::norm<N>(fl.rcol(0), C_fl);
 
-      mat_fun_carray::mat_mul(C, fl.rcol(1), C_fl);
-      double Inv6 = mat_fun_carray::norm<N>(fl.rcol(1), C_fl);
+    //   mat_fun_carray::mat_mul(C, fl.rcol(1), C_fl);
+    //   double Inv6 = mat_fun_carray::norm<N>(fl.rcol(1), C_fl);
 
-      mat_fun_carray::mat_mul(C, fl.rcol(0), C_fl);
-      double Inv8 = mat_fun_carray::norm<N>(fl.rcol(1), C_fl);
+    //   mat_fun_carray::mat_mul(C, fl.rcol(0), C_fl);
+    //   double Inv8 = mat_fun_carray::norm<N>(fl.rcol(1), C_fl);
 
-      double Eff = Inv4 - 1.0;
-      double Ess = Inv6 - 1.0;
-      double Efs = Inv8;
+    //   double Eff = Inv4 - 1.0;
+    //   double Ess = Inv6 - 1.0;
+    //   double Efs = Inv8;
 
-      // Smoothed Heaviside function
-      c4f  = 1.0 / (1.0 + exp(-stM.khs*Eff));
-      c4s  = 1.0 / (1.0 + exp(-stM.khs*Ess));
+    //   // Smoothed Heaviside function
+    //   double c4f  = 1.0 / (1.0 + exp(-stM.khs*Eff));
+    //   double c4s  = 1.0 / (1.0 + exp(-stM.khs*Ess));
       
-      // Approx. derivative of smoothed heaviside function
-      dc4f = 0.25*stM.khs*exp(-stM.khs*abs(Eff));
-      dc4s = 0.25*stM.khs*exp(-stM.khs*abs(Ess));
+    //   // Approx. derivative of smoothed heaviside function
+    //   double dc4f = 0.25*stM.khs*exp(-stM.khs*abs(Eff));
+    //   double dc4s = 0.25*stM.khs*exp(-stM.khs*abs(Ess));
 
-      // Isochoric stress and stiffness
-      double g1 = stM.a * exp(stM.b*(Inv1-3.0));
-      double Sb[N][N];
-      for (int i = 0; i < N; i++) {
-        for (int j = 0; j < N; j++) {
-          Sb[i][j] = g1*Idm[i][j];
-        }
-      }
-      double r1 = J2d/nd*mat_fun_carray::mat_ddot(C,Sb);
-      g1 = g1*2.0*J4d*stM.b;
+    //   // Isochoric stress and stiffness
+    //   double g1 = stM.a * exp(stM.b*(Inv1-3.0));
+    //   double Sb[N][N];
+    //   for (int i = 0; i < N; i++) {
+    //     for (int j = 0; j < N; j++) {
+    //       Sb[i][j] = g1*Idm[i][j];
+    //     }
+    //   }
+    //   double r1 = J2d/nd*mat_fun_carray::mat_ddot(C,Sb);
+    //   g1 = g1*2.0*J4d*stM.b;
          
-         CCb  = g1 * TEN_DYADPROD(IDm, IDm, nsd)
+    //      CCb  = g1 * TEN_DYADPROD(IDm, IDm, nsd)
       
-      double g2 = 2.0 * stM.afs * Efs * exp(stM.bfs*Efs*Efs);
+    //   double g2 = 2.0 * stM.afs * Efs * exp(stM.bfs*Efs*Efs);
 
-      double Hfs[N][N];
-      mat_fun_carray::mat_symm_prod<N>(fl.rcol(0), fl.rcol(1), Hfs);
-      //auto Hfs = mat_symm_prod(fl.col(0), fl.col(1), nsd);
+    //   double Hfs[N][N];
+    //   mat_fun_carray::mat_symm_prod<N>(fl.rcol(0), fl.rcol(1), Hfs);
+    //   //auto Hfs = mat_symm_prod(fl.col(0), fl.col(1), nsd);
 
 
-      Efs = Efs * Efs;
-      g1 = 2.0*J4d*stM.b*g1;
-      g2 = 4.0*J4d*stM.afs*(1.0 + 2.0*stM.bfs*Efs)* exp(stM.bfs*Efs);
+    //   Efs = Efs * Efs;
+    //   g1 = 2.0*J4d*stM.b*g1;
+    //   g2 = 4.0*J4d*stM.afs*(1.0 + 2.0*stM.bfs*Efs)* exp(stM.bfs*Efs);
 
-      CArray4 Idm_prod;
-      mat_fun_carray::ten_dyad_prod<N>(Idm, Idm, Idm_prod);
+    //   CArray4 Idm_prod;
+    //   mat_fun_carray::ten_dyad_prod<N>(Idm, Idm, Idm_prod);
 
-      CArray4 Hfs_prod;
-      mat_fun_carray::ten_dyad_prod<N>(Hfs, Hfs, Hfs_prod);
+    //   CArray4 Hfs_prod;
+    //   mat_fun_carray::ten_dyad_prod<N>(Hfs, Hfs, Hfs_prod);
 
-      CArray4 CCb;
+    //   CArray4 CCb;
 
-      for (int i = 0; i < N; i++) {
-        for (int j = 0; j < N; j++) {
-          for (int k = 0; k < N; k++) {
-            for (int l = 0; l < N; l++) {
-              CCb[i][j][k][l] = g1 * Idm_prod[i][j][k][l]  +  g2 * Hfs_prod[i][j][k][l];
-            }
-          }
-        }
-      }
-      //auto CCb  = g1 * ten_dyad_prod(Idm, Idm, nsd) + g2 * ten_dyad_prod(Hfs, Hfs, nsd);
+    //   for (int i = 0; i < N; i++) {
+    //     for (int j = 0; j < N; j++) {
+    //       for (int k = 0; k < N; k++) {
+    //         for (int l = 0; l < N; l++) {
+    //           CCb[i][j][k][l] = g1 * Idm_prod[i][j][k][l]  +  g2 * Hfs_prod[i][j][k][l];
+    //         }
+    //       }
+    //     }
+    //   }
+    //   //auto CCb  = g1 * ten_dyad_prod(Idm, Idm, nsd) + g2 * ten_dyad_prod(Hfs, Hfs, nsd);
 
-      //  Fiber reinforcement/active stress
-      if (Eff > 0.0) {
-        g1 = Tfa;
-        g1 = g1 + 2.0 * stM.aff * Eff * exp(stM.bff*Eff*Eff);
+    //   //  Fiber reinforcement/active stress
+    //   if (Eff > 0.0) {
+    //     g1 = Tfa;
+    //     g1 = g1 + 2.0 * stM.aff * Eff * exp(stM.bff*Eff*Eff);
 
-        double Hff[N][N];
-        mat_fun_carray::mat_dyad_prod<N>(fl.col(0), fl.col(0), Hff);
-        //auto Hff = mat_dyad_prod(fl.col(0), fl.col(0), nsd);
+    //     double Hff[N][N];
+    //     mat_fun_carray::mat_dyad_prod<N>(fl.col(0), fl.col(0), Hff);
+    //     //auto Hff = mat_dyad_prod(fl.col(0), fl.col(0), nsd);
 
-        for (int i = 0; i < N; i++) {
-          for (int j = 0; j < N; j++) {
-            Sb[i][j] += g1 * Hff[i][j]; 
-          }
-        }
-        //Sb  = Sb + g1*Hff;
+    //     for (int i = 0; i < N; i++) {
+    //       for (int j = 0; j < N; j++) {
+    //         Sb[i][j] += g1 * Hff[i][j]; 
+    //       }
+    //     }
+    //     //Sb  = Sb + g1*Hff;
 
-        Eff = Eff * Eff;
-        g1  = 4.0*J4d*stM.aff*(1.0 + 2.0*stM.bff*Eff)*exp(stM.bff*Eff);
+    //     Eff = Eff * Eff;
+    //     g1  = 4.0*J4d*stM.aff*(1.0 + 2.0*stM.bff*Eff)*exp(stM.bff*Eff);
 
-        CArray4 Hff_prod;
-        mat_fun_carray::ten_dyad_prod<N>(Hff, Hff, Hff_prod);
+    //     CArray4 Hff_prod;
+    //     mat_fun_carray::ten_dyad_prod<N>(Hff, Hff, Hff_prod);
 
-        for (int i = 0; i < N; i++) {
-          for (int j = 0; j < N; j++) {
-            for (int k = 0; k < N; k++) {
-              for (int l = 0; l < N; l++) {
-                CCb[i][j][k][l] += g1 * Hff_prod[i][j][k][l];
-              }
-            }
-          }
-        }
-        //CCb = CCb + g1*ten_dyad_prod(Hff, Hff, nsd);
-      }
+    //     for (int i = 0; i < N; i++) {
+    //       for (int j = 0; j < N; j++) {
+    //         for (int k = 0; k < N; k++) {
+    //           for (int l = 0; l < N; l++) {
+    //             CCb[i][j][k][l] += g1 * Hff_prod[i][j][k][l];
+    //           }
+    //         }
+    //       }
+    //     }
+    //     //CCb = CCb + g1*ten_dyad_prod(Hff, Hff, nsd);
+    //   }
 
-      if (Ess > 0.0) {
-        g2 = 2.0 * stM.ass * Ess * exp(stM.bss*Ess*Ess);
+    //   if (Ess > 0.0) {
+    //     g2 = 2.0 * stM.ass * Ess * exp(stM.bss*Ess*Ess);
 
-        double Hss[N][N];
-        mat_fun_carray::mat_dyad_prod<N>(fl.col(1), fl.col(1), Hss);
-        //auto Hss = mat_dyad_prod(fl.col(1), fl.col(1), nsd);
+    //     double Hss[N][N];
+    //     mat_fun_carray::mat_dyad_prod<N>(fl.col(1), fl.col(1), Hss);
+    //     //auto Hss = mat_dyad_prod(fl.col(1), fl.col(1), nsd);
 
-        for (int i = 0; i < N; i++) {
-          for (int j = 0; j < N; j++) {
-            Sb[i][j] += g2 * Hss[i][j];
-          }
-        }
-        //Sb  = Sb + g2*Hss;
+    //     for (int i = 0; i < N; i++) {
+    //       for (int j = 0; j < N; j++) {
+    //         Sb[i][j] += g2 * Hss[i][j];
+    //       }
+    //     }
+    //     //Sb  = Sb + g2*Hss;
 
-        Ess = Ess * Ess;
-        g2 = 4.0 * J4d * stM.ass  *  (1.0 + 2.0*stM.bss*Ess)  *  exp(stM.bss * Ess);
+    //     Ess = Ess * Ess;
+    //     g2 = 4.0 * J4d * stM.ass  *  (1.0 + 2.0*stM.bss*Ess)  *  exp(stM.bss * Ess);
 
-        CArray4 Hss_prod;
-        mat_fun_carray::ten_dyad_prod<N>(Hss, Hss, Hss_prod);
+    //     CArray4 Hss_prod;
+    //     mat_fun_carray::ten_dyad_prod<N>(Hss, Hss, Hss_prod);
 
-        for (int i = 0; i < N; i++) {
-          for (int j = 0; j < N; j++) {
-            for (int k = 0; k < N; k++) {
-              for (int l = 0; l < N; l++) {
-                CCb[i][j][k][l] += g2 * Hss_prod[i][j][k][l];
-              }
-            }
-          }
-        }
-        //CCb = CCb + g2*ten_dyad_prod(Hss, Hss, nsd);
+    //     for (int i = 0; i < N; i++) {
+    //       for (int j = 0; j < N; j++) {
+    //         for (int k = 0; k < N; k++) {
+    //           for (int l = 0; l < N; l++) {
+    //             CCb[i][j][k][l] += g2 * Hss_prod[i][j][k][l];
+    //           }
+    //         }
+    //       }
+    //     }
+    //     //CCb = CCb + g2*ten_dyad_prod(Hss, Hss, nsd);
 
-      }
+    //   }
 
-      double r1 = J2d * mat_fun_carray::mat_ddot<N>(C, Sb) / nd;
-      //double r1 = J2d*mat_ddot(C, Sb, nsd) / nd;
+    //   double r1 = J2d * mat_fun_carray::mat_ddot<N>(C, Sb) / nd;
+    //   //double r1 = J2d*mat_ddot(C, Sb, nsd) / nd;
 
-      for (int i = 0; i < nsd; i++) {
-        for (int j = 0; j < nsd; j++) {
-          S[i][j] = J2d*Sb[i][j] - r1*Ci[i][j];
-        }
-      }
-      //S  = J2d*Sb - r1*Ci;
+    //   for (int i = 0; i < nsd; i++) {
+    //     for (int j = 0; j < nsd; j++) {
+    //       S[i][j] = J2d*Sb[i][j] - r1*Ci[i][j];
+    //     }
+    //   }
+    //   //S  = J2d*Sb - r1*Ci;
 
-      CArray4 Ci_C_prod;
-      mat_fun_carray::ten_dyad_prod<N>(Ci, C, Ci_C_prod);
-      double PP[N][N][N][N];
+    //   CArray4 Ci_C_prod;
+    //   mat_fun_carray::ten_dyad_prod<N>(Ci, C, Ci_C_prod);
+    //   double PP[N][N][N][N];
 
-      for (int i = 0; i < N; i++) {
-        for (int j = 0; j < N; j++) {
-          for (int k = 0; k < N; k++) {
-            for (int l = 0; l < N; l++) {
-              PP[i][j][k][l] = Ids[i][j][k][l] - (1.0/nd) * Ci_C_prod[i][j][k][l];
-            }
-          }
-        }
-      }
-      //auto PP = ten_ids(nsd) - (1.0/nd) * ten_dyad_prod(Ci, C, nsd);
+    //   for (int i = 0; i < N; i++) {
+    //     for (int j = 0; j < N; j++) {
+    //       for (int k = 0; k < N; k++) {
+    //         for (int l = 0; l < N; l++) {
+    //           PP[i][j][k][l] = Ids[i][j][k][l] - (1.0/nd) * Ci_C_prod[i][j][k][l];
+    //         }
+    //       }
+    //     }
+    //   }
+    //   //auto PP = ten_ids(nsd) - (1.0/nd) * ten_dyad_prod(Ci, C, nsd);
 
-      mat_fun_carray::ten_ddot<N>(CCb, PP, CC);
-      //CC = ten_ddot(CCb, PP, nsd);
+    //   mat_fun_carray::ten_ddot<N>(CCb, PP, CC);
+    //   //CC = ten_ddot(CCb, PP, nsd);
 
-      CArray4 CC_t;
-      mat_fun_carray::ten_transpose<N>(CC, CC_t);
-      //CC  = ten_transpose(CC, nsd);
+    //   CArray4 CC_t;
+    //   mat_fun_carray::ten_transpose<N>(CC, CC_t);
+    //   //CC  = ten_transpose(CC, nsd);
 
-      mat_fun_carray::ten_ddot<N>(PP, CC_t, CC);
-      //CC  = ten_ddot(PP, CC, nsd);
+    //   mat_fun_carray::ten_ddot<N>(PP, CC_t, CC);
+    //   //CC  = ten_ddot(PP, CC, nsd);
 
-      CArray4 Ci_S_prod;
-      mat_fun_carray::ten_dyad_prod<N>(Ci, S, Ci_S_prod);
+    //   CArray4 Ci_S_prod;
+    //   mat_fun_carray::ten_dyad_prod<N>(Ci, S, Ci_S_prod);
 
-      CArray4 S_Ci_prod;
-      mat_fun_carray::ten_dyad_prod<N>(S, Ci, S_Ci_prod);
+    //   CArray4 S_Ci_prod;
+    //   mat_fun_carray::ten_dyad_prod<N>(S, Ci, S_Ci_prod);
 
-      for (int i = 0; i < N; i++) {
-        for (int j = 0; j < N; j++) {
-          for (int k = 0; k < N; k++) {
-            for (int l = 0; l < N; l++) {
-              CC[i][j][k][l] -= (2.0/nd) * (Ci_S_prod[i][j][k][l] + S_Ci_prod[i][j][k][l]);
-            }
-          }
-        }
-      }
-      // CC  = CC - (2.0/nd) * ( ten_dyad_prod(Ci, S, nsd) + ten_dyad_prod(S, Ci, nsd) );
+    //   for (int i = 0; i < N; i++) {
+    //     for (int j = 0; j < N; j++) {
+    //       for (int k = 0; k < N; k++) {
+    //         for (int l = 0; l < N; l++) {
+    //           CC[i][j][k][l] -= (2.0/nd) * (Ci_S_prod[i][j][k][l] + S_Ci_prod[i][j][k][l]);
+    //         }
+    //       }
+    //     }
+    //   }
+    //   // CC  = CC - (2.0/nd) * ( ten_dyad_prod(Ci, S, nsd) + ten_dyad_prod(S, Ci, nsd) );
 
-      for (int i = 0; i < nsd; i++) {
-        for (int j = 0; j < nsd; j++) {
-          S[i][j] += p * J * Ci[i][j];
-        }
-      }
-      //S = S + p*J*Ci;
+    //   for (int i = 0; i < nsd; i++) {
+    //     for (int j = 0; j < nsd; j++) {
+    //       S[i][j] += p * J * Ci[i][j];
+    //     }
+    //   }
+    //   //S = S + p*J*Ci;
 
-      CArray4 Ci_sym_prod;
-      mat_fun_carray::ten_symm_prod<N>(Ci, Ci, Ci_sym_prod);
+    //   CArray4 Ci_sym_prod;
+    //   mat_fun_carray::ten_symm_prod<N>(Ci, Ci, Ci_sym_prod);
 
-      CArray4 Ci_Ci_prod;
-      mat_fun_carray::ten_dyad_prod<N>(Ci, Ci, Ci_Ci_prod);
+    //   CArray4 Ci_Ci_prod;
+    //   mat_fun_carray::ten_dyad_prod<N>(Ci, Ci, Ci_Ci_prod);
 
-      for (int i = 0; i < nsd; i++) {
-        for (int j = 0; j < nsd; j++) {
-          for (int k = 0; k < nsd; k++) {
-            for (int l = 0; l < nsd; l++) {
-              CC[i][j][k][l] += 2.0*(r1 - p*J) * Ci_sym_prod[i][j][k][l]  + (pl*J - 2.0*r1/nd) * Ci_Ci_prod[i][j][k][l];
-            }
-          }
-        }
-      }
-      //CC  = CC + 2.0*(r1 - p*J) * ten_symm_prod(Ci, Ci, nsd) + (pl*J - 2.0*r1/nd) * ten_dyad_prod(Ci, Ci, nsd);
+    //   for (int i = 0; i < nsd; i++) {
+    //     for (int j = 0; j < nsd; j++) {
+    //       for (int k = 0; k < nsd; k++) {
+    //         for (int l = 0; l < nsd; l++) {
+    //           CC[i][j][k][l] += 2.0*(r1 - p*J) * Ci_sym_prod[i][j][k][l]  + (pl*J - 2.0*r1/nd) * Ci_Ci_prod[i][j][k][l];
+    //         }
+    //       }
+    //     }
+    //   }
+    //   //CC  = CC + 2.0*(r1 - p*J) * ten_symm_prod(Ci, Ci, nsd) + (pl*J - 2.0*r1/nd) * ten_dyad_prod(Ci, Ci, nsd);
 
-      if (cep_mod.cem.aStrain) {
-        double S_prod[N][N];
-        mat_fun_carray::mat_mul<N>(Fai, S, S_prod);
-        //S = mat_mul(Fai, S);
+    //   if (cep_mod.cem.aStrain) {
+    //     double S_prod[N][N];
+    //     mat_fun_carray::mat_mul<N>(Fai, S, S_prod);
+    //     //S = mat_mul(Fai, S);
 
-        double Fai_t[N][N];
-        mat_fun_carray::transpose<N>(Fai, Fai_t);
-        mat_fun_carray::mat_mul<N>(S_prod, Fai_t, S);
-        //S = mat_mul(S, transpose(Fai));
+    //     double Fai_t[N][N];
+    //     mat_fun_carray::transpose<N>(Fai, Fai_t);
+    //     mat_fun_carray::mat_mul<N>(S_prod, Fai_t, S);
+    //     //S = mat_mul(S, transpose(Fai));
 
-        mat_fun_carray::ten_dyad_prod<N>(Fai, Fai, CCb);
-        //CCb = ten_dyad_prod(Fai, Fai, nsd);
+    //     mat_fun_carray::ten_dyad_prod<N>(Fai, Fai, CCb);
+    //     //CCb = ten_dyad_prod(Fai, Fai, nsd);
 
-        CArray4 CC_dot;
-        mat_fun_carray::ten_ddot_3424<N>(CC, CCb, CC_dot);
-        //CC = ten_ddot_3424(CC, CCb, nsd);
+    //     CArray4 CC_dot;
+    //     mat_fun_carray::ten_ddot_3424<N>(CC, CCb, CC_dot);
+    //     //CC = ten_ddot_3424(CC, CCb, nsd);
 
-        mat_fun_carray::ten_ddot_2412<N>(CCb, CC_dot, CC);
-        //CC = ten_ddot_2412(CCb, CC, nsd);
-      }
+    //     mat_fun_carray::ten_ddot_2412<N>(CCb, CC_dot, CC);
+    //     //CC = ten_ddot_2412(CCb, CC, nsd);
+    //   }
 
-    } break;
+    // } break;
 
     // Universal Material Subroutine - stAnisoHyper_Inv
     
     case ConstitutiveModelType::stAnisoHyper_Inv: {
-      std::cout << "cann starts" << std::ends;
 
-      //(Barred) Invariant definitions
+      //Isochoric Invariant definitions
       double Ft[N][N];
       mat_fun_carray::transpose<N>(F,Ft);
       double C[N][N];
       mat_fun_carray::mat_mul<N>(Ft,F,C);
       double Inv[9] = {0,0,0,0,0,0,0,0,0};
       mat_fun_carray::print("C",C);
-      Inv[0] = J2d*mat_fun_carray::mat_trace<N>(C);//Inv1
-      // std::cout << "Inv1" << Inv[0] <<std::ends;
-      Inv[1] = 0.5*(Inv[0]*Inv[0] - J4d*mat_fun_carray::mat_ddot<N>(C,C));//Inv2
-      Inv[2] = (mat_fun_carray::mat_det<N>(C));//Inv3
+      Inv[0] = J2d*mat_fun_carray::mat_trace<N>(C);//Inv1_bar
+      Inv[1] = 0.5*(Inv[0]*Inv[0] - J4d*mat_fun_carray::mat_ddot<N>(C,C));//Inv2_bar
+      Inv[2] = (mat_fun_carray::mat_det<N>(C));//Inv3 (the only volumetric invariant)
       double prod1[N][N];
       auto n0 = fl.col(0);
-      // std::cout << "n0: " << n0[0] << n0[1] << n0[2] << std::endl;
-      //mat_fun_carray::print_vec("Fiber Dir",n0);
       mat_fun_carray::mat_dyad_prod<N>(n0, n0, prod1);
-      Inv[3] = J2d*mat_fun_carray::mat_ddot<N>(C,prod1);//Inv4
+      Inv[3] = J2d*mat_fun_carray::mat_ddot<N>(C,prod1);//Inv4_bar
       double C2[N][N];
       mat_fun_carray::mat_mul<N>(C,C,C2);
-      Inv[4] = J4d*mat_fun_carray::mat_ddot<N>(C2,prod1);//Inv5
-      //mat_fun_carray::print_vec("Inv",Inv);
+      Inv[4] = J4d*mat_fun_carray::mat_ddot<N>(C2,prod1);//Inv5_bar
 
       //Invariant derivatives wrt C
-      // std::cout << "invar deriv start" << std::ends;
       double dInv1[N][N];
-      // mat_fun_carray::print("Ci",Ci);
-      // std::cout << -Inv[0]/3 << std::ends;
       mat_fun_carray::mat_scmul(Ci,-Inv[0]/3,dInv1);
-      // mat_fun_carray::print("first term dInv1",dInv1);
       double term1[N][N];
       mat_fun_carray::mat_scmul(Idm,J2d,term1);
       mat_fun_carray::mat_sum(dInv1,term1,dInv1);
@@ -1413,7 +1404,6 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       double term2[N][N];
       double temp = mat_fun_carray::mat_trace<N>(C2);
       mat_fun_carray::mat_scmul(Ci,temp/3,term2);
-      // mat_fun_carray::print("first term dInv2",term2);
       mat_fun_carray::mat_scmul(dInv1,Inv[0],term1);
       mat_fun_carray::mat_sum(term1,term2,dInv2);
       mat_fun_carray::mat_scmul(C,-J4d,term1);
@@ -1422,12 +1412,12 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       double dInv3[N][N];
       mat_fun_carray::mat_scmul(Ci,Inv[2],dInv3);
 
-      double dInv4[N][N];
+      double dInv4[N][N]; //Anisotropic invariant for 1 fiber direction - Inv4f_bar
       mat_fun_carray::mat_scmul(Ci,-Inv[3]/3,term1);
       mat_fun_carray::mat_scmul(prod1,J2d,term2);
       mat_fun_carray::mat_sum(term1,term2,dInv4);
 
-      double dInv5[N][N];
+      double dInv5[N][N]; //Anisotropic invariant for 1 fiber direction - Inv5f_bar
       double NC1[N][N];
       mat_fun_carray::mat_mul<N>(prod1,C,NC1);
       double CN1[N][N];
@@ -1438,6 +1428,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       mat_fun_carray::mat_scmul(Ci,-Inv[4]/3,term1);
       mat_fun_carray::mat_sum(term1,term2,dInv5);
 
+      // Setting anisotropic invariants for 2 fiber families to 0
       double dInv6[N][N];
       mat_fun_carray::mat_zero(dInv6);
       double dInv7[N][N];
@@ -1447,29 +1438,76 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       double dInv9[N][N];
       mat_fun_carray::mat_zero(dInv9);
 
-      if (nfd==2) //2 fiber directions needs more invariants
+      // 2nd derivative of invariant wrt C - d2Inv/dCdC
+
+      // some useful derivatives
+      CArray4 dCidC;
+      CArray2 dJ4ddC;
+      for (int i = 0; i < N; i++){
+        for (int j = 0; j < N; j++){
+          dJ4ddC[i][j] = -2/3*J4d*Ci[i][j];
+          for (int k = 0; k < N; k++){
+            for (int l = 0; l < N; l++){
+              dCidC[i][j][k][l] = -0.5*(Ci[i][k]*Ci[j][l] + Ci[i][l]*Ci[j][k]);
+            }
+          }
+        }
+      }
+
+      CArray2 NI;
+      CArray2 IN;
+      mat_fun_carray::mat_mul(prod1,Idm,NI);
+      mat_fun_carray::mat_mul(Idm,prod1,IN);
+
+      CArray4 ddInv1;
+      CArray4 ddInv2;
+      CArray4 ddInv3;
+      CArray4 ddInv4;
+      CArray4 ddInv5;
+      CArray4 ddInv6;
+      CArray4 ddInv7;
+      CArray4 ddInv8;
+      CArray4 ddInv9;
+
+      for (int i = 0; i < N; i++){
+        for (int j = 0; j < N; j++){
+          for (int k = 0; k < N; k++){
+            for (int l = 0; l < N; l++){
+              ddInv1[i][j][k][l] = -1/3*(dInv1[i][j]*Ci[k][l] + Inv[0]*dCidC[k][l][i][j] + J2d*Ci[i][j]*Idm[k][l]);
+              ddInv2[i][j][k][l] = dInv1[i][j]*dInv1[k][l] + Inv[0]*ddInv1[i][j][k][l] + 1/3*J4d*mat_fun_carray::mat_trace(C2)*dCidC[i][j][k][l] + (Ci[k][l]*mat_fun_carray::mat_trace(C2)/3 + 1)*dCidC[k][l][i][j] + Ci[k][l]/3.0*(dJ4ddC[i][j]*mat_fun_carray::mat_trace(C2)+J4d*2.0*C[i][j]) + dJ4ddC[i][j]*C[k][l] - J4d*Idm[i][k]*Idm[j][l];
+              ddInv3[i][j][k][l] = dInv3[i][j]*Ci[k][l] + Inv[2]*dCidC[k][l][i][j];
+              ddInv4[i][j][k][l] = -1/3*(dInv4[i][j]*Ci[k][l] + J2d*Ci[i][j]*prod1[k][l] + Inv[3]*dCidC[k][l][i][j]);
+              ddInv5[i][j][k][l] = -1/3*(dInv5[i][j]*Ci[k][l] + Inv[4]*dCidC[k][l][i][j] + 2*J4d*Ci[i][j]*sum[i][j]) + J4d*(NI[k][i]*Idm[l][j] + Idm[k][i]*IN[l][j]);
+              // Higher invariants are zero for 1 fiber family
+              ddInv6[i][j][k][l] = 0.0;
+              ddInv7[i][j][k][l] = 0.0;
+              ddInv8[i][j][k][l] = 0.0;
+              ddInv9[i][j][k][l] = 0.0;
+            }
+          }
+        }
+      }
+
+      if (nfd==2) //Anisotropic invariants for 2nd fiber direction
       {
         std::cout << nfd << std::endl;
         double prod12[N][N];
         auto n1 = fl.col(1);
-        // std::cout << n0[0] << std::endl;
-        // std::cout << n1[0] << std::endl;
         mat_fun_carray::mat_dyad_prod<N>(n0, n1, prod12);
-        // std::cout << "prod12" << std::ends;
-        Inv[5] = J2d*mat_fun_carray::mat_ddot<N>(C,prod12);//Inv6
-        // std::cout << "invar defns inv6 done" << std::ends;
-        Inv[6] = J4d*mat_fun_carray::mat_ddot<N>(C2,prod12);//Inv7
-        // std::cout << "invar defns inv7 done" << std::ends;
+        Inv[5] = J2d*mat_fun_carray::mat_ddot<N>(C,prod12);//Inv6_bar or Inv4s_bar
+        Inv[6] = J4d*mat_fun_carray::mat_ddot<N>(C2,prod12);//Inv7_bar or Inv5s_bar
         double prod2[N][N];
         mat_fun_carray::mat_dyad_prod<N>(fl.col(1), fl.col(1), prod2);
-        Inv[7] = J2d*mat_fun_carray::mat_ddot<N>(C,prod2);//Inv8
-        Inv[8] = J4d*mat_fun_carray::mat_ddot<N>(C2,prod2);//Inv9
+        Inv[7] = J2d*mat_fun_carray::mat_ddot<N>(C,prod2);//Inv8_bar or Inv4_fs_bar
+        Inv[8] = J4d*mat_fun_carray::mat_ddot<N>(C2,prod2);//Inv9_bar or Inv5_fs_bar
 
-        //invariant derivatives wrt C
-         //dInv6
+        //Invariant derivatives wrt C
+
+        //dInv6
         mat_fun_carray::mat_scmul(Ci,-Inv[5]/3,term1);
         mat_fun_carray::mat_scmul(prod12,J2d,term2);
         mat_fun_carray::mat_sum(term1,term2,dInv6);
+
         //dInv7
         double NC12[N][N];
         mat_fun_carray::mat_mul<N>(prod12,C,NC12);
@@ -1479,23 +1517,49 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
         mat_fun_carray::mat_scmul(sum,J4d,term2);
         mat_fun_carray::mat_scmul(Ci,-Inv[6]/3,term1);
         mat_fun_carray::mat_sum(term1,term2,dInv7);
+
         //dInv8
         mat_fun_carray::mat_scmul(Ci,-Inv[7]/3,term1);
         mat_fun_carray::mat_scmul(prod2,J2d,term2);
         mat_fun_carray::mat_sum(term1,term2,dInv8);
+
         //dInv9
         double NC2[N][N];
         mat_fun_carray::mat_mul<N>(prod2,C,NC2);
         double CN2[N][N];
+        double sum2[N][N];
         mat_fun_carray::mat_mul<N>(C,prod2,CN2);
-        mat_fun_carray::mat_sum(NC2,CN2,sum);
-        mat_fun_carray::mat_scmul(sum,J4d,term2);
+        mat_fun_carray::mat_sum(NC2,CN2,sum2);
+        mat_fun_carray::mat_scmul(sum2,J4d,term2);
         mat_fun_carray::mat_scmul(Ci,-Inv[8]/3,term1);
         mat_fun_carray::mat_sum(term1,term2,dInv9);
+
+        // 2nd Derivatives of Invariants wrt C
+
+        mat_fun_carray::mat_mul(prod2,Idm,NI);
+        mat_fun_carray::mat_mul(Idm,prod2,IN);
+        CArray2 MI;
+        CArray2 IM;
+        mat_fun_carray::mat_mul(prod12,Idm,MI);
+        mat_fun_carray::mat_mul(Idm,prod12,IM);
+
+        for (int i = 0; i < N; i++){
+          for (int j = 0; j < N; j++){
+            for (int k = 0; k < N; k++){
+              for (int l = 0; l < N; l++){
+                ddInv6[i][j][k][l] = -1/3*(dInv6[i][j]*Ci[k][l] + J2d*Ci[i][j]*prod12[k][l] + Inv[5]*dCidC[k][l][i][j]);
+                ddInv7[i][j][k][l] = -1/3*(dInv7[i][j]*Ci[k][l] + Inv[6]*dCidC[k][l][i][j] + 2*J4d*Ci[i][j]*sum[i][j]) + J4d*(MI[k][i]*Idm[l][j] + Idm[k][i]*IM[l][j]);
+                ddInv8[i][j][k][l] = -1/3*(dInv8[i][j]*Ci[k][l] + J2d*Ci[i][j]*prod2[k][l] + Inv[7]*dCidC[k][l][i][j]);
+                ddInv9[i][j][k][l] = -1/3*(dInv9[i][j]*Ci[k][l] + Inv[8]*dCidC[k][l][i][j] + 2*J4d*Ci[i][j]*sum2[i][j]) + J4d*(NI[k][i]*Idm[l][j] + Idm[k][i]*IN[l][j]);
+              }
+            }
+          }
+        }
       }
 
       //storing the invariant derivatives in array of pointers
       double (*dInv[9])[N] = {dInv1, dInv2, dInv3, dInv4, dInv5, dInv6, dInv7, dInv8, dInv9};
+      double (*ddInv[9])[N] = {ddInv1, ddInv2, ddInv3, ddInv4, ddInv5, ddInv6, ddInv7, ddInv8, ddInv9};
 
       //reading parameters
       auto &w = *(stM.w);
@@ -1528,42 +1592,25 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       mat_fun_carray::print("2nd PK Stress",S);
 
       // Stiffness Tensor
-      CArray4 dCidC[N][N][N][N];
-      for (int i = 0; i < N; i++){
-        for (int j = 0; j < N; j++){
-          for (int k = 0; k < N; k++){
-            for (int l = 0; l < N; l++){
-              dCidC[i][j][k][l] = -0.5*(Ci[i][k]*Ci[j][l] + Ci[i][l]*Ci[j][k]);
+      CArray4 CC1;
+      CArray4 CC2;
+      CArray4 CC;
+      mat_fun_carray::ten_zero(CC);
+
+      for (int x = 0; x < 9; x++){
+        CC1 = ddInv[x];
+        mat_fun_carray::ten_dyad_prod(dInv[x],dInv[x],CC2);
+        for (int i = 0; i < N; i++){
+          for (int j = 0; j < N; j++){
+            for (int k = 0; k < N; k++){
+              for (int l = 0; l < N; l++){
+                CC[i][j][k][l] += dpsi[x]*CC1[i][j][k][l] + ddpsi[x]*CC2[i][j][k][l];
+              }
             }
           }
-        }
+        }      
       }
-      // Inv1 contribution
-      CArray4 CC_I1[N][N][N][N];
-      for (int i = 0; i < N; i++){
-        for (int j = 0; j < N; j++){
-          for (int k = 0; k < N; k++){
-            for (int l = 0; l < N; l++){
-              CC_I1[i][j][k][l] = -1/3*(dInv1[i][j]*Ci[k][l] + Inv[0]*dCidC[k][l][i][j] + J2d*Ci[i][j]*Idm[k][l]);
-              CC[i][j][k][l] = ddpsi[0]*CC_I1[i][j][k][l]; //CC = dpsi/dI1*CC_I1 initializing
-            }
-          }
-        }
-      }
-      // Inv2 to 9 contributions
-      CArray4 CC_Inv[N][N][N][N];
-      CArray2 dJ4ddC[N][N];
-      for (int i = 0; i < N; i++){
-        for (int j = 0; j < N; j++){
-          for (int k = 0; k < N; k++){
-            for (int l = 0; l < N; l++){
-              //Inv 2
-              CC_Inv[i][j][k][l] = dInv1[i][j]*dInv1[k][l] + Inv[0]*CC_I1[i][j][k][l] + 1/3*J4d*mat_fun_carray::mat_trace(C2)*dCidC[i][j][k][l] + (Ci[k][l]*mat_fun_carray::mat_trace(C2)/3 + 1)*
-              CC[i][j][k][l] = ddpsi[0]*CC_I1[i][j][k][l]; //CC = dpsi/dI1*CC_I1 initializing
-            }
-          }
-        }
-      }
+  
     } break;
     default:
       throw std::runtime_error("Undefined material constitutive model.");
