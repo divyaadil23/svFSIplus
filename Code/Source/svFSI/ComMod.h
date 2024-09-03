@@ -336,6 +336,9 @@ class fibStrsType
     // Constant steady value
     double g = 0.0;
 
+    // Cross fiber stress parameter
+    double eta_s = 0.0;
+
     // Unsteady time-dependent values
     fcType gt;
 };
