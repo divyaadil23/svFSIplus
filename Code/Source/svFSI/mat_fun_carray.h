@@ -199,6 +199,20 @@ void mat_mul(const double A[N][N], const Vector<double>& v, double result[N])
 }
 
 template <size_t N>
+void mat_mul(const double A[N][N], const double v[N], double result[N])
+{
+  for (int i = 0; i < N; i++) {
+    double sum = 0.0;
+
+    for (int j = 0; j < N; j++) {
+      sum += A[i][j] * v[j];
+    }
+
+    result[i] = sum;
+  }
+}
+
+template <size_t N>
 double vec_dot(const Vector<double>& v, const Vector<double>& w)
 {
   double sum = 0;

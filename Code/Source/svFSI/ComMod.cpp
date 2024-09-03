@@ -31,6 +31,7 @@
 #include "ComMod.h"
 
 #include <iostream>
+#include <sstream>
 
 //--------
 // ComMod 
