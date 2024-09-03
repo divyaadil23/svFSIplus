@@ -1600,6 +1600,29 @@ public:
     }
 };
 
+// Class to contain CANN model with Neo-Hookean material parameters
+class CANN_NH_Params : public MatParams {
+public:
+    std::vector<std::vector<double>> w;
+
+    // Default constructor
+    CANN_NH_Params() {
+        w ={{1,1,1,1,1.0,1.0,40.0943265e6},
+        {3,1,2,1,1.0,1.0,1e09}};
+      };
+
+    // Constructor with parameters
+    CANN_NH_Params(std::vector<std::vector<double>> w) {
+        for (int i = 0; i < 2; i++){
+            for (int j = 0; j < 7; j++){
+                this -> w[i][j] = w[i][j];
+            }
+        }     
+    };
+
+};
+
+
 // Class to contain volumetric penalty parameters (just the penalty parameter)
 class VolumetricPenaltyParams : public MatParams {
 public:
@@ -1993,6 +2016,71 @@ public:
 
         return Psi;
 
+    }
+};
+
+/**
+ * @brief Class for testing the CANN model with Neo-Hookean material model parameters.
+ *
+ * This class provides methods to set up and test the Neo-Hookean material model, including 
+ * computing the strain energy and printing material parameters.
+ */
+class TestCANN_NH : public TestMaterialModel {
+public:
+
+    /**
+     * @brief Parameters for the CANN material model.
+     */
+    CANN_NH_Params params;
+
+    /**
+     * @brief Constructor for the TestCANN_NH class.
+     *
+     * Initializes the CANN - NeoHooke material parameters for svFSIplus.
+     *
+     * @param[in] params_ Parameters for the Neo-Hookean material model.
+     */
+    TestCANN_NH(const CANN_NH_Params &params_) : TestMaterialModel( consts::ConstitutiveModelType::stAnisoHyper_Inv, consts::ConstitutiveModelType::stVol_ST91),
+        params(params_) 
+        {
+        // Set Neo-Hookean material parameters for svFSIplus
+        auto &dmn = com_mod.mockEq.mockDmn;
+        Vector<Vector<double>> w;
+        for (int i = 0; i < 2; i++){
+            for (int j = 0; j < 7; j++){
+                w[i][j] = params.w[i][j];
+            }
+        }
+        dmn.stM.Kpen = 0.0;         // Zero volumetric penalty parameter
+    }
+
+    /**
+     * @brief Prints the Neo-Hookean material parameters.
+     */
+    void printMaterialParameters() {
+        
+        for (int i = 0; i < 2; i++){
+            for (int j = 0; j < 7; j++){
+                std::cout << "w = " << params.w[i][j] << std::endl;
+            }
+        }
+    }
+
+    /**
+     * @brief Computes the strain energy for the Neo-Hookean material model.
+     *
+     * @param[in] F Deformation gradient.
+     * @return Strain energy density for the Neo-Hookean material model.
+     */
+    double computeStrainEnergy(const double F[3][3]) {
+        // Compute solid mechanics terms
+        solidMechanicsTerms smTerms = calcSolidMechanicsTerms(F);
+
+        // Strain energy density for Neo-Hookean material model
+        // Psi_iso = C10 * (Ib1 - 3)
+        double Psi_iso = params.w[0][6] * (smTerms.Ib1 - 3.); //w[0][6] = C10
+
+        return Psi_iso;
     }
 };
 

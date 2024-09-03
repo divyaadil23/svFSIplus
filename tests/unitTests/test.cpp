@@ -446,6 +446,81 @@ protected:
 };
 
 
+// ----------------------------------------------------------------------------
+// --------------------------- Neo-Hookean Material ---------------------------
+// ----------------------------------------------------------------------------
+
+/**
+ * @brief Test fixture class for the Neo-Hookean material model.
+ *
+ * This class sets up the necessary parameters and objects for testing the Neo-Hookean material model.
+ */
+class CANN_NH_Test : public MaterialModelTest {
+protected:
+    // Material parameters object
+    CANN_NH_Params params;
+
+    // Add the test object
+    TestCANN_NH* TestCANNNH;
+
+    // Setup method to initialize variables before each test
+    void SetUp() override {
+
+        MaterialModelTest::SetUp();
+        params.w[0][0] = 1;
+        params.w[0][1] = 1;
+        params.w[0][2] = 1;
+        params.w[0][3] = 1;
+        params.w[0][4] = 1.0;
+        params.w[0][5] = 1.0;
+        params.w[1][0] = 3;
+        params.w[1][1] = 1;
+        params.w[1][2] = 2;
+        params.w[1][3] = 1;
+        params.w[1][4] = 1.0;
+        params.w[1][5] = 1.0;
+        params.w[1][6] = pow(10,-9);
+
+        // Set random values for the Neo-Hookean parameters between 1000 and 10000
+        params.w[0][6] = getRandomDouble(1000000.0, 10000000.0);
+
+        // Initialize the test object
+        TestCANNNH = new TestCANN_NH(params);
+    }
+
+    // TearDown method to clean up after each test, if needed
+    void TearDown() override {
+        // Clean up the test object
+        delete TestCANNNH;
+        TestCANNNH = nullptr;
+    }
+};
+
+/**
+ * @brief Test fixture class for STRUCT Neo-Hookean material model.
+ */
+class STRUCT_CANN_NH_Test : public CANN_NH_Test {
+protected:
+    void SetUp() override {
+        CANN_NH_Test::SetUp();
+
+        // Use struct
+        TestCANNNH->ustruct = false;
+    }
+};
+
+/**
+ * @brief Test fixture class for USTRUCT Neo-Hookean material model.
+ */
+class USTRUCT_CANN_NH_Test : public CANN_NH_Test {
+protected:
+    void SetUp() override {
+        CANN_NH_Test::SetUp();
+
+        // Use ustruct
+        TestCANNNH->ustruct = true;
+    }
+};
 
 
 
@@ -1783,7 +1858,23 @@ TEST_F(USTRUCT_HolzapfelOgdenMATest, TestMaterialElasticityConsistencyConvergenc
 }
 
 
+// ----------------------------------------------------------------------------
+// -------------------- CANN w/ Neo Hooke Parameters---------------------------
+// ----------------------------------------------------------------------------
 
+// ------------------------------ STRUCT Tests --------------------------------
+
+// Test PK2 stress zero for F = I
+TEST_F(STRUCT_CANN_NH_Test, TestPK2StressIdentityF) {
+    //verbose = true; // Show values of S and S_ref
+
+    // Check identity F produces zero PK2 stress
+    double F[3][3] = {{1.0, 0.0, 0.0},
+                       {0.0, 1.0, 0.0},
+                       {0.0, 0.0, 1.0}};
+    double S_ref[3][3] = {}; // PK2 stress initialized to zero
+    TestCANNNH->testPK2StressAgainstReference(F, S_ref, rel_tol, abs_tol, verbose);
+}
 
 
 // ----------------------------------------------------------------------------
