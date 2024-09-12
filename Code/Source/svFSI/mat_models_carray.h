@@ -1424,6 +1424,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       mat_fun_carray::mat_zero(dInv8);
       double dInv9[N][N];
       mat_fun_carray::mat_zero(dInv9);
+      std::cout<<"Inv 1st derivatives done for 1 fiber fam"<<std::endl;
 
       // 2nd derivative of invariant wrt C - d2Inv/dCdC
 
@@ -1474,6 +1475,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
           }
         }
       }
+      std::cout<<"Inv 2nd derivatives done for 1 fiber fam"<<std::endl;
 
       if (nfd==2) //Anisotropic invariants for 2nd fiber direction
       {
@@ -1520,6 +1522,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
         mat_fun_carray::mat_scmul(sum2,J4d,term2);
         mat_fun_carray::mat_scmul(Ci,-Inv[8]/3,term1);
         mat_fun_carray::mat_sum(term1,term2,dInv9);
+        std::cout<<"Inv 1st derivatives done for 2 fiber fam"<<std::endl;
 
         // 2nd Derivatives of Invariants wrt C
 
@@ -1542,6 +1545,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
             }
           }
         }
+        std::cout<<"Inv 2nd derivatives done for 2 fiber fam"<<std::endl;
       }
 
       //storing the invariant derivatives in array of pointers
@@ -1551,15 +1555,15 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       //reading parameters
       // auto &w = *(stM.w);
       auto &w = stM.w;
-      // std::cout << "mu1/2"<< w[0][6] << std::endl;
-      // std::cout << "b" << w[1][5] << std::endl;
-      // std::cout << "a/2b"<< w[1][6] << std::endl;
+      std::cout << "mu1/2"<< w[0][6] << std::endl;
+      std::cout << "b" << w[1][5] << std::endl;
+      std::cout << "a/2b"<< w[1][6] << std::endl;
 
       //Strain energy function and derivatives
       double psi,dpsi[9],ddpsi[9];
       UAnisoHyper_inv::uanisohyper_inv(Inv,w,psi,dpsi,ddpsi);
       // mat_fun_carray::uanisohyper_inv(Inv,w,psi,dpsi,ddpsi);
-      // std::cout << "strain energy done" << std::endl;
+      std::cout << "strain energy done" << std::endl;
 
       // 2nd PK Stress
       double S[N][N];
