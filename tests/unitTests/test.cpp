@@ -486,6 +486,10 @@ protected:
 
         // Initialize the test object
         TestCANNNH = new TestCANN_NH(params);
+
+        if (TestCANNNH == nullptr) {
+            __throw_runtime_error("TestCANNNH is not properly initialized");
+        }
     }
 
     // TearDown method to clean up after each test, if needed
@@ -734,7 +738,7 @@ protected:
 
 // Test PK2 stress zero for F = I
 TEST_F(STRUCT_NeoHookeanTest, TestPK2StressIdentityF) {
-    //verbose = true; // Show values of S and S_ref
+    verbose = true; // Show values of S and S_ref
 
     // Check identity F produces zero PK2 stress
     double F[3][3] = {{1.0, 0.0, 0.0},
@@ -936,7 +940,7 @@ TEST_F(USTRUCT_NeoHookeanTest, TestMaterialElasticityConsistencyConvergenceOrder
 
 // Test PK2 stress zero for F = I
 TEST_F(STRUCT_MooneyRivlinTest, TestPK2StressIdentityF) {
-    //verbose = true; // Show values of S and S_ref
+    verbose = true; // Show values of S and S_ref
 
     // Check identity F produces zero PK2 stress
     double F[3][3] = {1.0, 0.0, 0.0,
@@ -1139,7 +1143,7 @@ TEST_F(USTRUCT_MooneyRivlinTest, TestMaterialElasticityConsistencyConvergenceOrd
 
 // Test PK2 stress zero for F = I
 TEST_F(STRUCT_HolzapfelOgdenTest, TestPK2StressIdentityF) {
-    //verbose = true; // Show values of S and S_ref
+    verbose = true; // Show values of S and S_ref
 
     // Check identity F produces zero PK2 stress
     double F[3][3] = {{1.0, 0.0, 0.0},
@@ -1497,7 +1501,7 @@ TEST_F(USTRUCT_HolzapfelOgdenTest, TestMaterialElasticityConsistencyConvergenceO
 
 // Test PK2 stress zero for F = I
 TEST_F(STRUCT_HolzapfelOgdenMATest, TestPK2StressIdentityF) {
-    //verbose = true; // Show values of S and S_ref
+    verbose = true; // Show values of S and S_ref
 
     // Check identity F produces zero PK2 stress
     double F[3][3] = {{1.0, 0.0, 0.0},
@@ -1866,13 +1870,16 @@ TEST_F(USTRUCT_HolzapfelOgdenMATest, TestMaterialElasticityConsistencyConvergenc
 
 // Test PK2 stress zero for F = I
 TEST_F(STRUCT_CANN_NH_Test, TestPK2StressIdentityF) {
-    //verbose = true; // Show values of S and S_ref
+    verbose = true; // Show values of S and S_ref
 
     // Check identity F produces zero PK2 stress
     double F[3][3] = {{1.0, 0.0, 0.0},
                        {0.0, 1.0, 0.0},
                        {0.0, 0.0, 1.0}};
-    double S_ref[3][3] = {}; // PK2 stress initialized to zero
+    // double S_ref[3][3] = {}; // PK2 stress initialized to zero
+    double S_ref[3][3] = {{0.0, 0.0, 0.0},
+                      {0.0, 0.0, 0.0},
+                      {0.0, 0.0, 0.0}};
     TestCANNNH->testPK2StressAgainstReference(F, S_ref, rel_tol, abs_tol, verbose);
 }
 

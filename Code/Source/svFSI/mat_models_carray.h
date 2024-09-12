@@ -188,7 +188,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
   using namespace mat_fun;
   using namespace utils;
 
-  //std::cout << "get_pk2cc starts" << std::ends;
+  std::cout << "get_pk2cc starts" << std::ends;
 
   using CArray2 = double[N][N];
   using CArray4 = double[N][N][N][N];
@@ -1361,7 +1361,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
     // Universal Material Subroutine - stAnisoHyper_Inv
     
     case ConstitutiveModelType::stAnisoHyper_Inv: {
-
+      std::cout<<"CANN Starts"<<std::endl;
       //Isochoric Invariant definitions
       double Ft[N][N];
       mat_fun_carray::transpose<N>(F,Ft);

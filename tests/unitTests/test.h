@@ -1335,7 +1335,7 @@ public:
         // Compute S(F) from get_pk2cc()
         double S[3][3], Dm[6][6];
         get_pk2cc(F, S, Dm);
-    
+
         // Compare S with reference solution
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
@@ -2045,10 +2045,12 @@ public:
         {
         // Set Neo-Hookean material parameters for svFSIplus
         auto &dmn = com_mod.mockEq.mockDmn;
-        Vector<Vector<double>> w;
+        // Vector<Vector<double>> w;
+        std::vector<std::vector<double>> w(2, std::vector<double>(7));
         for (int i = 0; i < 2; i++){
             for (int j = 0; j < 7; j++){
                 w[i][j] = params.w[i][j];
+                std::cout<<"w"<< w[i][j]<<std::endl;
             }
         }
         dmn.stM.Kpen = 0.0;         // Zero volumetric penalty parameter
