@@ -390,6 +390,7 @@ class stModelType
     fibStrsType Tf;
 
     //AnisoHyper (Universal) - READ ALL WEIGHTS FROM FILE. Define w as an array
+    
     // std::vector<std::vector<double>>* w; //pointer to vector of vectors
     // // Constructor
     // stModelType(std::vector<std::vector<double>>& vec) : w(&vec) {}
