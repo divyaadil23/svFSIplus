@@ -177,6 +177,19 @@ SeMaterialPropertiesMapType set_material_props = {
 } },
 
 //---------------------------//
+//       stAnisoHyper_Inv    //
+//---------------------------//
+//
+{consts::ConstitutiveModelType::stAnisoHyper_Inv, [](DomainParameters* domain_params, double mu, double kap, double lam,
+    dmnType& lDmn) -> void
+{
+  lDmn.stM.isoType = consts::ConstitutiveModelType::stAnisoHyper_Inv;
+  auto& params = domain_params->constitutive_model.cann;
+  std::cout <<"Within CANN" <<std::endl;
+  lDmn.stM.w = params.w.value();
+} },
+
+//---------------------------//
 //       stIso_LS            //
 //---------------------------//
 // Lee-Sacks material model.

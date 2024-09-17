@@ -2038,7 +2038,7 @@ public:
      *
      * Initializes the CANN - NeoHooke material parameters for svFSIplus.
      *
-     * @param[in] params_ Parameters for the Neo-Hookean material model.
+     * @param[in] params_ Parameters for the CANN Neo-Hookean material model.
      */
     TestCANN_NH(const CANN_NH_Params &params_) : TestMaterialModel( consts::ConstitutiveModelType::stAnisoHyper_Inv, consts::ConstitutiveModelType::stVol_ST91),
         params(params_) 
@@ -2057,7 +2057,7 @@ public:
     }
 
     /**
-     * @brief Prints the Neo-Hookean material parameters.
+     * @brief Prints the CANN Neo-Hookean material parameters.
      */
     void printMaterialParameters() {
         

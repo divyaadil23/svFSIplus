@@ -1883,6 +1883,21 @@ TEST_F(STRUCT_CANN_NH_Test, TestPK2StressIdentityF) {
     TestCANNNH->testPK2StressAgainstReference(F, S_ref, rel_tol, abs_tol, verbose);
 }
 
+// // Test order of convergence between finite difference PK2 stress and get_pk2cc() PK2 stress for triaxial stretch
+// TEST_F(STRUCT_CANN_NH_Test, TestPK2StressTriaxialStretch) {
+//     //verbose = true; // Show order of convergence, errors, F, S
+
+//     // Create a deformation gradient F for triaxial stretch
+//     double F[3][3] = {{1.1, 0.0, 0.0},
+//                        {0.0, 1.2, 0.0},
+//                        {0.0, 0.0, 1.3}};
+//     double S_ref[3][3] = {{-2.245e7, 0.0, 0.0},
+//                       {0.0, 2.6219e6, 0.0},
+//                       {0.0, 0.0, 1.1053e7}};
+//     // Check order of convergence between finite difference and get_pk2cc() PK2 stress
+//     TestCANNNH->testPK2StressAgainstReference(F, S_ref, rel_tol, abs_tol, verbose);
+// }
+
 
 // ----------------------------------------------------------------------------
 // ---------------------- Quadratic Volumetric Penalty Material ----------------

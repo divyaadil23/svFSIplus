@@ -2097,7 +2097,7 @@ void read_ls(Simulation* simulation, EquationParameters* eq_params, consts::Solv
 void read_mat_model(Simulation* simulation, EquationParameters* eq_params, DomainParameters* domain_params, dmnType& lDmn)
 { 
   using namespace consts;
-
+  std::cout<<"read_mat_model"<<std::endl;
   // Domain properties: elasticity modulus, poisson ratio
   double E = lDmn.prop[PhysicalProperyType::elasticity_modulus];
   double nu = lDmn.prop[PhysicalProperyType::poisson_ratio];
@@ -2127,10 +2127,10 @@ void read_mat_model(Simulation* simulation, EquationParameters* eq_params, Domai
   std::string cmodel_str;
 
   if (!domain_params->constitutive_model.defined()) { 
-    lDmn.stM.isoType = ConstitutiveModelType::stIso_nHook;
-    cmodel_type = ConstitutiveModelType::stIso_nHook;
-    cmodel_str = "neoHookean";
-
+    lDmn.stM.isoType = ConstitutiveModelType::stAnisoHyper_Inv;
+    cmodel_type = ConstitutiveModelType::stAnisoHyper_Inv;
+    cmodel_str = "CANN";
+    std::cout<<"choosing CANN as default"<<std::endl;
   // Get the constitutive model type.
   } else {
     cmodel_str = domain_params->constitutive_model.type.value();

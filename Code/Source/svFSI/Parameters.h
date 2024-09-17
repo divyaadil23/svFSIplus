@@ -283,6 +283,111 @@ class VectorParameter
     std::vector<T> range_;
 };
 
+/// @brief The MatrixParameter class template is used to store a named 
+/// parameter and its matrix (2D vector) of values as a basic type: bool, double, int, and string.
+template<typename T>
+class MatrixParameter
+{
+  public:
+    MatrixParameter() {};
+
+    MatrixParameter(const std::string& name, const std::vector<std::vector<T>>& value, bool required, std::vector<std::vector<T>> range = {}) :
+      value_(value), name_(name), required_(required)
+    { 
+      value_ = value;
+      range_ = range;
+    };
+
+    std::string name() const { return name_; };
+    std::vector<std::vector<T>> value() const { return value_; };
+    bool defined() const { return value_set_; };
+    int rows() const { return value_.size(); };
+    int cols() const { return value_.empty() ? 0 : value_[0].size(); };
+
+    std::vector<std::vector<T>> operator()() const { return value_; };
+    const T& operator()(const int i, const int j) const { return value_[i][j]; };
+
+    /// @brief Get the string representation of the matrix parameter value.
+    std::string svalue() 
+    {
+      std::string str;
+
+      if constexpr (std::is_same<T, std::string>::value) {
+        for (const auto& row : value_) {
+          for (const auto& v : row) {
+            str += " " + v + " ";
+          }
+          str += "\n";
+        }
+      } else {
+        for (const auto& row : value_) {
+          for (const auto& v : row) {
+            str += " " + std::to_string(v) + " ";
+          }
+          str += "\n";
+        }
+      }
+
+      return str;
+    }
+
+    friend std::ostream& operator << (std::ostream& out, const MatrixParameter<T>& param)
+    {
+      for (int i = 0; i < param.rows(); i++) {
+        for (int j = 0; j < param.cols(); j++) {
+          out << param.value_[i][j] << " ";
+        }
+        out << std::endl;
+      }
+      return out;
+    }
+
+    /// @brief Set the parameter name and value, and if it is required.
+    void set(const std::string& name, bool required, const std::vector<std::vector<T>>& value) 
+    { 
+      name_ = name;
+      required_ = required;
+      value_ = value;
+    }
+
+    /// @brief Set the parameter value from a string.
+    void set(const std::string& str_value)
+    {
+      if (str_value == "") {
+        return;
+      }
+
+      std::string error_msg = "Improper matrix format '" + str_value + "' found in '" + name_ + "'." + " Matrix format is: ((a,b,c),(d,e,f))";
+      std::regex sep("\\(|\\)|\\,");
+      auto str = std::regex_replace(str_value, sep, " ");
+
+      std::vector<T> temp_row;
+      std::istringstream ssin(str);
+      T value;
+      while (ssin >> value) {
+        temp_row.push_back(value);
+        if (temp_row.size() == cols() || ssin.peek() == '\n') {
+          value_.push_back(temp_row);
+          temp_row.clear();
+        }
+      }
+    }
+
+    bool check_required_set()
+    {
+      if (!required_) {
+        return true;
+      }
+      return value_set_;
+    }
+
+    std::vector<std::vector<T>> value_;
+    std::string name_;
+    bool required_ = false;
+    bool value_set_ = false;
+    std::vector<std::vector<T>> range_;
+};
+
 /// @brief Defines parameter name and value, and stores them in
 /// maps for settng values from XML.
 class ParameterLists
@@ -333,6 +438,12 @@ class ParameterLists
       param.set(name, required, value); 
       params_map[name] = &param;
     }
+
+    // void set_parameter(const std::string& name, std::vector<std::vector<double>> value, bool required, MatrixParameter<int>& param) 
+    // {
+    //   param.set(name, required, value); 
+    //   params_map[name] = &param;
+    // }
 
     void set_parameter(const std::string& name, const std::string& value, bool required, Parameter<std::string>& param) 
     {
@@ -509,6 +620,7 @@ class CANNParameters : public ParameterLists
     CANNParameters();
     void set_values(tinyxml2::XMLElement* modl_params);
     void print_parameters();
+    MatrixParameter<double> w;
     bool value_set = false;
 };
 
@@ -544,6 +656,7 @@ class ConstitutiveModelParameters : public ParameterLists
     MooneyRivlinParameters mooney_rivlin;
     NeoHookeanParameters neo_hookean;
     StVenantKirchhoffParameters stvenant_kirchhoff;
+    CANNParameters cann;
 
     bool value_set = false;
 };

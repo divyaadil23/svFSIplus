@@ -1597,12 +1597,19 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
             for (int k = 0; k < N; k++){
               for (int l = 0; l < N; l++){
                 CC[i][j][k][l] += dpsi[x]*(ddInv[x])[i][j][k][l] + ddpsi[x]*CC2[i][j][k][l];
+                // std::cout<<CC[i][j][k][l]<<std::endl;
               }
             }
           }
         }      
       }
-  
+
+      // // de-allocating memory from dInv and ddInv
+      // for (int i = 0; i < 9; i++) {
+      //   delete[] dInv[i];  // Free the memory for each 1D array in dInv
+      //   delete[] ddInv[i];  // Free the memory for each 3D array in ddInv
+      // }
+
     } break;
     default:
       throw std::runtime_error("Undefined material constitutive model.");
