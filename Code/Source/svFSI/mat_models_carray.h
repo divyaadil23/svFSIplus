@@ -1566,7 +1566,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       std::cout << "strain energy done" << std::endl;
 
       // 2nd PK Stress
-      double S[N][N];
+      // double S[N][N];
       mat_fun_carray::mat_zero<N>(S);
       double prod[N][N];
       //double prodF[N][N];
