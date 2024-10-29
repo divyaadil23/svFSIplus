@@ -473,16 +473,17 @@ protected:
         params.w[0][3] = 1;
         params.w[0][4] = 1.0;
         params.w[0][5] = 1.0;
-        params.w[1][0] = 3;
-        params.w[1][1] = 1;
-        params.w[1][2] = 2;
-        params.w[1][3] = 1;
-        params.w[1][4] = 1.0;
-        params.w[1][5] = 1.0;
-        params.w[1][6] = pow(10,-9);
+        // params.w[1][0] = 3;
+        // params.w[1][1] = 1;
+        // params.w[1][2] = 2;
+        // params.w[1][3] = 1;
+        // params.w[1][4] = 1.0;
+        // params.w[1][5] = 1.0;
+        // params.w[1][6] = pow(10,-9);
 
-        // Set random values for the Neo-Hookean parameters between 1000 and 10000
-        params.w[0][6] = getRandomDouble(1000000.0, 10000000.0);
+        // // Set random values for the Neo-Hookean parameters between 1000 and 10000
+        // params.w[0][6] = getRandomDouble(1000000.0, 10000000.0);
+        params.w[0][6] = 2234.32; //same as C10
 
         // Initialize the test object
         TestCANNNH = new TestCANN_NH(params);
@@ -745,6 +746,20 @@ TEST_F(STRUCT_NeoHookeanTest, TestPK2StressIdentityF) {
                        {0.0, 1.0, 0.0},
                        {0.0, 0.0, 1.0}};
     double S_ref[3][3] = {}; // PK2 stress initialized to zero
+    TestNH->testPK2StressAgainstReference(F, S_ref, rel_tol, abs_tol, verbose);
+}
+
+// Test PK2 stress for F to compare with CANN_NH
+TEST_F(STRUCT_NeoHookeanTest, TestPK2StressTriaxialStretch) {
+    verbose = true; // Show values of S and S_ref
+
+    // Check identity F produces zero PK2 stress
+    double F[3][3] = {{1.1, 0.0, 0.0},
+                       {0.0, 1.2, 0.0},
+                       {0.0, 0.0, 0.757}};
+    double S_ref[3][3] = {{501.224, 0.0, 0.0},
+                      {0.0, 1135.27, 0.0},
+                      {0.0, 0.0, -3911.14}};
     TestNH->testPK2StressAgainstReference(F, S_ref, rel_tol, abs_tol, verbose);
 }
 
@@ -1883,20 +1898,20 @@ TEST_F(STRUCT_CANN_NH_Test, TestPK2StressIdentityF) {
     TestCANNNH->testPK2StressAgainstReference(F, S_ref, rel_tol, abs_tol, verbose);
 }
 
-// // Test order of convergence between finite difference PK2 stress and get_pk2cc() PK2 stress for triaxial stretch
-// TEST_F(STRUCT_CANN_NH_Test, TestPK2StressTriaxialStretch) {
-//     //verbose = true; // Show order of convergence, errors, F, S
+// Test order of convergence between finite difference PK2 stress and get_pk2cc() PK2 stress for triaxial stretch
+TEST_F(STRUCT_CANN_NH_Test, TestPK2StressTriaxialStretch) {
+    //verbose = true; // Show order of convergence, errors, F, S
 
-//     // Create a deformation gradient F for triaxial stretch
-//     double F[3][3] = {{1.1, 0.0, 0.0},
-//                        {0.0, 1.2, 0.0},
-//                        {0.0, 0.0, 1.3}};
-//     double S_ref[3][3] = {{-2.245e7, 0.0, 0.0},
-//                       {0.0, 2.6219e6, 0.0},
-//                       {0.0, 0.0, 1.1053e7}};
-//     // Check order of convergence between finite difference and get_pk2cc() PK2 stress
-//     TestCANNNH->testPK2StressAgainstReference(F, S_ref, rel_tol, abs_tol, verbose);
-// }
+    // Create a deformation gradient F for triaxial stretch
+    double F[3][3] = {{1.1, 0.0, 0.0},
+                       {0.0, 1.2, 0.0},
+                       {0.0, 0.0, 0.757}};
+    double S_ref[3][3] = {{501.224, 0.0, 0.0},
+                      {0.0, 1135.27, 0.0},
+                      {0.0, 0.0, -3911.14}};
+    // Check order of convergence between finite difference and get_pk2cc() PK2 stress
+    TestCANNNH->testPK2StressAgainstReference(F, S_ref, rel_tol, abs_tol, verbose);
+}
 
 
 // ----------------------------------------------------------------------------

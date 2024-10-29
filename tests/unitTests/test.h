@@ -2045,9 +2045,10 @@ public:
         {
         // Set Neo-Hookean material parameters for svFSIplus
         auto &dmn = com_mod.mockEq.mockDmn;
+        int nrows = 1;
         // Vector<Vector<double>> w;
-        std::vector<std::vector<double>> w(2, std::vector<double>(7));
-        for (int i = 0; i < 2; i++){
+        std::vector<std::vector<double>> w(1, std::vector<double>(7));
+        for (int i = 0; i < nrows; i++){
             for (int j = 0; j < 7; j++){
                 w[i][j] = params.w[i][j];
                 std::cout<<"w"<< w[i][j]<<std::endl;
@@ -2060,8 +2061,8 @@ public:
      * @brief Prints the CANN Neo-Hookean material parameters.
      */
     void printMaterialParameters() {
-        
-        for (int i = 0; i < 2; i++){
+        int nrows = 1;
+        for (int i = 0; i < nrows; i++){
             for (int j = 0; j < 7; j++){
                 std::cout << "w = " << params.w[i][j] << std::endl;
             }

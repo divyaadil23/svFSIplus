@@ -188,7 +188,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
   using namespace mat_fun;
   using namespace utils;
 
-  std::cout << "get_pk2cc starts" << std::ends;
+  // std::cout << "get_pk2cc starts" << std::ends;
 
   using CArray2 = double[N][N];
   using CArray4 = double[N][N][N][N];
@@ -380,6 +380,8 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
         }
       }
 
+      mat_fun_carray::print("C",C);
+      
       // Fiber reinforcement/active stress
       double prod[N][N];
       mat_fun_carray::mat_dyad_prod<N>(fl.col(0), fl.col(0), prod);
@@ -389,7 +391,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
           Sb[i][j] += Tfa * prod[i][j];
         }
       }
-
+      mat_fun_carray::print("NH Sb:",Sb);
       double r1 = g1 * Inv1 / nd;
       for (int j = 0; j < N; j++) {
         for (int i = 0; i < N; i++) {
@@ -441,7 +443,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
     //  Mooney-Rivlin model
     //
     case ConstitutiveModelType::stIso_MR: {
-      std::cout << "Mooney Rivlin starts" << std::ends;
+      // std::cout << "Mooney Rivlin starts" << std::ends;
       double g1  = 2.0 * (stM.C10 + Inv1*stM.C01);
       double g2  = -2.0 * stM.C01;
 
@@ -1362,6 +1364,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
     
     case ConstitutiveModelType::stAnisoHyper_Inv: {
       std::cout<<"CANN Starts"<<std::endl;
+      std::cout<<"J2d = "<< J2d << std::endl;
       //Isochoric Invariant definitions
       double Ft[N][N];
       mat_fun_carray::transpose<N>(F,Ft);
@@ -1556,8 +1559,8 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       // auto &w = *(stM.w);
       auto &w = stM.w;
       std::cout << "mu1/2"<< w[0][6] << std::endl;
-      std::cout << "b" << w[1][5] << std::endl;
-      std::cout << "a/2b"<< w[1][6] << std::endl;
+      // std::cout << "b" << w[1][5] << std::endl;
+      // std::cout << "a/2b"<< w[1][6] << std::endl;
 
       //Strain energy function and derivatives
       double psi,dpsi[9],ddpsi[9];
@@ -1566,7 +1569,6 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       std::cout << "strain energy done" << std::endl;
 
       // 2nd PK Stress
-      // double S[N][N];
       mat_fun_carray::mat_zero<N>(S);
       double prod[N][N];
       //double prodF[N][N];
@@ -1580,8 +1582,12 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
         mat_fun_carray::mat_sum(prod,S,S);
       }
 
-      //Printing stresses
-      mat_fun_carray::print("2nd PK Stress",S);
+      // Fiber reinforcement/active stress - not sure why only in one fiber direction
+      for (int i = 0; i < nsd; i++) {
+        for (int j = 0; j < nsd; j++) {
+          S[i][j] += Tfa * prod1[i][j];
+        }
+      }
 
       // Stiffness Tensor
       CArray4 CC1;
@@ -1603,6 +1609,16 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
           }
         }      
       }
+
+      // Pressure term (incompressible)
+      for (int j = 0; j < N; j++) {
+        for (int i = 0; i < N; i++) {
+          S[i][j] += p * J * Ci[i][j];
+        }
+      }
+
+       //Printing stresses
+      mat_fun_carray::print("2nd PK Stress",S);
 
       // // de-allocating memory from dInv and ddInv
       // for (int i = 0; i < 9; i++) {
