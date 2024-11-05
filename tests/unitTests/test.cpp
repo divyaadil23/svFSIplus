@@ -51,7 +51,7 @@ protected:
     int n_F = 50; // Number of deformation gradients F to test for each small, medium, and large perturbation
     double rel_tol = 1e-3; // relative tolerance for comparing values
     double abs_tol = 1e-11; // absolute tolerance for comparing values
-    //double delta = 1e-7; // perturbation scaling factor
+    double delta = 1e-7; // perturbation scaling factor
     double delta_max = 1e-4; // maximum perturbation scaling factor
     double delta_min = 1e-6; // minimum perturbation scaling factor
     int order = 1; // Order of finite difference method
@@ -447,11 +447,11 @@ protected:
 
 
 // ----------------------------------------------------------------------------
-// --------------------------- Neo-Hookean Material ---------------------------
+// --------------------------- CANN Neo-Hookean Material ---------------------------
 // ----------------------------------------------------------------------------
 
 /**
- * @brief Test fixture class for the Neo-Hookean material model.
+ * @brief Test fixture class for the CANN Neo-Hookean material model.
  *
  * This class sets up the necessary parameters and objects for testing the Neo-Hookean material model.
  */
@@ -527,7 +527,88 @@ protected:
     }
 };
 
+// ----------------------------------------------------------------------------
+// -------- Compare CANN w/ NH params against NH Model ------------------------
+// ----------------------------------------------------------------------------
+/**
+ * @brief Test fixture class for comparing the CANN model with Neo-Hookean mdoel.
+ *
+ * This class sets up the necessary parameters and objects for comparing CANN model with NH parameters against the Neo-Hookean model.
+ */
+class NeoHookeanCompareTest : public MaterialModelTest {
+protected:
+    // Material parameters objects
+    NeoHookeanParams params_NH; // Neo-Hookean parameters
+    CANN_NH_Params params_CANN_NH; // CANN with neo-hookean parameters
 
+    // Add the test objects
+    TestNeoHookean* TestNH;
+    TestCANN_NH* TestCANNNH;
+
+    // Setup method to initialize variables before each test
+    void SetUp() override {
+
+        MaterialModelTest::SetUp();
+
+        // Set random values for the Neo-Hookean parameters between 1000 and 10000
+        params_NH.C10 = getRandomDouble(1000.0, 10000.0);
+        params_CANN_NH.w[0][0] = 1;
+        params_CANN_NH.w[0][1] = 1;
+        params_CANN_NH.w[0][2] = 1;
+        params_CANN_NH.w[0][3] = 1;
+        params_CANN_NH.w[0][4] = 1.0;
+        params_CANN_NH.w[0][5] = 1.0;
+        params_CANN_NH.w[0][6] = params_NH.C10;
+
+        // Initialize the test objects
+        TestNH = new TestNeoHookean(params_NH);
+        TestCANNNH = new TestCANN_NH(params_CANN_NH);
+
+        if (TestCANNNH == nullptr) {
+            __throw_runtime_error("TestCANNNH is not properly initialized");
+        }
+        if (TestNH == nullptr) {
+            __throw_runtime_error("TestNH is not properly initialized");
+        }
+    }
+
+    // TearDown method to clean up after each test, if needed
+    void TearDown() override {
+        // Clean up the test objects
+        delete TestNH;
+        TestNH = nullptr;
+        delete TestCANNNH;
+        TestCANNNH = nullptr;
+    }
+}
+
+/**
+ * @brief Test fixture class for STRUCT Neo-Hookean Compare model.
+ */
+class STRUCT_CANNNeoHookeanTest : public NeoHookeanCompareTest {
+protected:
+    void SetUp() override {
+        NeoHookeanCompareTest::SetUp();
+
+        // Use struct
+        TestNH->ustruct = false;
+        TestCANNNH->ustruct = false;
+    }
+};
+
+/**
+ * @brief Test fixture class for USTRUCT Neo-Hookean Compare model.
+ */
+class USTRUCT_CANNNeoHookeanTest : public NeoHookeanCompareTest {
+protected:
+    void SetUp() override {
+        NeoHookeanCompareTest::SetUp();
+
+        // Use ustruct
+        TestNH->ustruct = true;
+        TestCANNNH->ustruct = true;
+    }
+};
 
 // ----------------------------------------------------------------------------
 // ---------------- Quadratic Volumetric Penalty Model ------------------------
@@ -1913,6 +1994,24 @@ TEST_F(STRUCT_CANN_NH_Test, TestPK2StressTriaxialStretch) {
     TestCANNNH->testPK2StressAgainstReference(F, S_ref, rel_tol, abs_tol, verbose);
 }
 
+// ----------------------------------------------------------------------------
+// ------- CANN w/ NH param - Framework 2 - using Neo-Hookean Material --------
+// ----------------------------------------------------------------------------
+
+// ------------------------------ STRUCT Tests --------------------------------
+
+// Test PK2 stress zero for F = I
+TEST_F(STRUCT_CANNNeoHookeanTest, TestPK2StressIdentityF) {
+    verbose = true; // Show values of S and S_ref
+
+    // Check identity F produces zero PK2 stress
+    double F[3][3] = {{1.0, 0.0, 0.0},
+                       {0.0, 1.0, 0.0},
+                       {0.0, 0.0, 1.0}};
+     double S_ref[3][3] = {}; // PK2 stress initialized to zero - want to get result from NH and set that to S_ref
+    TestNH->calcPK2StressFiniteDifference(F,delta,order,S_ref); // Computing S_ref from NH
+    TestCANNNH->testPK2StressAgainstReference(F, S_ref, rel_tol, abs_tol, verbose); // Comparing with CANN
+}
 
 // ----------------------------------------------------------------------------
 // ---------------------- Quadratic Volumetric Penalty Material ----------------

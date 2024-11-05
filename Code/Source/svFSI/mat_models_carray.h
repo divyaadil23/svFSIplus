@@ -381,7 +381,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       }
 
       mat_fun_carray::print("C",C);
-      
+
       // Fiber reinforcement/active stress
       double prod[N][N];
       mat_fun_carray::mat_dyad_prod<N>(fl.col(0), fl.col(0), prod);
@@ -1582,10 +1582,16 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
         mat_fun_carray::mat_sum(prod,S,S);
       }
 
-      // Fiber reinforcement/active stress - not sure why only in one fiber direction
+      // Fiber reinforcement/active stress
       for (int i = 0; i < nsd; i++) {
         for (int j = 0; j < nsd; j++) {
-          S[i][j] += Tfa * prod1[i][j];
+          if (nfd==2)
+          {
+            S[i][j] += Tfa * prod1[i][j] + Tsa*prod2[i][j];
+          }
+          else
+            S[i][j] += Tfa * prod1[i][j];
+          }
         }
       }
 
