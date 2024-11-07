@@ -1391,11 +1391,15 @@ public:
         // Compute CC(F) from get_pk2cc()
         double S[3][3], Dm[6][6];
         get_pk2cc(F, S, Dm);
-    
+
+        // mat_fun_carray::print<6>("Dm from CANN", Dm);
+
         // Calculate CC from Dm
         double CC[3][3][3][3];
         mat_models_carray::voigt_to_cc_carray<3>(Dm, CC);
-    
+
+        // mat_fun_carray::print("CC from CANN",CC);
+
         // Compare CC with reference solution
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
@@ -1448,6 +1452,55 @@ public:
             std::cout << std::endl;
         }
     }
+    
+/**
+     * @brief Calculate the reference material elasticity tensor CC(F) for comparison with Neo-Hookean.
+     *
+     * This function computes the material elasticity tensor CC(F) from the deformation gradient F using get_pk2cc() 
+     *
+     * @param[in] F Deformation gradient.
+     * @param[in] CC_ref Reference solution for material elasticity tensor.
+     * @param[in] verbose Show values of F, CC, and CC_ref if true.
+     * @return None.
+     */
+    void calcMaterialElasticityReference(double F[3][3], double CC_ref[3][3][3][3], bool verbose = false) {
+        // Compute CC(F) from get_pk2cc()
+        double S[3][3], Dm[6][6];
+        get_pk2cc(F, S, Dm);
+    
+        // Calculate CC from Dm
+        mat_models_carray::voigt_to_cc_carray<3>(Dm, CC_ref);
+
+        // mat_fun_carray::print("CC_ref from calc function",CC_ref);
+    
+        // Print results if verbose
+        if (verbose) {
+            printMaterialParameters();
+    
+            std::cout << "F =" << std::endl;
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    std::cout << F[i][j] << " ";
+                }
+                std::cout << std::endl;
+            }
+    
+            std::cout << "CC_ref =" << std::endl;
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    for (int k = 0; k < 3; k++) {
+                        for (int l = 0; l < 3; l++) {
+                            std::cout << CC_ref[i][j][k][l] << " ";
+                        }
+                        std::cout << std::endl;
+                    }
+                }
+                std::cout << std::endl;
+            }
+            std::cout << std::endl;
+        }
+    }
+
 
        /**
      * @brief Tests rho, beta, drho/dp, and dbeta/dp from g_vol_pen() against reference solutions.
@@ -1607,13 +1660,12 @@ public:
 
     // Default constructor
     CANN_NH_Params() {
-        w ={{1,1,1,1,1.0,1.0,40.0943265e6},
-        {3,1,2,1,1.0,1.0,1e09}};
+        w ={{1,1,1,1,1.0,1.0,40.0943265e6}};
       };
 
     // Constructor with parameters
     CANN_NH_Params(std::vector<std::vector<double>> w) {
-        for (int i = 0; i < 2; i++){
+        for (int i = 0; i < 1; i++){
             for (int j = 0; j < 7; j++){
                 this -> w[i][j] = w[i][j];
             }
@@ -2050,7 +2102,7 @@ public:
         std::vector<std::vector<double>> w(1, std::vector<double>(7));
         for (int i = 0; i < nrows; i++){
             for (int j = 0; j < 7; j++){
-                w[i][j] = params.w[i][j];
+                dmn.stM.w[i][j] = params.w[i][j];
                 std::cout<<"w"<< w[i][j]<<std::endl;
             }
         }

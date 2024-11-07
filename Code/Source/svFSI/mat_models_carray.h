@@ -372,7 +372,8 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
     //
     case ConstitutiveModelType::stIso_nHook: {
       double g1 = 2.0 * stM.C10;
-      //std::cout << "Neohooke starts" << std::ends;
+      std:: cout<<"C10 in get_pk2cc NH"<<stM.C10<<std::endl;
+      std::cout << "Neohooke starts" << std::ends;
       double Sb[N][N];
       for (int i = 0; i < nsd; i++) {
         for (int j = 0; j < nsd; j++) {
@@ -1363,15 +1364,15 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
     // Universal Material Subroutine - stAnisoHyper_Inv
     
     case ConstitutiveModelType::stAnisoHyper_Inv: {
-      std::cout<<"CANN Starts"<<std::endl;
-      std::cout<<"J2d = "<< J2d << std::endl;
+      // std::cout<<"CANN Starts"<<std::endl;
+      // std::cout<<"J2d = "<< J2d << std::endl;
       //Isochoric Invariant definitions
       double Ft[N][N];
       mat_fun_carray::transpose<N>(F,Ft);
       double C[N][N];
       mat_fun_carray::mat_mul<N>(Ft,F,C);
       double Inv[9] = {0,0,0,0,0,0,0,0,0};
-      mat_fun_carray::print("C",C);
+      // mat_fun_carray::print("C",C);
       Inv[0] = J2d*mat_fun_carray::mat_trace<N>(C);//Inv1_bar
       Inv[1] = 0.5*(Inv[0]*Inv[0] - J4d*mat_fun_carray::mat_ddot<N>(C,C));//Inv2_bar
       Inv[2] = (mat_fun_carray::mat_det<N>(C));//Inv3 (the only volumetric invariant)
@@ -1427,7 +1428,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       mat_fun_carray::mat_zero(dInv8);
       double dInv9[N][N];
       mat_fun_carray::mat_zero(dInv9);
-      std::cout<<"Inv 1st derivatives done for 1 fiber fam"<<std::endl;
+      // std::cout<<"Inv 1st derivatives done for 1 fiber fam"<<std::endl;
 
       // 2nd derivative of invariant wrt C - d2Inv/dCdC
 
@@ -1444,6 +1445,8 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
           }
         }
       }
+      // print dCidC
+      // mat_fun_carray::print("dCidC",dCidC);
 
       CArray2 NI;
       CArray2 IN;
@@ -1464,7 +1467,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
         for (int j = 0; j < N; j++){
           for (int k = 0; k < N; k++){
             for (int l = 0; l < N; l++){
-              ddInv1[i][j][k][l] = -1/3*(dInv1[i][j]*Ci[k][l] + Inv[0]*dCidC[k][l][i][j] + J2d*Ci[i][j]*Idm[k][l]);
+              ddInv1[i][j][k][l] = -(dInv1[i][j]*Ci[k][l] + Inv[0]*dCidC[k][l][i][j] + J2d*Ci[i][j]*Idm[k][l])/3;
               ddInv2[i][j][k][l] = dInv1[i][j]*dInv1[k][l] + Inv[0]*ddInv1[i][j][k][l] + 1/3*J4d*mat_fun_carray::mat_trace(C2)*dCidC[i][j][k][l] + (Ci[k][l]*mat_fun_carray::mat_trace(C2)/3 + 1)*dCidC[k][l][i][j] + Ci[k][l]/3.0*(dJ4ddC[i][j]*mat_fun_carray::mat_trace(C2)+J4d*2.0*C[i][j]) + dJ4ddC[i][j]*C[k][l] - J4d*Idm[i][k]*Idm[j][l];
               ddInv3[i][j][k][l] = dInv3[i][j]*Ci[k][l] + Inv[2]*dCidC[k][l][i][j];
               ddInv4[i][j][k][l] = -1/3*(dInv4[i][j]*Ci[k][l] + J2d*Ci[i][j]*prod1[k][l] + Inv[3]*dCidC[k][l][i][j]);
@@ -1474,15 +1477,24 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
               ddInv7[i][j][k][l] = 0.0;
               ddInv8[i][j][k][l] = 0.0;
               ddInv9[i][j][k][l] = 0.0;
+              // std::cout<<"ddInv i:"<<i<<", j:"<<j<<" ,k:"<<k<<" ,l:"<<l<<std::endl;
+              // std::cout<<"1:"<<ddInv1[i][j][k][l]<<" ,2:"<<ddInv2[i][j][k][l]<<" ,3:"<<ddInv3[i][j][k][l]<<" ,4:"<<ddInv4[i][j][k][l]<<" ,5:"<<ddInv5[i][j][k][l]<<std::endl;
             }
           }
         }
       }
-      std::cout<<"Inv 2nd derivatives done for 1 fiber fam"<<std::endl;
+
+      //printing things that add up to give ddInv1
+      // mat_fun_carray::print("Idm",Idm);
+      // mat_fun_carray::print("Ci",Ci);
+      //printing ddInv
+      // mat_fun_carray::print("ddInv1",ddInv1);
+
+      // std::cout<<"Inv 2nd derivatives done for 1 fiber fam"<<std::endl;
 
       if (nfd==2) //Anisotropic invariants for 2nd fiber direction
       {
-        std::cout << nfd << std::endl;
+        // std::cout << nfd << std::endl;
         double prod12[N][N];
         auto n1 = fl.col(1);
         mat_fun_carray::mat_dyad_prod<N>(n0, n1, prod12);
@@ -1525,7 +1537,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
         mat_fun_carray::mat_scmul(sum2,J4d,term2);
         mat_fun_carray::mat_scmul(Ci,-Inv[8]/3,term1);
         mat_fun_carray::mat_sum(term1,term2,dInv9);
-        std::cout<<"Inv 1st derivatives done for 2 fiber fam"<<std::endl;
+        // std::cout<<"Inv 1st derivatives done for 2 fiber fam"<<std::endl;
 
         // 2nd Derivatives of Invariants wrt C
 
@@ -1544,21 +1556,26 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
                 ddInv7[i][j][k][l] = -1/3*(dInv7[i][j]*Ci[k][l] + Inv[6]*dCidC[k][l][i][j] + 2*J4d*Ci[i][j]*sum[i][j]) + J4d*(MI[k][i]*Idm[l][j] + Idm[k][i]*IM[l][j]);
                 ddInv8[i][j][k][l] = -1/3*(dInv8[i][j]*Ci[k][l] + J2d*Ci[i][j]*prod2[k][l] + Inv[7]*dCidC[k][l][i][j]);
                 ddInv9[i][j][k][l] = -1/3*(dInv9[i][j]*Ci[k][l] + Inv[8]*dCidC[k][l][i][j] + 2*J4d*Ci[i][j]*sum2[i][j]) + J4d*(NI[k][i]*Idm[l][j] + Idm[k][i]*IN[l][j]);
+              //   std::cout<<"ddInv i:"<<i<<", j:"<<j<<" ,k:"<<k<<" ,l:"<<l<<std::endl;
+              // std::cout<<"6:"<<ddInv6[i][j][k][l]<<" ,7:"<<ddInv7[i][j][k][l]<<" ,8:"<<ddInv8[i][j][k][l]<<" ,9:"<<ddInv9[i][j][k][l]<<std::endl;
               }
             }
           }
         }
-        std::cout<<"Inv 2nd derivatives done for 2 fiber fam"<<std::endl;
+        // std::cout<<"Inv 2nd derivatives done for 2 fiber fam"<<std::endl;
       }
 
       //storing the invariant derivatives in array of pointers
       double (*dInv[9])[N] = {dInv1, dInv2, dInv3, dInv4, dInv5, dInv6, dInv7, dInv8, dInv9};
       double (*ddInv[9])[N][N][N] = {ddInv1, ddInv2, ddInv3, ddInv4, ddInv5, ddInv6, ddInv7, ddInv8, ddInv9};
 
+      //printing ddInv after storing
+      // mat_fun_carray::print("ddInv1 after storing",(ddInv[0]));
+
       //reading parameters
       // auto &w = *(stM.w);
       auto &w = stM.w;
-      std::cout << "mu1/2"<< w[0][6] << std::endl;
+      // std::cout << "mu1/2"<< w[0][6] << std::endl;
       // std::cout << "b" << w[1][5] << std::endl;
       // std::cout << "a/2b"<< w[1][6] << std::endl;
 
@@ -1566,7 +1583,14 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       double psi,dpsi[9],ddpsi[9];
       UAnisoHyper_inv::uanisohyper_inv(Inv,w,psi,dpsi,ddpsi);
       // mat_fun_carray::uanisohyper_inv(Inv,w,psi,dpsi,ddpsi);
-      std::cout << "strain energy done" << std::endl;
+      // for (int i = 0; i < 9; i++)
+      // {
+      //   std::cout<<"dpsi"<<i<<":"<<dpsi[i]<<std::endl;
+      //   std::cout<<"ddpsi"<<i<<":"<<ddpsi[i]<<std::endl;
+      // }
+      
+      
+      // std::cout << "strain energy done" << std::endl;
 
       // 2nd PK Stress
       mat_fun_carray::mat_zero<N>(S);
@@ -1575,9 +1599,9 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       double Fi[N][N];
       for (int i = 0; i < 9; i++)
       {
-        std::cout<< "Inv"<<i+1<<":"<<Inv[i]<<std::endl;
-        std::cout<< "dpsi"<<i+1<<":"<<dpsi[i]<<std::endl;
-        mat_fun_carray::print("dInv",dInv[i]);
+        // std::cout<< "Inv"<<i+1<<":"<<Inv[i]<<std::endl;
+        // std::cout<< "dpsi"<<i+1<<":"<<dpsi[i]<<std::endl;
+        // mat_fun_carray::print("dInv",dInv[i]);
         mat_fun_carray::mat_scmul(dInv[i],2*dpsi[i],prod);
         mat_fun_carray::mat_sum(prod,S,S);
       }
@@ -1585,36 +1609,49 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       // Fiber reinforcement/active stress
       for (int i = 0; i < nsd; i++) {
         for (int j = 0; j < nsd; j++) {
-          if (nfd==2)
-          {
-            S[i][j] += Tfa * prod1[i][j] + Tsa*prod2[i][j];
-          }
-          else
+          // if (nfd==2){
+          //   S[i][j] += Tfa * prod1[i][j] + Tsa*prod2[i][j];
+          //   }
+          // else {
             S[i][j] += Tfa * prod1[i][j];
+          // }
           }
         }
-      }
+      
 
       // Stiffness Tensor
-      CArray4 CC1;
-      CArray4 CC2;
-      CArray4 CC;
       mat_fun_carray::ten_zero(CC);
 
       for (int x = 0; x < 9; x++){
-        // CC1 = ddInv[x];
-        mat_fun_carray::ten_dyad_prod(dInv[x],dInv[x],CC2);
+        // each element
         for (int i = 0; i < N; i++){
           for (int j = 0; j < N; j++){
             for (int k = 0; k < N; k++){
               for (int l = 0; l < N; l++){
-                CC[i][j][k][l] += dpsi[x]*(ddInv[x])[i][j][k][l] + ddpsi[x]*CC2[i][j][k][l];
-                // std::cout<<CC[i][j][k][l]<<std::endl;
+                CC[i][j][k][l] += 4*dpsi[x]*(ddInv[x])[i][j][k][l];
               }
             }
           }
-        }      
+        } 
       }
+      // mat_fun_carray::print("Printing CC with ddInv term",CC);     
+
+      for (int x = 0; x < 9; x++){
+        for (int y = 0; y < 9; y++){
+          // each element
+          for (int i = 0; i < N; i++){
+            for (int j = 0; j < N; j++){
+              for (int k = 0; k < N; k++){
+                for (int l = 0; l < N; l++){
+                  CC[i][j][k][l] += 4*ddpsi[x]*(dInv[x])[i][j]*(dInv[y])[k][l];
+              }
+            }
+          }
+        }   
+        }
+      }
+      // mat_fun_carray::print("Printing CC",CC);
+
 
       // Pressure term (incompressible)
       for (int j = 0; j < N; j++) {
@@ -1624,7 +1661,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       }
 
        //Printing stresses
-      mat_fun_carray::print("2nd PK Stress",S);
+      // mat_fun_carray::print("2nd PK Stress",S);
 
       // // de-allocating memory from dInv and ddInv
       // for (int i = 0; i < 9; i++) {
@@ -1632,13 +1669,24 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       //   delete[] ddInv[i];  // Free the memory for each 3D array in ddInv
       // }
 
+      // checking conversion to and from voigt
+      // double Dm_temp[2*N][2*N];
+      // cc_to_voigt_carray<N>(CC, Dm_temp);
+      // mat_fun_carray::print<6>("Dm_temp",Dm_temp);
+      
+      // CArray4 CC_temp;
+      // voigt_to_cc_carray(Dm_temp,CC_temp);
+      // mat_fun_carray::print<N>("CC_temp",CC_temp);
+
     } break;
     default:
       throw std::runtime_error("Undefined material constitutive model.");
   } 
 
   // Convert to Voigt Notation
+  // mat_fun_carray::print<N>("CC output from get_pk2cc",CC);
   cc_to_voigt_carray<N>(CC, Dm);
+  // mat_fun_carray::print<6>("Dm output from get_pk2cc:",Dm);
 }
 
 };

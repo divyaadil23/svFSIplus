@@ -410,7 +410,7 @@ class stModelType
     //   {3,1,2,1,1.0,1.0,1e09}
     // }; - Latest one. Want to remove the second row
     std::vector<std::vector<double>> w = {
-      {1,1,1,1,1.0,1.0,2234.32},
+      {1,1,1,1,1.0,1.0,0.0},
     };
     // std::vector<std::vector<double>> w;
     // ifstream file("/Users/divya/svFSIplus/Code/Source/svFSI/ParameterTable_NH.txt");

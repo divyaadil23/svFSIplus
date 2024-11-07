@@ -551,14 +551,16 @@ protected:
         MaterialModelTest::SetUp();
 
         // Set random values for the Neo-Hookean parameters between 1000 and 10000
-        params_NH.C10 = getRandomDouble(1000.0, 10000.0);
+        double C10 = getRandomDouble(1000.0, 10000.0);
+        // std:: cout<<"C10 in Setup"<<C10<<std::endl;
+        params_NH.C10 = C10;
         params_CANN_NH.w[0][0] = 1;
         params_CANN_NH.w[0][1] = 1;
         params_CANN_NH.w[0][2] = 1;
         params_CANN_NH.w[0][3] = 1;
         params_CANN_NH.w[0][4] = 1.0;
         params_CANN_NH.w[0][5] = 1.0;
-        params_CANN_NH.w[0][6] = params_NH.C10;
+        params_CANN_NH.w[0][6] = C10;
 
         // Initialize the test objects
         TestNH = new TestNeoHookean(params_NH);
@@ -580,7 +582,7 @@ protected:
         delete TestCANNNH;
         TestCANNNH = nullptr;
     }
-}
+};
 
 /**
  * @brief Test fixture class for STRUCT Neo-Hookean Compare model.
@@ -2009,8 +2011,59 @@ TEST_F(STRUCT_CANNNeoHookeanTest, TestPK2StressIdentityF) {
                        {0.0, 1.0, 0.0},
                        {0.0, 0.0, 1.0}};
      double S_ref[3][3] = {}; // PK2 stress initialized to zero - want to get result from NH and set that to S_ref
-    TestNH->calcPK2StressFiniteDifference(F,delta,order,S_ref); // Computing S_ref from NH
+    // TestNH->calcPK2StressFiniteDifference(F,delta,order,S_ref); // Computing S_ref from NH
+    double Dm[6][6];
+    TestNH->get_pk2cc(F,S_ref,Dm); // Computing S_ref from NH
     TestCANNNH->testPK2StressAgainstReference(F, S_ref, rel_tol, abs_tol, verbose); // Comparing with CANN
+}
+
+// Test PK2 stress
+TEST_F(STRUCT_CANNNeoHookeanTest, TestPK2StressTriaxialStretch) {
+    verbose = true; // Show values of S and S_ref
+
+    // Check identity F produces zero PK2 stress
+    double F[3][3] = {{1.1, 0.0, 0.0},
+                       {0.0, 1.2, 0.0},
+                       {0.0, 0.0, 0.757}};
+     double S_ref[3][3] = {}; // PK2 stress initialized to zero - want to get result from NH and set that to S_ref
+    // TestNH->calcPK2StressFiniteDifference(F,delta,order,S_ref); // Computing S_ref from NH
+    double Dm[6][6];
+    TestNH->get_pk2cc(F,S_ref,Dm); // Computing S_ref from NH
+    TestCANNNH->testPK2StressAgainstReference(F, S_ref, rel_tol, abs_tol, verbose); // Comparing with CANN
+}
+
+// Test PK2 stress
+TEST_F(STRUCT_CANNNeoHookeanTest, TestMaterialElasticityAgainstReferenceIdentityF) {
+    verbose = true; // Show values of S and S_ref
+
+    // Check identity F produces zero PK2 stress
+    double F[3][3] = {{1.0, 0.0, 0.0},
+                       {0.0, 1.0, 0.0},
+                       {0.0, 0.0, 1.0}};
+    double CC_ref[3][3][3][3] = {}; // CC_ref initialized to zero
+    // double S_ref[3][3], Dm[6][6];
+    // TestNH->get_pk2cc(F,S_ref,Dm); // Computing S_ref and Dm from NH
+    // mat_models_carray::voigt_to_cc_carray<3>(Dm, CC_ref);
+    TestNH->calcMaterialElasticityReference(F,CC_ref,verbose);
+    TestCANNNH->testMaterialElasticityAgainstReference(F, CC_ref, rel_tol, abs_tol, verbose); // Comparing with CANN
+}
+
+// Test PK2 stress
+TEST_F(STRUCT_CANNNeoHookeanTest, TestMaterialElasticityAgainstReference) {
+    verbose = true; // Show values of S and S_ref
+
+    // Check identity F produces zero PK2 stress
+    double F[3][3] = {{1.1, 0.0, 0.0},
+                       {0.0, 1.2, 0.0},
+                       {0.0, 0.0, 0.757}};
+    double CC_ref[3][3][3][3] = {}; // CC_ref initialized to zero
+    // double S_ref[3][3], Dm[6][6];
+    // TestNH->get_pk2cc(F,S_ref,Dm); // Computing S_ref and Dm from NH
+    // mat_fun_carray::print<6>("Dm from NH",Dm);
+    // mat_models_carray::voigt_to_cc_carray<3>(Dm, CC_ref);
+    // mat_fun_carray::print<3>("C_ref from NH", CC_ref);
+    TestNH->calcMaterialElasticityReference(F,CC_ref,verbose);
+    TestCANNNH->testMaterialElasticityAgainstReference(F, CC_ref, rel_tol, abs_tol, verbose); // Comparing with CANN
 }
 
 // ----------------------------------------------------------------------------
