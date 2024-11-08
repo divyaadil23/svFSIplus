@@ -372,8 +372,8 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
     //
     case ConstitutiveModelType::stIso_nHook: {
       double g1 = 2.0 * stM.C10;
-      std:: cout<<"C10 in get_pk2cc NH"<<stM.C10<<std::endl;
-      std::cout << "Neohooke starts" << std::ends;
+      // std:: cout<<"C10 in get_pk2cc NH"<<stM.C10<<std::endl;
+      // std::cout << "Neohooke starts" << std::ends;
       double Sb[N][N];
       for (int i = 0; i < nsd; i++) {
         for (int j = 0; j < nsd; j++) {
@@ -381,7 +381,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
         }
       }
 
-      mat_fun_carray::print("C",C);
+      // mat_fun_carray::print("C",C);
 
       // Fiber reinforcement/active stress
       double prod[N][N];
@@ -392,7 +392,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
           Sb[i][j] += Tfa * prod[i][j];
         }
       }
-      mat_fun_carray::print("NH Sb:",Sb);
+      // mat_fun_carray::print("NH Sb:",Sb);
       double r1 = g1 * Inv1 / nd;
       for (int j = 0; j < N; j++) {
         for (int i = 0; i < N; i++) {
@@ -400,7 +400,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
         }
       }
       //Printing stresses
-      mat_fun_carray::print("2nd PK Stress - NH:",S);
+      mat_fun_carray::print("PK2 in NH:",S);
 
       double Ci_S_prod[N][N][N][N];
       double S_Ci_prod[N][N][N][N];
@@ -438,6 +438,8 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
           }
         }
       }
+
+      mat_fun_carray::print("CC in NH",CC);
 
     } break;
 
@@ -1470,8 +1472,8 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
               ddInv1[i][j][k][l] = -(dInv1[i][j]*Ci[k][l] + Inv[0]*dCidC[k][l][i][j] + J2d*Ci[i][j]*Idm[k][l])/3;
               ddInv2[i][j][k][l] = dInv1[i][j]*dInv1[k][l] + Inv[0]*ddInv1[i][j][k][l] + 1/3*J4d*mat_fun_carray::mat_trace(C2)*dCidC[i][j][k][l] + (Ci[k][l]*mat_fun_carray::mat_trace(C2)/3 + 1)*dCidC[k][l][i][j] + Ci[k][l]/3.0*(dJ4ddC[i][j]*mat_fun_carray::mat_trace(C2)+J4d*2.0*C[i][j]) + dJ4ddC[i][j]*C[k][l] - J4d*Idm[i][k]*Idm[j][l];
               ddInv3[i][j][k][l] = dInv3[i][j]*Ci[k][l] + Inv[2]*dCidC[k][l][i][j];
-              ddInv4[i][j][k][l] = -1/3*(dInv4[i][j]*Ci[k][l] + J2d*Ci[i][j]*prod1[k][l] + Inv[3]*dCidC[k][l][i][j]);
-              ddInv5[i][j][k][l] = -1/3*(dInv5[i][j]*Ci[k][l] + Inv[4]*dCidC[k][l][i][j] + 2*J4d*Ci[i][j]*sum[i][j]) + J4d*(NI[k][i]*Idm[l][j] + Idm[k][i]*IN[l][j]);
+              ddInv4[i][j][k][l] = -(dInv4[i][j]*Ci[k][l] + J2d*Ci[i][j]*prod1[k][l] + Inv[3]*dCidC[k][l][i][j])/3;
+              ddInv5[i][j][k][l] = -(dInv5[i][j]*Ci[k][l] + Inv[4]*dCidC[k][l][i][j] + 2*J4d*Ci[i][j]*sum[i][j]) + J4d*(NI[k][i]*Idm[l][j] + Idm[k][i]*IN[l][j])/3;
               // Higher invariants are zero for 1 fiber family
               ddInv6[i][j][k][l] = 0.0;
               ddInv7[i][j][k][l] = 0.0;
@@ -1552,10 +1554,10 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
           for (int j = 0; j < N; j++){
             for (int k = 0; k < N; k++){
               for (int l = 0; l < N; l++){
-                ddInv6[i][j][k][l] = -1/3*(dInv6[i][j]*Ci[k][l] + J2d*Ci[i][j]*prod12[k][l] + Inv[5]*dCidC[k][l][i][j]);
-                ddInv7[i][j][k][l] = -1/3*(dInv7[i][j]*Ci[k][l] + Inv[6]*dCidC[k][l][i][j] + 2*J4d*Ci[i][j]*sum[i][j]) + J4d*(MI[k][i]*Idm[l][j] + Idm[k][i]*IM[l][j]);
-                ddInv8[i][j][k][l] = -1/3*(dInv8[i][j]*Ci[k][l] + J2d*Ci[i][j]*prod2[k][l] + Inv[7]*dCidC[k][l][i][j]);
-                ddInv9[i][j][k][l] = -1/3*(dInv9[i][j]*Ci[k][l] + Inv[8]*dCidC[k][l][i][j] + 2*J4d*Ci[i][j]*sum2[i][j]) + J4d*(NI[k][i]*Idm[l][j] + Idm[k][i]*IN[l][j]);
+                ddInv6[i][j][k][l] = -(dInv6[i][j]*Ci[k][l] + J2d*Ci[i][j]*prod12[k][l] + Inv[5]*dCidC[k][l][i][j])/3;
+                ddInv7[i][j][k][l] = -(dInv7[i][j]*Ci[k][l] + Inv[6]*dCidC[k][l][i][j] + 2*J4d*Ci[i][j]*sum[i][j]) + J4d*(MI[k][i]*Idm[l][j] + Idm[k][i]*IM[l][j])/3;
+                ddInv8[i][j][k][l] = -(dInv8[i][j]*Ci[k][l] + J2d*Ci[i][j]*prod2[k][l] + Inv[7]*dCidC[k][l][i][j])/3;
+                ddInv9[i][j][k][l] = -(dInv9[i][j]*Ci[k][l] + Inv[8]*dCidC[k][l][i][j] + 2*J4d*Ci[i][j]*sum2[i][j]) + J4d*(NI[k][i]*Idm[l][j] + Idm[k][i]*IN[l][j])/3;
               //   std::cout<<"ddInv i:"<<i<<", j:"<<j<<" ,k:"<<k<<" ,l:"<<l<<std::endl;
               // std::cout<<"6:"<<ddInv6[i][j][k][l]<<" ,7:"<<ddInv7[i][j][k][l]<<" ,8:"<<ddInv8[i][j][k][l]<<" ,9:"<<ddInv9[i][j][k][l]<<std::endl;
               }
@@ -1573,8 +1575,12 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       // mat_fun_carray::print("ddInv1 after storing",(ddInv[0]));
 
       //reading parameters
-      // auto &w = *(stM.w);
-      auto &w = stM.w;
+      // auto &w = stM.w; //- this is the correct one
+
+      //hardcoding the parameters for now
+      std::vector<std::vector<double>> w = {
+      {1,1,1,1,1.0,1.0,4.0094326666666664e+07}};
+
       // std::cout << "mu1/2"<< w[0][6] << std::endl;
       // std::cout << "b" << w[1][5] << std::endl;
       // std::cout << "a/2b"<< w[1][6] << std::endl;
@@ -1650,7 +1656,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
         }   
         }
       }
-      // mat_fun_carray::print("Printing CC",CC);
+      mat_fun_carray::print("Printing CC",CC);
 
 
       // Pressure term (incompressible)
@@ -1661,7 +1667,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       }
 
        //Printing stresses
-      // mat_fun_carray::print("2nd PK Stress",S);
+      mat_fun_carray::print("PK2 in CANN",S);
 
       // // de-allocating memory from dInv and ddInv
       // for (int i = 0; i < 9; i++) {

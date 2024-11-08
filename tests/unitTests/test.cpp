@@ -2055,7 +2055,7 @@ TEST_F(STRUCT_CANNNeoHookeanTest, TestMaterialElasticityAgainstReference) {
     // Check identity F produces zero PK2 stress
     double F[3][3] = {{1.1, 0.0, 0.0},
                        {0.0, 1.2, 0.0},
-                       {0.0, 0.0, 0.757}};
+                       {0.0, 0.0, 1.3}};
     double CC_ref[3][3][3][3] = {}; // CC_ref initialized to zero
     // double S_ref[3][3], Dm[6][6];
     // TestNH->get_pk2cc(F,S_ref,Dm); // Computing S_ref and Dm from NH
