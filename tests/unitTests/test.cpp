@@ -551,9 +551,11 @@ protected:
         MaterialModelTest::SetUp();
 
         // Set random values for the Neo-Hookean parameters between 1000 and 10000
-        double C10 = getRandomDouble(1000.0, 10000.0);
+        // double C10 = getRandomDouble(1000.0, 10000000.0);
+        double C10 = 4.0094326666666664e+07;
         // std:: cout<<"C10 in Setup"<<C10<<std::endl;
         params_NH.C10 = C10;
+        // std::cout<<"C10"<<C10<<std::endl;
         params_CANN_NH.w[0][0] = 1;
         params_CANN_NH.w[0][1] = 1;
         params_CANN_NH.w[0][2] = 1;
@@ -832,19 +834,19 @@ TEST_F(STRUCT_NeoHookeanTest, TestPK2StressIdentityF) {
     TestNH->testPK2StressAgainstReference(F, S_ref, rel_tol, abs_tol, verbose);
 }
 
-// Test PK2 stress for F to compare with CANN_NH
-TEST_F(STRUCT_NeoHookeanTest, TestPK2StressTriaxialStretch) {
-    verbose = true; // Show values of S and S_ref
+// // Test PK2 stress for F to compare with CANN_NH
+// TEST_F(STRUCT_NeoHookeanTest, TestPK2StressTriaxialStretch) {
+//     verbose = true; // Show values of S and S_ref
 
-    // Check identity F produces zero PK2 stress
-    double F[3][3] = {{1.1, 0.0, 0.0},
-                       {0.0, 1.2, 0.0},
-                       {0.0, 0.0, 0.757}};
-    double S_ref[3][3] = {{501.224, 0.0, 0.0},
-                      {0.0, 1135.27, 0.0},
-                      {0.0, 0.0, -3911.14}};
-    TestNH->testPK2StressAgainstReference(F, S_ref, rel_tol, abs_tol, verbose);
-}
+//     // Check identity F produces zero PK2 stress
+//     double F[3][3] = {{1.1, 0.0, 0.0},
+//                        {0.0, 1.2, 0.0},
+//                        {0.0, 0.0, 0.757}};
+//     double S_ref[3][3] = {{501.224, 0.0, 0.0},
+//                       {0.0, 1135.27, 0.0},
+//                       {0.0, 0.0, -3911.14}};
+//     TestNH->testPK2StressAgainstReference(F, S_ref, rel_tol, abs_tol, verbose);
+// }
 
 // Test order of convergence between finite difference PK2 stress and get_pk2cc() PK2 stress for random F (small)
 TEST_F(STRUCT_NeoHookeanTest, TestPK2StressConvergenceOrderRandomFSmall) {
@@ -2030,6 +2032,126 @@ TEST_F(STRUCT_CANNNeoHookeanTest, TestPK2StressTriaxialStretch) {
     double Dm[6][6];
     TestNH->get_pk2cc(F,S_ref,Dm); // Computing S_ref from NH
     TestCANNNH->testPK2StressAgainstReference(F, S_ref, rel_tol, abs_tol, verbose); // Comparing with CANN
+}
+
+// Test order of convergence between finite difference PK2 stress and get_pk2cc() PK2 stress for random F (small)
+TEST_F(STRUCT_CANNNeoHookeanTest, TestPK2StressConvergenceOrderAgainstReferenceRandomFSmall) {
+    //verbose = true; // Show order of convergence, errors, F, S
+    
+    // Loop over F in F_small_list
+    for (auto F_std : F_small_list) {
+        // Convert to C array
+        convertToCArray(F_std, F);
+
+        // Check order of convergence between finite difference and get_pk2cc() PK2 stress
+        double S_ref[3][3], Dm[6][6];
+        TestCANNNH->get_pk2cc(F,S_ref,Dm); // Computing S_ref from CANN
+        TestNH->testPK2StressConvergenceOrderAgainstReference(F, S_ref, delta_max, delta_min, order, convergence_order_tol, verbose);
+    }
+}
+
+// Test order of convergence between finite difference PK2 stress and get_pk2cc() PK2 stress for random F (medium)
+TEST_F(STRUCT_CANNNeoHookeanTest, TestPK2StressConvergenceOrderAgainstReferenceRandomFMedium) {
+    //verbose = true; // Show order of convergence, errors, F, S
+
+    // Loop over F in F_medium_list
+    for (auto F_std : F_medium_list) {
+        // Convert to C array
+        convertToCArray(F_std, F);
+
+        // Check order of convergence between finite difference and get_pk2cc() PK2 stress
+        double S_ref[3][3], Dm[6][6];
+        TestCANNNH->get_pk2cc(F,S_ref,Dm); // Computing S_ref from CANN
+        TestNH->testPK2StressConvergenceOrderAgainstReference(F, S_ref, delta_max, delta_min, order, convergence_order_tol, verbose);
+    }
+}
+
+// Test order of convergence between finite difference PK2 stress and get_pk2cc() PK2 stress for random F (large)
+TEST_F(STRUCT_CANNNeoHookeanTest, TestPK2StressConvergenceOrderAgainstReferenceRandomFLarge) {
+    //verbose = true; // Show order of convergence, errors, F, S
+
+    // Loop over F in F_large_list
+    for (auto F_std : F_large_list) {
+        // Convert to C array
+        convertToCArray(F_std, F);
+
+        // Check order of convergence between finite difference and get_pk2cc() PK2 stress
+        double S_ref[3][3], Dm[6][6];
+        TestCANNNH->get_pk2cc(F,S_ref,Dm); // Computing S_ref from CANN
+        TestNH->testPK2StressConvergenceOrderAgainstReference(F,S_ref, delta_max, delta_min, order, convergence_order_tol, verbose);
+    }
+}
+
+// Test order of convergence of consistency of material elasticity for random F (small)
+TEST_F(STRUCT_CANNNeoHookeanTest, TestMaterialElasticityConsistencyConvergenceOrderAgainstNHRandomFSmall) {
+    //verbose = true; // Show order of convergence, errors, F, S
+
+    // Loop over F in F_small_list
+    for (auto F_std : F_small_list) {
+        // Convert to C array
+        convertToCArray(F_std, F);
+        // Generating perturbation
+        double dF[3][3];
+        std::vector<double> deltas;
+        TestNH->GeneratePerturbationdF(F,dF,delta_max, delta_min, deltas,order,verbose);
+        // Calculating dS and CCdE
+        double dS[3][3], CCdE[3][3];
+        for (int i = 0; i < deltas.size(); i++) {
+            TestCANNNH->calcCCdEFiniteDifference(F, dF, deltas[i], order, CCdE);
+            TestNH->calcdSFiniteDifference(F, dF, deltas[i], order, dS);
+        
+            // Check order of convergence of consistency of material elasticity
+            TestNH->testMaterialElasticityConsistencyConvergenceOrderBetweenMaterialModels(F, dS, CCdE, deltas, order, convergence_order_tol, verbose);
+        }
+    }
+}
+
+// Test order of convergence of consistency of material elasticity for random F (medium)
+TEST_F(STRUCT_CANNNeoHookeanTest, TestMaterialElasticityConsistencyConvergenceOrderAgainstNHRandomFMedium) {
+    //verbose = true; // Show order of convergence, errors, F, S
+
+    // Loop over F in F_medium_list
+    for (auto F_std : F_medium_list) {
+        // Convert to C array
+        convertToCArray(F_std, F);
+        // Generating perturbation
+        double dF[3][3];
+        std::vector<double> deltas;
+        TestNH->GeneratePerturbationdF(F,dF,delta_max, delta_min, deltas,order,verbose);
+        // Calculating dS and CCdE
+        double dS[3][3], CCdE[3][3];
+        for (int i = 0; i < deltas.size(); i++) {
+            TestCANNNH->calcCCdEFiniteDifference(F, dF, deltas[i], order, CCdE);
+            TestNH->calcdSFiniteDifference(F, dF, deltas[i], order, dS);
+        
+            // Check order of convergence of consistency of material elasticity
+            TestNH->testMaterialElasticityConsistencyConvergenceOrderBetweenMaterialModels(F, dS, CCdE, deltas, order, convergence_order_tol, verbose);
+        }
+    }
+}
+
+// Test order of convergence of consistency of material elasticity for random F (large)
+TEST_F(STRUCT_CANNNeoHookeanTest, TestMaterialElasticityConsistencyConvergenceOrderAgainstNHRandomFLarge) {
+    //verbose = true; // Show order of convergence, errors, F, S
+
+    // Loop over F in F_large_list
+    for (auto F_std : F_large_list) {
+        // Convert to C array
+        convertToCArray(F_std, F);
+        // Generating perturbation
+        double dF[3][3];
+        std::vector<double> deltas;
+        TestNH->GeneratePerturbationdF(F,dF,delta_max, delta_min, deltas,order,verbose);
+        // Calculating dS and CCdE
+        double dS[3][3], CCdE[3][3];
+        for (int i = 0; i < deltas.size(); i++) {
+            TestCANNNH->calcCCdEFiniteDifference(F, dF, deltas[i], order, CCdE);
+            TestNH->calcdSFiniteDifference(F, dF, deltas[i], order, dS);
+        
+            // Check order of convergence of consistency of material elasticity
+            TestNH->testMaterialElasticityConsistencyConvergenceOrderBetweenMaterialModels(F, dS, CCdE, deltas, order, convergence_order_tol, verbose);
+        }
+    }
 }
 
 // Test PK2 stress

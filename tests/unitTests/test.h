@@ -671,6 +671,104 @@ public:
         }
     }
 
+     /**
+     * @brief Computes the PK2 stress tensor S(F) from the strain energy density Psi(F) using finite differences and checks the order of convergence using a reference S_ref for exact solution.
+     * Using this to compare CANN PK2 stress against other models.
+     * 
+     * @param[in] F Deformation gradient.
+     * @param[in] delta_min Minimum perturbation scaling factor.
+     * @param[in] delta_max Maximum perturbation scaling factor.
+     * @param[in] order Order of the finite difference scheme (1 for first order, 2 for second order, etc.).
+     * @param[in] convergence_order_tol Tolerance for comparing convergence order with expected value
+     * @param[in] verbose Show values error and order of convergence if true.
+     */
+    template<int N>
+    void testPK2StressConvergenceOrderAgainstReference(const double F[N][N], const double S_ref[N][N], const double delta_max, const double delta_min, const int order, const double convergence_order_tol, const bool verbose = false) {
+        // Check delta_max > delta_min
+        if (delta_max <= delta_min) {
+            std::cerr << "Error: delta_max must be greater than delta_min." << std::endl;
+            return;
+        }
+
+        // Check order is 1 or 2
+        if (order != 1 && order != 2) {
+            std::cerr << "Error: order must be 1 or 2." << std::endl;
+            return;
+        }
+
+        // Create list of deltas for convergence test (delta = delta_max, delta_max/2, delta_max/4, ...)
+        std::vector<double> deltas;
+        double delta = delta_max;
+        while (delta >= delta_min) {
+            deltas.push_back(delta);
+            delta /= 2.0;
+        }
+
+        // Compute finite difference S for each delta and store error in list
+        std::vector<double> errors;
+        double S_fd[3][3];
+        for (int i = 0; i < deltas.size(); i++) {
+            calcPK2StressFiniteDifference(F, deltas[i], order, S_fd);
+
+            // Compute Frobenius norm of error between S and S_fd
+            double error = 0.0;
+            for (int I = 0; I < 3; I++) {
+                for (int J = 0; J < 3; J++) {
+                    error += pow(S_ref[I][J] - S_fd[I][J], 2);
+                }
+            }
+            error = sqrt(error);
+
+            // Store error in list
+            errors.push_back(error);
+        }
+
+        // Compute order of convergence by fitting a line to log(delta) vs log(error)
+        std::vector<double> log_deltas, log_errors;
+        for (int i = 0; i < deltas.size(); i++) {
+            log_deltas.push_back(log(deltas[i]));
+            log_errors.push_back(log(errors[i]));
+        }
+
+        // Fit a line to log(delta) vs log(error)
+        // m is the slope (order of convergence), b is the intercept
+        auto [m, b] = computeLinearRegression(log_deltas, log_errors);
+
+        // Check that order of convergence is > order - convergence_order_tol
+        EXPECT_GT(m, order - convergence_order_tol);
+
+        // Print results if verbose
+        if (verbose) {
+            std::cout << "Slope (order of convergence): " << m << std::endl;
+            std::cout << "Intercept: " << b << std::endl;
+            std::cout << "Errors: ";
+            for (int i = 0; i < errors.size(); i++) {
+                std::cout << errors[i] << " ";
+            }
+            std::cout << std::endl;
+            std::cout << std::endl;
+            
+            // std::cout << "F = " << std::endl;
+            // for (int i = 0; i < 3; i++) {
+            //     for (int J = 0; J < 3; J++) {
+            //         std::cout << F[i][J] << " ";
+            //     }
+            //     std::cout << std::endl;
+            // }
+
+            // std::cout << "S = " << std::endl;
+            // for (int i = 0; i < 3; i++) {
+            //     for (int J = 0; J < 3; J++) {
+            //         std::cout << S[i][J] << " ";
+            //     }
+            //     std::cout << std::endl;
+            // }
+
+            std::cout << std::endl;
+        }
+    }
+
+
     /**
      * @brief Compute perturbation in strain energy density (dPsi) given perturbation in the deformation gradient (dF).
      * 
@@ -1297,6 +1395,162 @@ public:
                     std::cout << std::endl;
                     std::cout << std::endl;
                     
+                    std::cout << "F = " << std::endl;
+                    for (int i = 0; i < 3; i++) {
+                        for (int J = 0; J < 3; J++) {
+                            std::cout << F[i][J] << " ";
+                        }
+                        std::cout << std::endl;
+                    }
+
+                    std::cout << "dF = " << std::endl;
+                    for (int i = 0; i < 3; i++) {
+                        for (int J = 0; J < 3; J++) {
+                            std::cout << dF[i][J] << " ";
+                        }
+                        std::cout << std::endl;
+                    }
+                    std::cout << std::endl;
+                }
+            }
+        }
+    }
+
+/**
+     * @brief Tests the order of convergence of the consistency between CC:dE and dS using finite differences, with CCdE and dS as INPUTS. Used to compare CANN with other models
+     * 
+     * Analytically, we should have CC:dE = dS. This function determines the order of convergence of CC:dE = dS, where dE and dS are computed using finite differences in F.
+     *
+     * Pseudocode:
+     * - For each component-wise perturbation dF
+     *     - For decreasing delta
+     *       - Compute dS
+     *       - Compute CC:dE 
+     *       - Compute error CC:dE - dS
+     * - Compute order of convergence by fitting a line to log(delta) vs log(error)
+     * 
+     * Note that the order of convergence should be order + 1, because we are comparing differences (dS and CC:dE)
+     * instead of derivatives (e.g. dS/dF and CC:dE/dF).
+     * @param[in] F Deformation gradient.
+     * @param[in] dS Change in pk2 due to perturbation dF in F
+     * @param[in] CCdE CC:dE
+     * @param[in] deltas scaling factors for perturbations
+     * @param[in] order Order of the finite difference scheme (1 for first order, 2 for second order, etc.).
+     * @param[in] convergence_order_tol Tolerance for comparing convergence order with expected value
+     * @param[in] verbose Show values of errors and order of convergence if true.
+     */
+    void testMaterialElasticityConsistencyConvergenceOrderBetweenMaterialModels(double F[3][3], double dS[3][3], double CCdE[3][3], std::vector<double> deltas, int order, const double convergence_order_tol, bool verbose = false) {
+
+        // Loop over perturbations to each component of F, dF
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                std::vector<double> errors;
+                // Compute Frobenius norm of error between dS and CC:dE
+                for (int i = 0; i < deltas.size(); i++) {
+                    double error = 0.0;
+                    for (int i = 0; i < 3; i++) {
+                        for (int j = 0; j < 3; j++) {
+                            error += pow(dS[i][j] - CCdE[i][j], 2);
+                        }
+                    }
+                    error = sqrt(error);
+
+                    // Store error in list
+                    errors.push_back(error);
+                }
+
+                // Compute order of convergence by fitting a line to log(delta) vs log(error)
+                std::vector<double> log_deltas, log_errors;
+                for (int i = 0; i < deltas.size(); i++) {
+                    log_deltas.push_back(log(deltas[i]));
+                    log_errors.push_back(log(errors[i]));
+                }
+
+                // Fit a line to log(delta) vs log(error)
+                // m is the slope (order of convergence), b is the intercept
+                auto [m, b] = computeLinearRegression(log_deltas, log_errors);
+                if (std::isnan(m)) {
+                    std::ostringstream oss;
+                    oss << "Error: m value nan. "
+                        << ", F = [";
+
+                    // Append each element of F to the string stream
+                    for (int i = 0; i < 3; ++i) {
+                        for (int j = 0; j < 3; ++j) {
+                            oss << F[i][j];
+                            if (j < 3 - 1) oss << ", ";
+                        }
+                        if (i < 3 - 1) oss << "; ";
+                    }
+                    oss << "]";
+                    throw std::runtime_error(oss.str());
+                }
+                // Check that order of convergence is > (order + 1) - convergence_order_tol
+                EXPECT_GT(m, order + 1 - convergence_order_tol);
+
+                // Print results if verbose
+                if (verbose) {
+                    std::cout << "Iteration " << i << ":" << std::endl;
+                    std::cout << "Slope (order of convergence): " << m << std::endl;
+                    std::cout << "Intercept: " << b << std::endl;
+                    std::cout << "Errors: ";
+                    for (int i = 0; i < errors.size(); i++) {
+                        std::cout << errors[i] << " ";
+                    }
+                    std::cout << std::endl;
+                    std::cout << std::endl;
+                    
+                    std::cout << "F = " << std::endl;
+                    for (int i = 0; i < 3; i++) {
+                        for (int J = 0; J < 3; J++) {
+                            std::cout << F[i][J] << " ";
+                        }
+                        std::cout << std::endl;
+                    }
+                }
+            }
+        }
+    }
+
+
+    /**
+     * @brief Generate perturbation dF in F
+     * 
+     * @param[in] F Deformation gradient.
+     * @param[in] dF Perturbation in deformation gradient.
+     * @param[in] delta_max Maximum perturbation scaling factor.
+     * @param[in] delta_min Minimum perturbation scaling factor.
+     * @param[in] deltas scaling factors for perturbations
+     * @param[in] order Order of the finite difference scheme (1 for first order, 2 for second order, etc.).
+     * @param[in] verbose Show values of errors and order of convergence if true.
+     */
+    void GeneratePerturbationdF(double F[3][3], double dF[3][3], double delta_max, double delta_min, std::vector<double> deltas, int order, bool verbose=false) {
+        // Check that delta_max > delta_min
+        if (delta_max <= delta_min) {
+            std::cerr << "Error: delta_max must be greater than delta_min." << std::endl;
+            return;
+        }
+
+        // Check that order is 1 or 2
+        if (order != 1 && order != 2) {
+            std::cerr << "Error: order must be 1 or 2." << std::endl;
+            return;
+        }
+        // Create list of deltas for convergence test (delta = delta_max, delta_max/2, delta_max/4, ...)
+        double delta = delta_max;
+        while (delta >= delta_min) {
+            deltas.push_back(delta);
+            delta /= 2.0;
+        }
+        // Loop over perturbations to each component of F, dF
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                // Generate dF with 1.0 in (i,j) component
+                dF[3][3] = {};
+                dF[i][j] = 1.0;
+
+                // Print results if verbose
+                if (verbose) {
                     std::cout << "F = " << std::endl;
                     for (int i = 0; i < 3; i++) {
                         for (int J = 0; J < 3; J++) {
@@ -2103,7 +2357,7 @@ public:
         for (int i = 0; i < nrows; i++){
             for (int j = 0; j < 7; j++){
                 dmn.stM.w[i][j] = params.w[i][j];
-                std::cout<<"w"<< w[i][j]<<std::endl;
+                // std::cout<<"w"<< w[i][j]<<std::endl;
             }
         }
         dmn.stM.Kpen = 0.0;         // Zero volumetric penalty parameter

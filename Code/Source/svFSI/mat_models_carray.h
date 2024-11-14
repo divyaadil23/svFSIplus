@@ -1627,14 +1627,15 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
 
       // Stiffness Tensor
       mat_fun_carray::ten_zero(CC);
-
+      double Ci_Ci_prod[N][N][N][N];
+      mat_fun_carray::ten_dyad_prod<N>(Ci, Ci, Ci_Ci_prod);
       for (int x = 0; x < 9; x++){
         // each element
         for (int i = 0; i < N; i++){
           for (int j = 0; j < N; j++){
             for (int k = 0; k < N; k++){
               for (int l = 0; l < N; l++){
-                CC[i][j][k][l] += 4*dpsi[x]*(ddInv[x])[i][j][k][l];
+                CC[i][j][k][l] += 4*dpsi[x]*(ddInv[x])[i][j][k][l] + pl*J*Ci_Ci_prod[i][j][k][l];
               }
             }
           }
@@ -1650,6 +1651,36 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
               for (int k = 0; k < N; k++){
                 for (int l = 0; l < N; l++){
                   CC[i][j][k][l] += 4*ddpsi[x]*(dInv[x])[i][j]*(dInv[y])[k][l];
+                  if (std::isnan(CC[i][j][k][l])) {
+                    // Convert the 2D array F to a string for the error message
+                    std::ostringstream oss;
+                    oss << "Error: CC value nan. "
+                        << "CCijkl = " << std::to_string(CC[i][j][k][l])
+                        << ", F = [";
+
+                    // Append each element of F to the string stream
+                    for (int i = 0; i < N; ++i) {
+                        for (int j = 0; j < N; ++j) {
+                            oss << F[i][j];
+                            if (j < N - 1) oss << ", ";
+                        }
+                        if (i < N - 1) oss << "; ";
+                    }
+                    oss << "]";
+
+                    // Appending pk2 stress too (without pressure term)
+                    oss << ", S wihtout pressure term = [";
+                    for (int i = 0; i < N; ++i) {
+                        for (int j = 0; j < N; ++j) {
+                            oss << S[i][j];
+                            if (j < N - 1) oss << ", ";
+                        }
+                        if (i < N - 1) oss << "; ";
+                    }
+                    oss << "]";
+
+                    throw std::runtime_error(oss.str());
+                  }
               }
             }
           }
@@ -1663,6 +1694,9 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       for (int j = 0; j < N; j++) {
         for (int i = 0; i < N; i++) {
           S[i][j] += p * J * Ci[i][j];
+          // if (abs(S[i][j]) > 1e8) {
+          // throw std::runtime_error("Error: pk2 stress value exceeded 10^8." "Sij = " + std::to_string(S[i][j]) + "i = " + std::to_string(i) + "j = " + std::to_string(j));
+          // }
         }
       }
 
