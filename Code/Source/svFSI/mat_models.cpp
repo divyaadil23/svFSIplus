@@ -36,6 +36,7 @@
 #include "mat_fun.h"
 #include "mat_fun_carray.h"
 #include "utils.h"
+#include "UAnisoHyper_inv.h"
 
 #include <math.h>
 
@@ -600,6 +601,184 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       g2 = g2 + (0.5*ddc4s/stM.bss)*(rexp - 1.0);
       g2   = 4.0*stM.ass*g2;
       CC = CC + g2*ten_dyad_prod(Hss, Hss, nsd);
+    } break;
+
+    // Universal Material Subroutine - stAnisoHyper_Inv
+    
+    case ConstitutiveModelType::stAnisoHyper_Inv: {
+
+      //Isochoric Invariant definitions
+      Array<double> Ft(nsd,nsd);
+      Ft = mat_fun::transpose(F);
+      Array<double> C(nsd,nsd);
+      C = mat_fun::mat_mul(Ft,F);
+
+      double Inv[9] = {0,0,0,0,0,0,0,0,0}; // Initializing Inv
+      Inv[0] = J2d*mat_fun::mat_trace(C,nsd);//Inv1_bar
+      Inv[1] = 0.5*(Inv[0]*Inv[0] - J4d*mat_fun::mat_ddot(C,C,nsd));//Inv2_bar
+      Inv[2] = (mat_fun::mat_det(C,nsd));//Inv3 (the only volumetric invariant)
+      auto n0 = fl.col(0);
+      auto prod1 = mat_fun::mat_dyad_prod(n0,n0,nsd);
+      Inv[3] = J2d*mat_fun::mat_ddot(C,prod1,nsd);//Inv4_bar
+      auto C2 = mat_fun::mat_mul(C,C);
+      Inv[4] = J4d*mat_fun::mat_ddot(C2,prod1,nsd);//Inv5_bar
+
+      //Invariant derivatives wrt C
+      auto dInv1 = (-Inv[0]/3)*Ci + J2d*Idm;
+      auto dInv2 = (mat_fun::mat_trace(C2,nsd)/3)*Ci + Inv[0]*dInv1 - J4d*C;
+      auto dInv3 = Inv[2]*Ci;
+      auto dInv4 = (-Inv[3]/3)*Ci + J2d*prod1; //Anisotropic invariant for 1 fiber direction - Inv4f_bar
+      auto NC1 = mat_fun::mat_mul(prod1,C);
+      auto CN1 = mat_fun::mat_mul(C,prod1);
+      auto dInv5 = J4d*(NC1 + CN1) - (Inv[4]/3)*Ci; //Anisotropic invariant for 1 fiber direction - Inv5f_bar
+
+      // Zero Array
+      Array<double> Zero2(nsd,nsd);
+      Tensor4<double> Zero4(nsd,nsd,nsd,nsd);
+      for (int i = 0; i < nsd; i++){
+        for (int j = 0; j < nsd; j++){
+          Zero2(i,j) = 0.0;
+          for (int k = 0; i < nsd; k++){
+            for (int l = 0; l < nsd; l++){
+              Zero4(i,j,k,l) = 0.0;
+            }
+          }
+        }
+      }
+      
+      // Setting anisotropic invariants for 2 fiber families to 0
+      Array<double> dInv6(nsd,nsd);
+      Array<double> dInv7(nsd,nsd);
+      Array<double> dInv8(nsd,nsd);
+      Array<double> dInv9(nsd,nsd);
+      dInv6 = Zero2;
+      dInv7 = Zero2;
+      dInv8 = Zero2;
+      dInv9 = Zero2;
+
+      // 2nd derivative of invariant wrt C - d2Inv/dCdC
+
+      // some useful derivatives
+      Array<double> dJ4ddC(nsd,nsd);
+      dJ4ddC = -2/3*J4d*Ci;
+      Tensor4<double> dCidC(nsd,nsd,nsd,nsd);
+      dCidC = (-1)*(mat_fun::ten_symm_prod(Ci,Ci,nsd));
+
+      auto NI = mat_fun::mat_mul(prod1,Idm);
+      auto IN = mat_fun::mat_mul(Idm,prod1);
+
+      auto ddInv1 = (-1/3)*(mat_fun::ten_dyad_prod(dInv1,Ci,nsd) + Inv[0]*dCidC + J2d*mat_fun::ten_dyad_prod(Ci,Idm,nsd));
+      auto ddInv2 = mat_fun::ten_dyad_prod(dInv1,dInv1,nsd) + Inv[0]*ddInv1 + 1/3*J4d*mat_fun::mat_trace(C2,nsd)*dCidC + mat_fun::ten_dyad_prod(mat_fun::mat_trace(C2,nsd)*dJ4ddC + 2*J4d*C,Ci/3,nsd) + mat_fun::ten_dyad_prod(dJ4ddC,C,nsd) + J4d*(2*mat_fun::ten_asym_prod12(Idm,Idm,nsd) - mat_fun::ten_dyad_prod(Idm,Idm,nsd));
+      auto ddInv3 = mat_fun::ten_dyad_prod(dInv3,Ci,nsd) + Inv[2]*dCidC;
+      auto ddInv4 = (-1/3)*(mat_fun::ten_dyad_prod(dInv4,Ci,nsd) + J2d*mat_fun::ten_dyad_prod(Ci,prod1,nsd) + Inv[3]*dCidC);
+      auto Nt = mat_fun::transpose(prod1);
+      auto ddInv5 = (-1/3)*(mat_fun::ten_dyad_prod(dInv5,Ci,nsd) + Inv[4]*dCidC + 2*J4d*mat_fun::ten_dyad_prod(Ci, NC1 + CN1,nsd)) + J4d*(2*mat_fun::ten_symm_prod(Nt,Idm,nsd) - mat_fun::ten_dyad_prod(Nt,Idm,nsd) + 2*mat_fun::ten_symm_prod(Idm,prod1,nsd) - mat_fun::ten_dyad_prod(Idm,prod1,nsd));
+      // Higher invariants are zero for 1 fiber family
+      auto ddInv6 = Zero4;
+      auto ddInv7 = Zero4;
+      auto ddInv8 = Zero4;
+      auto ddInv9 = Zero4;
+
+
+      if (nfd==2) //Anisotropic invariants for 2nd fiber direction
+      {
+        Array<double> prod12(nsd,nsd);
+        Array<double> prod2(nsd,nsd);
+        auto n1 = fl.col(1);
+        prod12 = mat_fun::mat_dyad_prod(n0,n1,nsd);
+        prod2 = mat_fun::mat_dyad_prod(n1,n1,nsd);
+        Inv[5] = J2d*mat_fun::mat_ddot(C,prod12,nsd);//Inv6_bar or Inv4s_bar
+        Inv[6] = J4d*mat_fun::mat_ddot(C2,prod12,nsd);//Inv7_bar or Inv5s_bar
+        Inv[7] = J2d*mat_fun::mat_ddot(C,prod2,nsd);//Inv8_bar or Inv4_fs_bar
+        Inv[8] = J4d*mat_fun::mat_ddot(C2,prod2,nsd);//Inv9_bar or Inv5_fs_bar
+
+        //Invariant derivatives wrt C
+
+        dInv6 = (-Inv[5]/3)*Ci + J2d*prod12;
+        
+        Array<double> NC12(nsd,nsd);
+        NC12 = mat_fun::mat_mul(prod12,C);
+        Array<double> CN12(nsd,nsd);
+        CN12 = mat_fun::mat_mul(prod12,C);
+        dInv7 = J4d*(NC12 + CN12) + (-Inv[6]/3)*Ci;
+
+        dInv8 = (-Inv[7]/3)*Ci + J2d*prod2;
+
+        Array<double> NC2(nsd,nsd);
+        NC2 = mat_fun::mat_mul(prod2,C);
+        Array<double> CN2(nsd,nsd);
+        CN2 = mat_fun::mat_mul(prod2,C);
+        dInv9 = J4d*(NC2 + CN2) + (-Inv[8]/3)*Ci;
+
+        // 2nd Derivatives of Invariants wrt C
+        
+        NI = mat_fun::mat_mul(prod2,Idm);
+        IN = mat_fun::mat_mul(Idm,prod2);
+
+        Array<double> MI(nsd,nsd);
+        MI = mat_fun::mat_mul(prod12,Idm);
+        Array<double> IM(nsd,nsd);
+        IM = mat_fun::mat_mul(Idm,prod12);
+
+        ddInv6 = (-1/3)*(mat_fun::ten_dyad_prod(dInv6,Ci,nsd) + J2d*mat_fun::ten_dyad_prod(Ci,prod12,nsd) + Inv[5]*dCidC);
+        auto Mt = mat_fun::transpose(prod12);
+        ddInv7 = (-1/3)*(mat_fun::ten_dyad_prod(dInv7,Ci,nsd) + Inv[6]*dCidC + 2*J4d*mat_fun::ten_dyad_prod(Ci,(NC12 + CN12),nsd) + J4d*(2*mat_fun::ten_symm_prod(Mt,Idm,nsd) - mat_fun::ten_dyad_prod(Mt,Idm,nsd) + 2*mat_fun::ten_symm_prod(Idm,prod12,nsd) - mat_fun::ten_dyad_prod(Idm,prod12,nsd)));
+        ddInv8 = (-1/3)*(mat_fun::ten_dyad_prod(dInv8,Ci,nsd) + J2d*mat_fun::ten_dyad_prod(Ci,prod2,nsd) + Inv[7]*dCidC);
+        Nt = mat_fun::transpose(prod2);
+        ddInv9 = (-1/3)*(mat_fun::ten_dyad_prod(dInv9,Ci,nsd) + Inv[8]*dCidC + 2*J4d*mat_fun::ten_dyad_prod(Ci,(NC2 + CN2),nsd) + J4d*(2*mat_fun::ten_symm_prod(Nt,Idm,nsd) - mat_fun::ten_dyad_prod(Nt,Idm,nsd) + 2*mat_fun::ten_symm_prod(Idm,prod2,nsd) - mat_fun::ten_dyad_prod(Idm,prod2,nsd)));
+        
+      }
+
+      //storing the invariant derivatives in array of pointers
+      std::vector<Array<double>> dInv = {dInv1, dInv2, dInv3, dInv4, dInv5, dInv6, dInv7, dInv8, dInv9};
+      std::vector<Tensor4<double>> ddInv = {ddInv1, ddInv2, ddInv3, ddInv4, ddInv5, ddInv6, ddInv7, ddInv8, ddInv9};
+
+
+      //reading parameters
+      // auto &w = stM.w; //- this is the correct one
+
+      //hardcoding the parameters for now
+      std::vector<std::vector<double>> w = {
+      {1,1,1,1,1.0,1.0,4.0094326666666664e+07}};
+
+      //Strain energy function and derivatives
+      double psi,dpsi[9],ddpsi[9];
+      UAnisoHyper_inv::uanisohyper_inv(Inv,w,psi,dpsi,ddpsi);
+
+      // 2nd PK Stress
+      S = Zero2;
+      for (int x = 0; x < 9; x++){
+        S = S + dpsi[x]*dInv[x];
+      }
+      
+      // Array<double> prod(nsd,nsd);
+      // S = 2*(dpsi[0]*dInv1 + dpsi[1]*dInv2 + dpsi[2]*dInv3 + dpsi[3]*dInv4 + dpsi[4]*dInv5 + dpsi[5]*dInv6 + dpsi[6]*dInv7 + dpsi[7]*dInv8 + dpsi[8]*dInv9);
+
+      // Fiber reinforcement/active stress
+      S = S + Tfa*prod1;
+      
+
+      // Stiffness Tensor
+      // dpsi terms
+      // CC = 4*(dpsi[0]*ddInv1 + dpsi[1]*ddInv2 + dpsi[2]*ddInv3 + dpsi[3]*ddInv4 + dpsi[4]*ddInv5 + dpsi[5]*ddInv6 + dpsi[6]*ddInv7 + dpsi[7]*ddInv8 + dpsi[8]*ddInv9);
+      // // ddpsi terms
+      // CC += 4*(ddpsi[0]*(mat_fun::ten_dyad_prod(dInv1,dInv1,nsd) + mat_fun::ten_dyad_prod(dInv1,dInv2,nsd) + mat_fun::ten_dyad_prod(dInv1,dInv3,nsd) + mat_fun::ten_dyad_prod(dInv1,dInv4,nsd) + mat_fun::ten_dyad_prod(dInv1,dInv5,nsd) + mat_fun::ten_dyad_prod(dInv1,dInv6,nsd) + mat_fun::ten_dyad_prod(dInv1,dInv7,nsd) + mat_fun::ten_dyad_prod(dInv1,dInv8,nsd) + mat_fun::ten_dyad_prod(dInv1,dInv9,nsd))
+      // ... + ddpsi[1]*);
+      Tensor4<double> Ci_Ci_prod(nsd,nsd,nsd,nsd);
+      Ci_Ci_prod = mat_fun::ten_dyad_prod(Ci,Ci,nsd);
+      Tensor4<double> Ci_Ci_symprod(nsd,nsd,nsd,nsd);
+      Ci_Ci_symprod = mat_fun::ten_symm_prod(Ci,Ci,nsd);
+      
+      for (int x = 0; x < 9; x++){
+        CC += 4*dpsi[x]*(ddInv[x]) + pl*J*Ci_Ci_prod - 2*p*J*Ci_Ci_symprod;
+        for (int y = 0; y < 9; y++){
+          CC += 4*ddpsi[x]*(mat_fun::ten_dyad_prod(dInv[x],dInv[y],nsd));
+        }
+      }
+
+      // Pressure term (incompressible)
+      S += p*J*Ci;
+
     } break;
 
     default:

@@ -1473,7 +1473,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
               ddInv2[i][j][k][l] = dInv1[i][j]*dInv1[k][l] + Inv[0]*ddInv1[i][j][k][l] + 1/3*J4d*mat_fun_carray::mat_trace(C2)*dCidC[i][j][k][l] + (Ci[k][l]*mat_fun_carray::mat_trace(C2)/3 + 1)*dCidC[k][l][i][j] + Ci[k][l]/3.0*(dJ4ddC[i][j]*mat_fun_carray::mat_trace(C2)+J4d*2.0*C[i][j]) + dJ4ddC[i][j]*C[k][l] - J4d*Idm[i][k]*Idm[j][l];
               ddInv3[i][j][k][l] = dInv3[i][j]*Ci[k][l] + Inv[2]*dCidC[k][l][i][j];
               ddInv4[i][j][k][l] = -(dInv4[i][j]*Ci[k][l] + J2d*Ci[i][j]*prod1[k][l] + Inv[3]*dCidC[k][l][i][j])/3;
-              ddInv5[i][j][k][l] = -(dInv5[i][j]*Ci[k][l] + Inv[4]*dCidC[k][l][i][j] + 2*J4d*Ci[i][j]*sum[i][j]) + J4d*(NI[k][i]*Idm[l][j] + Idm[k][i]*IN[l][j])/3;
+              ddInv5[i][j][k][l] = -(dInv5[i][j]*Ci[k][l] + Inv[4]*dCidC[k][l][i][j] + 2*J4d*Ci[i][j]*sum[k][l]) + J4d*(NI[k][i]*Idm[l][j] + Idm[k][i]*IN[l][j])/3;
               // Higher invariants are zero for 1 fiber family
               ddInv6[i][j][k][l] = 0.0;
               ddInv7[i][j][k][l] = 0.0;
@@ -1555,9 +1555,9 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
             for (int k = 0; k < N; k++){
               for (int l = 0; l < N; l++){
                 ddInv6[i][j][k][l] = -(dInv6[i][j]*Ci[k][l] + J2d*Ci[i][j]*prod12[k][l] + Inv[5]*dCidC[k][l][i][j])/3;
-                ddInv7[i][j][k][l] = -(dInv7[i][j]*Ci[k][l] + Inv[6]*dCidC[k][l][i][j] + 2*J4d*Ci[i][j]*sum[i][j]) + J4d*(MI[k][i]*Idm[l][j] + Idm[k][i]*IM[l][j])/3;
+                ddInv7[i][j][k][l] = -(dInv7[i][j]*Ci[k][l] + Inv[6]*dCidC[k][l][i][j] + 2*J4d*Ci[i][j]*sum[k][l]) + J4d*(MI[k][i]*Idm[l][j] + Idm[k][i]*IM[l][j])/3;
                 ddInv8[i][j][k][l] = -(dInv8[i][j]*Ci[k][l] + J2d*Ci[i][j]*prod2[k][l] + Inv[7]*dCidC[k][l][i][j])/3;
-                ddInv9[i][j][k][l] = -(dInv9[i][j]*Ci[k][l] + Inv[8]*dCidC[k][l][i][j] + 2*J4d*Ci[i][j]*sum2[i][j]) + J4d*(NI[k][i]*Idm[l][j] + Idm[k][i]*IN[l][j])/3;
+                ddInv9[i][j][k][l] = -(dInv9[i][j]*Ci[k][l] + Inv[8]*dCidC[k][l][i][j] + 2*J4d*Ci[i][j]*sum2[k][l]) + J4d*(NI[k][i]*Idm[l][j] + Idm[k][i]*IN[l][j])/3;
               //   std::cout<<"ddInv i:"<<i<<", j:"<<j<<" ,k:"<<k<<" ,l:"<<l<<std::endl;
               // std::cout<<"6:"<<ddInv6[i][j][k][l]<<" ,7:"<<ddInv7[i][j][k][l]<<" ,8:"<<ddInv8[i][j][k][l]<<" ,9:"<<ddInv9[i][j][k][l]<<std::endl;
               }
@@ -1626,16 +1626,19 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       
 
       // Stiffness Tensor
+      // pl and p represent teh volumetric terms
       mat_fun_carray::ten_zero(CC);
       double Ci_Ci_prod[N][N][N][N];
       mat_fun_carray::ten_dyad_prod<N>(Ci, Ci, Ci_Ci_prod);
+      double Ci_Ci_symprod[N][N][N][N];
+      mat_fun_carray::ten_symm_prod(Ci, Ci, Ci_Ci_symprod);
       for (int x = 0; x < 9; x++){
         // each element
         for (int i = 0; i < N; i++){
           for (int j = 0; j < N; j++){
             for (int k = 0; k < N; k++){
               for (int l = 0; l < N; l++){
-                CC[i][j][k][l] += 4*dpsi[x]*(ddInv[x])[i][j][k][l] + pl*J*Ci_Ci_prod[i][j][k][l];
+                CC[i][j][k][l] += 4*dpsi[x]*(ddInv[x])[i][j][k][l] + pl*J*Ci_Ci_prod[i][j][k][l] - 2*p*J*Ci_Ci_symprod[i][j][k][l];
               }
             }
           }
