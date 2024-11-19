@@ -92,7 +92,7 @@
    <Poisson_ratio> 0.5 </Poisson_ratio>
 
    <Dilational_penalty_model> ST91 </Dilational_penalty_model>
-   <!-- <Penalty_parameter> 1 </Penalty_parameter>  -->
+   <!-- <Penalty_parameter> 1 </Penalty_parameter> -->
    <Penalty_parameter> 4.0E9 </Penalty_parameter>
 
    <Output type="Spatial" >

@@ -400,7 +400,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
         }
       }
       //Printing stresses
-      mat_fun_carray::print("PK2 in NH:",S);
+      // mat_fun_carray::print("PK2 in NH:",S);
 
       double Ci_S_prod[N][N][N][N];
       double S_Ci_prod[N][N][N][N];
@@ -439,7 +439,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
         }
       }
 
-      mat_fun_carray::print("CC in NH",CC);
+      // mat_fun_carray::print("CC in NH",CC);
 
     } break;
 
@@ -1632,18 +1632,21 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       mat_fun_carray::ten_dyad_prod<N>(Ci, Ci, Ci_Ci_prod);
       double Ci_Ci_symprod[N][N][N][N];
       mat_fun_carray::ten_symm_prod(Ci, Ci, Ci_Ci_symprod);
-      for (int x = 0; x < 9; x++){
+      
         // each element
         for (int i = 0; i < N; i++){
           for (int j = 0; j < N; j++){
             for (int k = 0; k < N; k++){
               for (int l = 0; l < N; l++){
-                CC[i][j][k][l] += 4*dpsi[x]*(ddInv[x])[i][j][k][l] + pl*J*Ci_Ci_prod[i][j][k][l] - 2*p*J*Ci_Ci_symprod[i][j][k][l];
+                for (int x = 0; x < 9; x++){
+                  CC[i][j][k][l] += 4*dpsi[x]*(ddInv[x])[i][j][k][l];
+                }
+                CC[i][j][k][l] += pl*J*Ci_Ci_prod[i][j][k][l] - 2*p*J*Ci_Ci_symprod[i][j][k][l];
               }
             }
           }
         } 
-      }
+
       // mat_fun_carray::print("Printing CC with ddInv term",CC);     
 
       for (int x = 0; x < 9; x++){
@@ -1690,7 +1693,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
         }   
         }
       }
-      mat_fun_carray::print("Printing CC",CC);
+      // mat_fun_carray::print("Printing CC",CC);
 
 
       // Pressure term (incompressible)
@@ -1704,7 +1707,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       }
 
        //Printing stresses
-      mat_fun_carray::print("PK2 in CANN",S);
+      // mat_fun_carray::print("PK2 in CANN",S);
 
       // // de-allocating memory from dInv and ddInv
       // for (int i = 0; i < 9; i++) {

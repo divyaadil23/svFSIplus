@@ -606,7 +606,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
     // Universal Material Subroutine - stAnisoHyper_Inv
     
     case ConstitutiveModelType::stAnisoHyper_Inv: {
-
+      std::cout<<"mat_models CANN starts"<<std::endl;
       //Isochoric Invariant definitions
       Array<double> Ft(nsd,nsd);
       Ft = mat_fun::transpose(F);
@@ -631,6 +631,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       auto NC1 = mat_fun::mat_mul(prod1,C);
       auto CN1 = mat_fun::mat_mul(C,prod1);
       auto dInv5 = J4d*(NC1 + CN1) - (Inv[4]/3)*Ci; //Anisotropic invariant for 1 fiber direction - Inv5f_bar
+      std::cout<<"Invariant derivatives done"<<std::endl;
 
       // Zero Array
       Array<double> Zero2(nsd,nsd);
@@ -638,14 +639,14 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       for (int i = 0; i < nsd; i++){
         for (int j = 0; j < nsd; j++){
           Zero2(i,j) = 0.0;
-          for (int k = 0; i < nsd; k++){
+          for (int k = 0; k < nsd; k++){
             for (int l = 0; l < nsd; l++){
               Zero4(i,j,k,l) = 0.0;
             }
           }
         }
       }
-      
+      std::cout<<"Zero arrays defined"<<std::endl;
       // Setting anisotropic invariants for 2 fiber families to 0
       Array<double> dInv6(nsd,nsd);
       Array<double> dInv7(nsd,nsd);
@@ -655,7 +656,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       dInv7 = Zero2;
       dInv8 = Zero2;
       dInv9 = Zero2;
-
+      std::cout<<"tensors initialized with zeros"<<std::endl;
       // 2nd derivative of invariant wrt C - d2Inv/dCdC
 
       // some useful derivatives
@@ -663,22 +664,32 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       dJ4ddC = -2/3*J4d*Ci;
       Tensor4<double> dCidC(nsd,nsd,nsd,nsd);
       dCidC = (-1)*(mat_fun::ten_symm_prod(Ci,Ci,nsd));
+      std::cout<<"dCidC done"<<std::endl;
 
       auto NI = mat_fun::mat_mul(prod1,Idm);
       auto IN = mat_fun::mat_mul(Idm,prod1);
+      std::cout<<"IN, NI done"<<std::endl;
 
       auto ddInv1 = (-1/3)*(mat_fun::ten_dyad_prod(dInv1,Ci,nsd) + Inv[0]*dCidC + J2d*mat_fun::ten_dyad_prod(Ci,Idm,nsd));
-      auto ddInv2 = mat_fun::ten_dyad_prod(dInv1,dInv1,nsd) + Inv[0]*ddInv1 + 1/3*J4d*mat_fun::mat_trace(C2,nsd)*dCidC + mat_fun::ten_dyad_prod(mat_fun::mat_trace(C2,nsd)*dJ4ddC + 2*J4d*C,Ci/3,nsd) + mat_fun::ten_dyad_prod(dJ4ddC,C,nsd) + J4d*(2*mat_fun::ten_asym_prod12(Idm,Idm,nsd) - mat_fun::ten_dyad_prod(Idm,Idm,nsd));
+      std::cout<<"ddInv 1 done"<<std::endl;
+      auto C2tr = mat_fun::mat_trace(C2,nsd);
+      std::cout<<"C2 trace done"<<std::endl;
+      // auto ddInv2 = Zero4;
+      auto ddInv2 = mat_fun::ten_dyad_prod(dInv1,dInv1,nsd)+ Inv[0]*ddInv1 + (1/3)*J4d*C2tr*dCidC+ mat_fun::ten_dyad_prod((C2tr*dJ4ddC + 2*J4d*C),(1/3)*Ci,nsd) + mat_fun::ten_dyad_prod(dJ4ddC,C,nsd) - J4d*(2*mat_fun::ten_symm_prod(Idm,Idm,nsd) - mat_fun::ten_dyad_prod(Idm,Idm,nsd));
+      std::cout<<"ddInv 2 done"<<std::endl;
       auto ddInv3 = mat_fun::ten_dyad_prod(dInv3,Ci,nsd) + Inv[2]*dCidC;
+      std::cout<<"ddInv 3 done"<<std::endl;
       auto ddInv4 = (-1/3)*(mat_fun::ten_dyad_prod(dInv4,Ci,nsd) + J2d*mat_fun::ten_dyad_prod(Ci,prod1,nsd) + Inv[3]*dCidC);
+      std::cout<<"ddInv 4 done"<<std::endl;
       auto Nt = mat_fun::transpose(prod1);
       auto ddInv5 = (-1/3)*(mat_fun::ten_dyad_prod(dInv5,Ci,nsd) + Inv[4]*dCidC + 2*J4d*mat_fun::ten_dyad_prod(Ci, NC1 + CN1,nsd)) + J4d*(2*mat_fun::ten_symm_prod(Nt,Idm,nsd) - mat_fun::ten_dyad_prod(Nt,Idm,nsd) + 2*mat_fun::ten_symm_prod(Idm,prod1,nsd) - mat_fun::ten_dyad_prod(Idm,prod1,nsd));
+      std::cout<<"ddInv 1-5 done"<<std::endl;
       // Higher invariants are zero for 1 fiber family
       auto ddInv6 = Zero4;
       auto ddInv7 = Zero4;
       auto ddInv8 = Zero4;
       auto ddInv9 = Zero4;
-
+      std::cout<<"2nd derivative done"<<std::endl;
 
       if (nfd==2) //Anisotropic invariants for 2nd fiber direction
       {
@@ -726,7 +737,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
         ddInv8 = (-1/3)*(mat_fun::ten_dyad_prod(dInv8,Ci,nsd) + J2d*mat_fun::ten_dyad_prod(Ci,prod2,nsd) + Inv[7]*dCidC);
         Nt = mat_fun::transpose(prod2);
         ddInv9 = (-1/3)*(mat_fun::ten_dyad_prod(dInv9,Ci,nsd) + Inv[8]*dCidC + 2*J4d*mat_fun::ten_dyad_prod(Ci,(NC2 + CN2),nsd) + J4d*(2*mat_fun::ten_symm_prod(Nt,Idm,nsd) - mat_fun::ten_dyad_prod(Nt,Idm,nsd) + 2*mat_fun::ten_symm_prod(Idm,prod2,nsd) - mat_fun::ten_dyad_prod(Idm,prod2,nsd)));
-        
+        std::cout<<"nfd=2 case done"<<std::endl;
       }
 
       //storing the invariant derivatives in array of pointers
@@ -744,7 +755,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       //Strain energy function and derivatives
       double psi,dpsi[9],ddpsi[9];
       UAnisoHyper_inv::uanisohyper_inv(Inv,w,psi,dpsi,ddpsi);
-
+      std::cout<<"function called to get psi"<<std::endl;
       // 2nd PK Stress
       S = Zero2;
       for (int x = 0; x < 9; x++){
@@ -756,7 +767,7 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
 
       // Fiber reinforcement/active stress
       S = S + Tfa*prod1;
-      
+      std::cout<<"S done without p term"<<std::endl;
 
       // Stiffness Tensor
       // dpsi terms
@@ -770,12 +781,14 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       Ci_Ci_symprod = mat_fun::ten_symm_prod(Ci,Ci,nsd);
       
       for (int x = 0; x < 9; x++){
-        CC += 4*dpsi[x]*(ddInv[x]) + pl*J*Ci_Ci_prod - 2*p*J*Ci_Ci_symprod;
+        CC += 4*dpsi[x]*(ddInv[x]);
         for (int y = 0; y < 9; y++){
           CC += 4*ddpsi[x]*(mat_fun::ten_dyad_prod(dInv[x],dInv[y],nsd));
         }
       }
+      CC += + pl*J*Ci_Ci_prod - 2*p*J*Ci_Ci_symprod;
 
+      std::cout<<"CC done"<<std::endl;
       // Pressure term (incompressible)
       S += p*J*Ci;
 
