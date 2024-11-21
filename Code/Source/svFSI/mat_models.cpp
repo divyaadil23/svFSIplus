@@ -754,7 +754,6 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       
       // Fiber reinforcement/active stress
       S = S + Tfa*prod1;
-      std::cout<<"S done without p term"<<std::endl;
 
       // Stiffness Tensor
       Tensor4<double> Ci_Ci_prod(nsd,nsd,nsd,nsd);

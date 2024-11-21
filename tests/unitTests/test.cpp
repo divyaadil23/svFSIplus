@@ -1962,44 +1962,9 @@ TEST_F(USTRUCT_HolzapfelOgdenMATest, TestMaterialElasticityConsistencyConvergenc
 }
 
 
-// ----------------------------------------------------------------------------
-// -------------------- CANN w/ Neo Hooke Parameters---------------------------
-// ----------------------------------------------------------------------------
-
-// ------------------------------ STRUCT Tests --------------------------------
-
-// Test PK2 stress zero for F = I
-TEST_F(STRUCT_CANN_NH_Test, TestPK2StressIdentityF) {
-    verbose = true; // Show values of S and S_ref
-
-    // Check identity F produces zero PK2 stress
-    double F[3][3] = {{1.0, 0.0, 0.0},
-                       {0.0, 1.0, 0.0},
-                       {0.0, 0.0, 1.0}};
-    // double S_ref[3][3] = {}; // PK2 stress initialized to zero
-    double S_ref[3][3] = {{0.0, 0.0, 0.0},
-                      {0.0, 0.0, 0.0},
-                      {0.0, 0.0, 0.0}};
-    TestCANNNH->testPK2StressAgainstReference(F, S_ref, rel_tol, abs_tol, verbose);
-}
-
-// Test order of convergence between finite difference PK2 stress and get_pk2cc() PK2 stress for triaxial stretch
-TEST_F(STRUCT_CANN_NH_Test, TestPK2StressTriaxialStretch) {
-    //verbose = true; // Show order of convergence, errors, F, S
-
-    // Create a deformation gradient F for triaxial stretch
-    double F[3][3] = {{1.1, 0.0, 0.0},
-                       {0.0, 1.2, 0.0},
-                       {0.0, 0.0, 0.757}};
-    double S_ref[3][3] = {{501.224, 0.0, 0.0},
-                      {0.0, 1135.27, 0.0},
-                      {0.0, 0.0, -3911.14}};
-    // Check order of convergence between finite difference and get_pk2cc() PK2 stress
-    TestCANNNH->testPK2StressAgainstReference(F, S_ref, rel_tol, abs_tol, verbose);
-}
 
 // ----------------------------------------------------------------------------
-// ------- CANN w/ NH param - Framework 2 - using Neo-Hookean Material --------
+// ------- CANN w/ NH param using Neo-Hookean Material --------
 // ----------------------------------------------------------------------------
 
 // ------------------------------ STRUCT Tests --------------------------------
