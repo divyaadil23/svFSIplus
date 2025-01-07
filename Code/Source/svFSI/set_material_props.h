@@ -186,7 +186,8 @@ SeMaterialPropertiesMapType set_material_props = {
   lDmn.stM.isoType = consts::ConstitutiveModelType::stAnisoHyper_Inv;
   auto& params = domain_params->constitutive_model.cann;
   std::cout <<"Within CANN" <<std::endl;
-  lDmn.stM.w = params.w.value();
+  lDmn.stM.nterms = params.nterms.value();
+  // lDmn.stM.w = params.w.value(); - w is being read in read_files.cpp
 } },
 
 //---------------------------//

@@ -389,99 +389,18 @@ class stModelType
     // Fiber reinforcement stress
     fibStrsType Tf;
 
-    //AnisoHyper (Universal) - READ ALL WEIGHTS FROM FILE. Define w as an array
-    
-    // std::vector<std::vector<double>>* w; //pointer to vector of vectors
-    // // Constructor
-    // stModelType(std::vector<std::vector<double>>& vec) : w(&vec) {}
-    // ///@brief Function to read the parameter table and populate the vector
-    // void readParameterTable(std::vector<std::vector<double>>& w);
-
-    /*double w[2][16] = {
-      {0,2.86,0,0,0,0,0,0,0,0,0,0,0,0,1.09,0},
-      {0,4.77,0,0,0,0,0,0,0,0,0,0,0,0,1.00,0}
-    }; */
-    // double w[2][16]= {
-    //   {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    //   {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
-    // };
+    //AnisoHyper (Universal)
+  
     // std::vector<std::vector<double>> w = {
     //   {1,1,1,1,1.0,1.0,40.0943265e6},
     //   {3,1,2,1,1.0,1.0,1e09}
     // }; - Latest one. Want to remove the second row
-    std::vector<std::vector<double>> w = {
-      {1,1,1,1,1.0,1.0,0.0},
-    };
-    // std::vector<std::vector<double>> w;
-    // ifstream file("/Users/divya/svFSIplus/Code/Source/svFSI/ParameterTable_NH.txt");
-    // if(!file.is_open()) {
-    //     cerr << "Failed to open file!" << endl;
-    //     // return 1;
-    // }
-
-    // //Read numbers using the extraction (>>) operator
-    // for (int i = 0; i < 2; i++) {
-    //     w.push_back({});
-    //     for (int j = 0; j < 7; j++) {
-    //         if (j<=3){
-    //             int n;
-    //             file >> n;
-    //             //cout << n << endl;
-    //             w[i].push_back(n);
-    //         }
-    //         else {
-    //             double n;
-    //             file >> n;
-    //             //cout << n << endl;
-    //             w[i].push_back(n);
-    //         }
-    //         //double n;
-    //         //file >> n;
-    //         //cout << n << endl;
-    //         //w[i].push_back(n);
-    //         // cout << j << endl;
-    //         // cout << w[i][j] << endl;
-    //     }
-    // }
-
-    // // Close the file stream
-    // file.close();
-    /*
-    void weights(double w[][16]){
-      w[2][16] = {
-      {0,2.86,0,0,0,0,0,0,0,0,0,0,0,0,1.09,0},
-      {0,4.77,0,0,0,0,0,0,0,0,0,0,0,0,1.00,0}
-      };
-        /*for (int i = 0; i < 2; i++)
-        {
-          for (int j = 0; j < 16; i++)
-          {
-            w[i][j] = 0;//initializing
-          }
-        }
-        w[0][1] = 2.86;
-        w[1][1] = 4.77;
-        w[0][14] = 1.05;
-        w[1][14] = 1.00;
-        /*std::ifstream myfile("/Users/divya/svFSIplus/Code/Source/svFSI/weights.txt");
-        int number;  //Variable to hold each number as it is read
-	
-        //Read number using the extraction (>>) operator
-        for (int i = 0; i < 2; i++)
-        {
-          for (int j = 0; j < 16; i++)
-          {
-            myfile>>w[i][j];
-          }
-        }
-        printf("%d",w[1][1]);
-        std::cout << "hi" << std::ends;
-        //Close the file stream
-	      myfile.close();
-        std::cout << "commod w" << std::ends;
-        std::cout << w[0][1] << std::ends;
-      }
-      weights(w);*/
+    int nterms = 1; //number of terms in strain energy function = num rows in param table
+    // std::vector<std::vector<double>> w = {
+    //   {1,1,1,1,1.0,1.0,0.0},
+    // }; -FINAL
+    std::vector<std::vector<double>> w(nterms, std::vector<double>(7));
+    
 };
 
 /// @brief Fluid viscosity model type
