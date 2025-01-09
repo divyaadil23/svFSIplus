@@ -395,11 +395,23 @@ class stModelType
     //   {1,1,1,1,1.0,1.0,40.0943265e6},
     //   {3,1,2,1,1.0,1.0,1e09}
     // }; - Latest one. Want to remove the second row
-    int nterms = 1; //number of terms in strain energy function = num rows in param table
+
+    // The number of columns in param table or w does not change
+    static constexpr int ncols = 7;
+
+    // Parameter for umber of terms in strain energy function
+    int nterms = 1; //Initialized to 1 right now
+
+    // 2D vector parameter for storing the parameter table
+    std::vector<std::vector<double>> w;
+
+    // Constructor to initialize `w` as it needs nterms to be initialized first
+    stModelType()
+        : w(nterms, std::vector<double>(ncols, 0.0)) {}
+    
     // std::vector<std::vector<double>> w = {
     //   {1,1,1,1,1.0,1.0,0.0},
     // }; -FINAL
-    std::vector<std::vector<double>> w(nterms, std::vector<double>(7));
     
 };
 

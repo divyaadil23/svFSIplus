@@ -2089,6 +2089,46 @@ void read_ls(Simulation* simulation, EquationParameters* eq_params, consts::Solv
   #endif
 }
 
+// Read parameter table from file for CANN material model. This function is used in read mat models
+
+void read_param_table_CANN(dmnType& lDmn){
+    if (lDmn.stM.isoType == consts::ConstitutiveModelType::stAnisoHyper_Inv) {
+      // Define file path
+      std::string fileName = "ParameterTable_NH.txt";
+
+      // Open file
+      std::ifstream inputFile(fileName);
+      if (!inputFile) {
+          throw std::runtime_error("Error opening file: " + fileName);
+      }
+
+      // Number of rows and columns
+      int numRows = lDmn.stM.nterms;
+      int numCols = 7;
+
+        // Read data into the vector
+      for (int i = 0; i < numRows; ++i) {
+          for (int j = 0; j < numCols; ++j) {
+              if (!(inputFile >> lDmn.stM.w[i][j])) {
+                  throw std::runtime_error("Error reading data from file. Check file format.");
+              }
+          }
+      }
+
+        // Close the file
+        inputFile.close();
+    }
+
+    // Print the table for verification
+      std::cout << "Parameter table:\n";
+      for (const auto& row : lDmn.stM.w) {
+          for (const auto& val : row) {
+              std::cout << val << " ";
+          }
+            std::cout << "\n";
+      }
+  }
+
 //----------------
 // read_mat_model
 //----------------
@@ -2142,45 +2182,8 @@ void read_mat_model(Simulation* simulation, EquationParameters* eq_params, Domai
   }
 
   // Read parameter table for CANN model into 2d vector
-
-  void read_param_table_CANN(dmnType& lDmn){
-    if (lDmn.stM.isoType == ConstitutiveModelType::stAnisoHyper_Inv) {
-      // Define file path
-      std::string fileName = "ParameterTable.txt";
-
-      // Open file
-      std::ifstream inputFile(fileName);
-      if (!inputFile) {
-          throw std::runtime_error("Error opening file: " + fileName);
-      }
-
-      // Number of rows and columns
-      int numRows = lDmn.stM.nterms;
-      int numCols = 7;
-
-        // Read data into the vector
-      for (int i = 0; i < numRows; ++i) {
-          for (int j = 0; j < numCols; ++j) {
-              if (!(inputFile >> lDmn.stM.w[i][j])) {
-                  throw std::runtime_error("Error reading data from file. Check file format.");
-              }
-          }
-      }
-
-        // Close the file
-        inputFile.close();
-    }
-
-    // Print the table for verification
-      std::cout << "Parameter table:\n";
-      for (const auto& row : lDmn.stM.w) {
-          for (const auto& val : row) {
-              std::cout << val << " ";
-          }
-            std::cout << "\n";
-      }
-  }
-
+  read_param_table_CANN(lDmn);
+  
   // Set material properties for the domain 'lDmn'.
   try {
     set_material_props[cmodel_type](domain_params, mu, kap, lam, lDmn);

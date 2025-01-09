@@ -742,10 +742,23 @@ void StVenantKirchhoffParameters::print_parameters()
 /// @brief There are no parameters associated with a CANN model.
 CANNParameters::CANNParameters()
 {
+  // A parameter that must be defined.
+  bool required = true;
+
+  set_parameter("nterms", 1, required, nterms); //default value for nterms is 1
 }
 
-void CANNParameters::set_values(tinyxml2::XMLElement* con_params)
+void CANNParameters::set_values(tinyxml2::XMLElement* xml_elem)
 {
+  std::string error_msg = "Unknown Constitutive_model type=CANN XML element '";
+
+  using std::placeholders::_1;
+  using std::placeholders::_2;
+  std::function<void(const std::string&, const std::string&)> ftpr =
+      std::bind( &CANNParameters::set_parameter_value, *this, _1, _2);
+
+  xml_util_set_parameters(ftpr, xml_elem, error_msg);
+
   value_set = true;
 }
 

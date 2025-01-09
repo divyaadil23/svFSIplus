@@ -1546,11 +1546,11 @@ void get_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& lDmn
       double (*ddInv[9])[N][N][N] = {ddInv1, ddInv2, ddInv3, ddInv4, ddInv5, ddInv6, ddInv7, ddInv8, ddInv9};
 
       //reading parameters
-      // auto &w = stM.w; //- this is the correct one
+      auto &w = stM.w; //- this is the correct one
 
       //hardcoding the parameters for integrated tests
-      std::vector<std::vector<double>> w = {
-      {1,1,1,1,1.0,1.0,240.56596E6}};
+      // std::vector<std::vector<double>> w = {
+      // {1,1,1,1,1.0,1.0,240.56596E6}};
       
       //Strain energy function and derivatives
       double psi,dpsi[9],ddpsi[9];
