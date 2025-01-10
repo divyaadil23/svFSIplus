@@ -618,7 +618,8 @@ class CANNParameters : public ParameterLists
 { 
   public:
     CANNParameters();
-    void set_values(tinyxml2::XMLElement* modl_params);
+    bool defined() const { return value_set; };
+    void set_values(tinyxml2::XMLElement* con_model_params);
     void print_parameters();
     Parameter<int> nterms;
     // MatrixParameter<double> w; //Not sure if I should have this. Instead just keep nterms as input param

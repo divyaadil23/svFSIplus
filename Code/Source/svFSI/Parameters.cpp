@@ -510,6 +510,7 @@ SetConstitutiveModelParamMapType SetConstitutiveModelParamMap = {
   {ConstitutiveModelParameters::LEE_SACKS, [](CmpType cp, CmpXmlType params) -> void {cp->lee_sacks.set_values(params);}},
   {ConstitutiveModelParameters::NEOHOOKEAN_MODEL, [](CmpType cp, CmpXmlType params) -> void {cp->neo_hookean.set_values(params);}},
   {ConstitutiveModelParameters::STVENANT_KIRCHHOFF_MODEL, [](CmpType cp, CmpXmlType params) -> void {cp->stvenant_kirchhoff.set_values(params);}},
+  {ConstitutiveModelParameters::CANN_MODEL, [](CmpType cp, CmpXmlType params) -> void {cp->cann.set_values(params);}}
 };
 
 /// @brief Define a map to print parameters for each constitutive model.
@@ -739,7 +740,7 @@ void StVenantKirchhoffParameters::print_parameters()
 {
 }
 
-/// @brief There are no parameters associated with a CANN model.
+/// @brief There is 1 parameter associated with a CANN model.
 CANNParameters::CANNParameters()
 {
   // A parameter that must be defined.
@@ -759,13 +760,17 @@ void CANNParameters::set_values(tinyxml2::XMLElement* xml_elem)
   std::function<void(const std::string&, const std::string&)> ftpr =
       std::bind( &CANNParameters::set_parameter_value, *this, _1, _2);
 
+  std::cout << "Calling xml_util_set_parameters..." << std::endl;
   xml_util_set_parameters(ftpr, xml_elem, error_msg);
-
+  std::cout << "Finished xml_util_set_parameters." << std::endl;
+  
   value_set = true;
 }
 
 void CANNParameters::print_parameters()
 {
+  std::cout << "CANN: " << std::endl;
+  std::cout << nterms.name() << ": " << nterms.value() << std::endl;;
 }
 ConstitutiveModelParameters::ConstitutiveModelParameters()
 {
