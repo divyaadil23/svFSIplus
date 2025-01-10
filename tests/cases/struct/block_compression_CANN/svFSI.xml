@@ -65,27 +65,7 @@
    <Tolerance> 1e-9 </Tolerance> 
 
    <Constitutive_model type="CANN">
-   <nterms> 1 </nterms>
-   <!-- <w>
-            <row>
-                <value>1</value>
-                <value>1</value>
-                <value>1</value>
-                <value>1</value>
-                <value>1.0</value>
-                <value>1.0</value>
-                <value>40.0943265e6</value>
-            </row>
-            <row>
-                <value>3</value>
-                <value>1</value>
-                <value>2</value>
-                <value>1</value>
-                <value>1.0</value>
-                <value>1.0</value>
-                <value>1e09</value>
-            </row>
-        </w> -->
+    <nterms> 1 </nterms>
    </Constitutive_model>
    <Density> 1000.0 </Density> 
    <Elasticity_modulus> 240.56596E6 </Elasticity_modulus>

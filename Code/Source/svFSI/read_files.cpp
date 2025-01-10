@@ -2094,7 +2094,7 @@ void read_ls(Simulation* simulation, EquationParameters* eq_params, consts::Solv
 void read_param_table_CANN(dmnType& lDmn){
     if (lDmn.stM.isoType == consts::ConstitutiveModelType::stAnisoHyper_Inv) {
       // Define file path
-      std::string fileName = "ParameterTable_NH.txt";
+      std::string fileName = "/Users/divya/svFSIplus/Code/Source/svFSI/ParameterTable_NH.txt";
 
       // Open file
       std::ifstream inputFile(fileName);

@@ -746,6 +746,8 @@ CANNParameters::CANNParameters()
   bool required = true;
 
   set_parameter("nterms", 1, required, nterms); //default value for nterms is 1
+
+  set_xml_element_name("Constitutive_model type=CANN");
 }
 
 void CANNParameters::set_values(tinyxml2::XMLElement* xml_elem)
