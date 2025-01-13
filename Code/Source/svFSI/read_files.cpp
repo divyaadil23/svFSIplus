@@ -2092,7 +2092,8 @@ void read_ls(Simulation* simulation, EquationParameters* eq_params, consts::Solv
 // Read parameter table from file for CANN material model. This function is used in read mat models
 
 void read_param_table_CANN(dmnType& lDmn){
-    if (lDmn.stM.isoType == consts::ConstitutiveModelType::stAnisoHyper_Inv) {
+    std::cout<< "read_param_table_CANN starts" << std::endl;
+    std::cout<< "inside if statement" << std::endl;
       // Define file path
       std::string fileName = "/Users/divya/svFSIplus/Code/Source/svFSI/ParameterTable_NH.txt";
 
@@ -2105,6 +2106,7 @@ void read_param_table_CANN(dmnType& lDmn){
       // Number of rows and columns
       int numRows = lDmn.stM.nterms;
       int numCols = 7;
+      std::cout << "numRows" << numRows << std::endl;
 
         // Read data into the vector
       for (int i = 0; i < numRows; ++i) {
@@ -2113,7 +2115,7 @@ void read_param_table_CANN(dmnType& lDmn){
                   throw std::runtime_error("Error reading data from file. Check file format.");
               }
           }
-      }
+      
 
         // Close the file
         inputFile.close();
@@ -2174,6 +2176,7 @@ void read_mat_model(Simulation* simulation, EquationParameters* eq_params, Domai
   // Get the constitutive model type.
   } else {
     cmodel_str = domain_params->constitutive_model.type.value();
+        std::cout<<"constitutive model type given"<< cmodel_str <<std::endl;
     try {
       cmodel_type = constitutive_model_name_to_type.at(cmodel_str);
     } catch (const std::out_of_range& exception) {
@@ -2182,7 +2185,10 @@ void read_mat_model(Simulation* simulation, EquationParameters* eq_params, Domai
   }
 
   // Read parameter table for CANN model into 2d vector
-  read_param_table_CANN(lDmn);
+  if (domain_params->constitutive_model.type.value() == "CANN") {
+    std::cout << "about to read param table for CANN"<< std::endl;
+    read_param_table_CANN(lDmn);
+  }
   
   // Set material properties for the domain 'lDmn'.
   try {
