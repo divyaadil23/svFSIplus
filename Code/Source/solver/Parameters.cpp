@@ -486,6 +486,7 @@ const std::string ConstitutiveModelParameters::HOLZAPFEL_OGDEN_MA_MODEL = "Holza
 const std::string ConstitutiveModelParameters::LEE_SACKS = "Lee-Sacks";
 const std::string ConstitutiveModelParameters::NEOHOOKEAN_MODEL = "neoHookean";
 const std::string ConstitutiveModelParameters::STVENANT_KIRCHHOFF_MODEL = "stVenantKirchhoff";
+const std::string ConstitutiveModelParameters::CANN_MODEL = "CANN";
 
 /// @brief Supported constitutive model types and their aliases.
 const std::map<std::string, std::string> ConstitutiveModelParameters::constitutive_model_types = {
@@ -505,6 +506,9 @@ const std::map<std::string, std::string> ConstitutiveModelParameters::constituti
 
   {ConstitutiveModelParameters::STVENANT_KIRCHHOFF_MODEL, ConstitutiveModelParameters::STVENANT_KIRCHHOFF_MODEL},
   {"stVK",                                                ConstitutiveModelParameters::STVENANT_KIRCHHOFF_MODEL},
+
+  {ConstitutiveModelParameters::CANN_MODEL, ConstitutiveModelParameters::CANN_MODEL},
+  {"CANN", ConstitutiveModelParameters::CANN_MODEL},
 }; 
 
 /// @brief Define a map to set the parameters for each constitutive model.
@@ -520,6 +524,7 @@ SetConstitutiveModelParamMapType SetConstitutiveModelParamMap = {
   {ConstitutiveModelParameters::LEE_SACKS, [](CmpType cp, CmpXmlType params) -> void {cp->lee_sacks.set_values(params);}},
   {ConstitutiveModelParameters::NEOHOOKEAN_MODEL, [](CmpType cp, CmpXmlType params) -> void {cp->neo_hookean.set_values(params);}},
   {ConstitutiveModelParameters::STVENANT_KIRCHHOFF_MODEL, [](CmpType cp, CmpXmlType params) -> void {cp->stvenant_kirchhoff.set_values(params);}},
+  {ConstitutiveModelParameters::CANN_MODEL, [](CmpType cp, CmpXmlType params) -> void {cp->cann.set_values(params);}}
 };
 
 /// @brief Define a map to print parameters for each constitutive model.
@@ -533,6 +538,7 @@ PrintConstitutiveModelParamMapType PrintConstitutiveModelParamMap = {
   {ConstitutiveModelParameters::LEE_SACKS, [](CmpType cp) -> void {cp->lee_sacks.print_parameters();}},
   {ConstitutiveModelParameters::NEOHOOKEAN_MODEL, [](CmpType cp) -> void {cp->neo_hookean.print_parameters();}},
   {ConstitutiveModelParameters::STVENANT_KIRCHHOFF_MODEL, [](CmpType cp) -> void {cp->stvenant_kirchhoff.print_parameters();}},
+  // TODO_Divya - add print parameters for CANN
 };
 
 
@@ -747,6 +753,39 @@ void StVenantKirchhoffParameters::set_values(tinyxml2::XMLElement* con_params)
 
 void StVenantKirchhoffParameters::print_parameters()
 {
+}
+
+/// @brief There is 1 parameter associated with a CANN model.
+CANNParameters::CANNParameters()
+{
+  // A parameter that must be defined.
+  bool required = true;
+
+  set_parameter("nterms", 1, required, nterms); //default value for nterms is 1
+
+  set_xml_element_name("Constitutive_model type=CANN");
+}
+
+void CANNParameters::set_values(tinyxml2::XMLElement* xml_elem)
+{
+  std::string error_msg = "Unknown Constitutive_model type=CANN XML element '";
+
+  using std::placeholders::_1;
+  using std::placeholders::_2;
+  std::function<void(const std::string&, const std::string&)> ftpr =
+      std::bind( &CANNParameters::set_parameter_value, *this, _1, _2);
+
+  std::cout << "Calling xml_util_set_parameters..." << std::endl;
+  xml_util_set_parameters(ftpr, xml_elem, error_msg);
+  std::cout << "Finished xml_util_set_parameters." << std::endl;
+
+  value_set = true;
+}
+
+void CANNParameters::print_parameters()
+{
+  std::cout << "CANN: " << std::endl;
+  std::cout << nterms.name() << ": " << nterms.value() << std::endl;;
 }
 
 ConstitutiveModelParameters::ConstitutiveModelParameters()

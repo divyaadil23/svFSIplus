@@ -55,6 +55,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
+#include <sstream>
 
 class LinearAlgebra;
 
@@ -385,6 +387,21 @@ class stModelType
 
     // Fiber reinforcement stress
     fibStrsType Tf;
+
+    // CANN Model/UAnisoHyper_inv
+    // The number of columns in param table or w does not change
+    static constexpr int ncols = 7;
+
+    // Parameter for umber of terms in strain energy function
+    int nterms = 1; //Initialized to 1 right now
+
+    // 2D vector parameter for storing the parameter table
+    std::vector<std::vector<double>> w;
+
+    // Constructor to initialize `w` as it needs nterms to be initialized first
+    stModelType()
+        : w(nterms, std::vector<double>(ncols, 0.0)) {}
+
 };
 
 /// @brief Fluid viscosity model type
