@@ -38,6 +38,7 @@
 #include "nn.h"
 #include "sv_struct.h"
 #include "utils.h"
+#include "l_elas.h"
 
 #include <array>
 #include <iomanip>
@@ -225,8 +226,10 @@ void construct_fsi(ComMod& com_mod, CepMod& cep_mod, const mshType& lM, const Ar
             struct_ns::struct_3d(com_mod, cep_mod, fs_1[0].eNoN, nFn, w, N0, Nwx, al, yl, dl, bfl, fN, pS0l, pSl, ya_l, lR, lK);
           } break;
           case Equation_lElas:
-            throw std::runtime_error("[construct_fsi] LELAS3D not implemented");
+            // throw std::runtime_error("[construct_fsi] LELAS3D not implemented");
             //CALL LELAS3D(fs(1).eNoN, w, fs(1).N(:,g), Nwx, al, dl, bfl, pS0l, pSl, lR, lK)
+            auto N0 = fs_1[0].N.col(g);
+            l_elas::l_elas_3d(com_mod, fs_1[0].eNoN, w, N0, Nwx, al, dl, bfl, pS0l, pSl, lR, lK);
           break;
 
           case Equation_ustruct:
