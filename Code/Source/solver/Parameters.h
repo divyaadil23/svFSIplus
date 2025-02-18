@@ -503,6 +503,18 @@ class StVenantKirchhoffParameters : public ParameterLists
     bool value_set = false;
 };
 
+class CANNParameters : public ParameterLists
+{ 
+  public:
+    CANNParameters();
+    bool defined() const { return value_set; };
+    void set_values(tinyxml2::XMLElement* con_model_params);
+    void print_parameters();
+    Parameter<int> nterms;
+    // MatrixParameter<double> w; //Not sure if I should have this. Instead just keep nterms as input param
+    bool value_set = false;
+};
+
 /// @brief The ConstitutiveModelParameters class store parameters
 /// for various constitutive models.
 class ConstitutiveModelParameters : public ParameterLists
@@ -523,6 +535,7 @@ class ConstitutiveModelParameters : public ParameterLists
     static const std::string LEE_SACKS;
     static const std::string NEOHOOKEAN_MODEL;
     static const std::string STVENANT_KIRCHHOFF_MODEL;
+    static const std::string CANN_MODEL;
     static const std::map<std::string, std::string> constitutive_model_types;
 
     // Constitutive model type.
@@ -535,6 +548,7 @@ class ConstitutiveModelParameters : public ParameterLists
     MooneyRivlinParameters mooney_rivlin;
     NeoHookeanParameters neo_hookean;
     StVenantKirchhoffParameters stvenant_kirchhoff;
+    CANNParameters cann;
 
     bool value_set = false;
 };
