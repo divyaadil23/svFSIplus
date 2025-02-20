@@ -765,91 +765,53 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
 
       //Invariant derivatives wrt C
       Matrix<nsd> dInv1 = -Inv[0]/3 * Ci + J2d * Idm;
-      Matrix<nsd> dInv2 = C2.trace()
-
-      double dInv2[N][N];
-      double term2[N][N];
-      double temp = mat_fun_carray::mat_trace<N>(C2);
-      mat_fun_carray::mat_scmul(Ci,temp/3,term2);
-      mat_fun_carray::mat_scmul(dInv1,Inv[0],term1);
-      mat_fun_carray::mat_sum(term1,term2,dInv2);
-      mat_fun_carray::mat_scmul(C,-J4d,term1);
-      mat_fun_carray::mat_sum(dInv2,term1,dInv2);
-
-      double dInv3[N][N];
-      mat_fun_carray::mat_scmul(Ci,Inv[2],dInv3);
-
-      double dInv4[N][N]; //Anisotropic invariant for 1 fiber direction - Inv4f_bar
-      mat_fun_carray::mat_scmul(Ci,-Inv[3]/3,term1);
-      mat_fun_carray::mat_scmul(prod1,J2d,term2);
-      mat_fun_carray::mat_sum(term1,term2,dInv4);
-
-      double dInv5[N][N]; //Anisotropic invariant for 1 fiber direction - Inv5f_bar
-      double NC1[N][N];
-      mat_fun_carray::mat_mul<N>(prod1,C,NC1);
-      double CN1[N][N];
-      mat_fun_carray::mat_mul<N>(C,prod1,CN1);
-      double sum[N][N];
-      mat_fun_carray::mat_sum(NC1,CN1,sum);
-      mat_fun_carray::mat_scmul(sum,J4d,term2);
-      mat_fun_carray::mat_scmul(Ci,-Inv[4]/3,term1);
-      mat_fun_carray::mat_sum(term1,term2,dInv5);
+      Matrix<nsd> dInv2 = (C2.trace()/3)*Ci + Inv[0]*dInv1 + J4d*C;
+      Matrix<nsd> dInv3 = Inv[2]*Ci;
+      Matrix<nsd> N1 = fl.col(0)* fl.col(0).transpose();
+      Matrix<nsd> dInv4 = -Inv[3]/3*Ci + J2d*N1;
+      Matrix<nsd> dInv5 = J4d*(N1*C + C*N1) - Inv[4]/3*Ci;
 
       // Setting anisotropic invariants for 2 fiber families to 0
-      double dInv6[N][N];
-      mat_fun_carray::mat_zero(dInv6);
-      double dInv7[N][N];
-      mat_fun_carray::mat_zero(dInv7);
-      double dInv8[N][N];
-      mat_fun_carray::mat_zero(dInv8);
-      double dInv9[N][N];
-      mat_fun_carray::mat_zero(dInv9);
+      Matrix<nsd> dInv6 = 0.0;
+      Matrix<nsd> dInv7 = 0.0;
+      Matrix<nsd> dInv8 = 0.0;
+      Matrix<nsd> dInv9 = 0.0;
 
       // 2nd derivative of invariant wrt C - d2Inv/dCdC
 
       // some useful derivatives
-      CArray4 dCidC;
-      CArray2 dJ4ddC;
+      Tensor4<double> dCidC;
+      Matrix<nsd> dJ4ddC = -2/3*J4d*Ci;
+
       for (int i = 0; i < N; i++){
         for (int j = 0; j < N; j++){
-          dJ4ddC[i][j] = -2/3*J4d*Ci[i][j];
           for (int k = 0; k < N; k++){
             for (int l = 0; l < N; l++){
-              dCidC[i][j][k][l] = -0.5*(Ci[i][k]*Ci[j][l] + Ci[i][l]*Ci[j][k]);
+              dCidC(i,j,k,l) = -0.5*(Ci(i,k)*Ci(j,l) + Ci(i,l)*Ci(j,k));
             }
           }
         }
       }
 
-      CArray2 NI;
-      CArray2 IN;
-      mat_fun_carray::mat_mul(prod1,Idm,NI);
-      mat_fun_carray::mat_mul(Idm,prod1,IN);
+      Matrix<nsd> NI = N1*Idm;
+      Matrix<nsd> IN = Idm*N1;
 
-      CArray4 ddInv1;
-      CArray4 ddInv2;
-      CArray4 ddInv3;
-      CArray4 ddInv4;
-      CArray4 ddInv5;
-      CArray4 ddInv6;
-      CArray4 ddInv7;
-      CArray4 ddInv8;
-      CArray4 ddInv9;
+      Tensor4<double> ddInv1 = -(dyadic_product<nsd>(dInv1,Ci) + Inv[0]*dCidC + J2d*dyadic_product(Ci,Idm))/3;
+      Tensor4<double> ddInv2 = dyadic_product<nsd>(dInv1,dInv1) + Inv[0]*ddInv1 + C2.trace()/3*dCidC + dyadic_product<nsd>((C2.trace()*dJ4ddC + 2*J4d*C),Ci)/3 + dyadic_product<nsd>(dJ4ddC,C) - J4d*fourth_order_identity<nsd>();
+      Tensor4<double> ddInv3 = dyadic_product<nsd>(dInv3,Ci) + Inv[2]*dCidC;
+      Tensor4<double> ddInv4 = -(dyadic_product<nsd>(dInv4,Ci) + J2d*dyadic_product<nsd>(Ci,N1) + Inv[3]*dCidC)/3;
+      Tensor4<double> ddInv5;
+      // Higher invariants are zero for 1 fiber family
+      Tensor4<double> ddInv6 = 0.0;
+      Tensor4<double> ddInv7 = 0.0;
+      Tensor4<double> ddInv8 = 0.0;
+      Tensor4<double> ddInv9 = 0.0;
 
-      for (int i = 0; i < N; i++){
-        for (int j = 0; j < N; j++){
-          for (int k = 0; k < N; k++){
-            for (int l = 0; l < N; l++){
-              ddInv1[i][j][k][l] = -(dInv1[i][j]*Ci[k][l] + Inv[0]*dCidC[k][l][i][j] + J2d*Ci[i][j]*Idm[k][l])/3;
-              ddInv2[i][j][k][l] = dInv1[i][j]*dInv1[k][l] + Inv[0]*ddInv1[i][j][k][l] + 1/3*J4d*mat_fun_carray::mat_trace(C2)*dCidC[i][j][k][l] + (Ci[k][l]*mat_fun_carray::mat_trace(C2)/3 + 1)*dCidC[k][l][i][j] + Ci[k][l]/3.0*(dJ4ddC[i][j]*mat_fun_carray::mat_trace(C2)+J4d*2.0*C[i][j]) + dJ4ddC[i][j]*C[k][l] - J4d*Idm[i][k]*Idm[j][l];
-              ddInv3[i][j][k][l] = dInv3[i][j]*Ci[k][l] + Inv[2]*dCidC[k][l][i][j];
-              ddInv4[i][j][k][l] = -(dInv4[i][j]*Ci[k][l] + J2d*Ci[i][j]*prod1[k][l] + Inv[3]*dCidC[k][l][i][j])/3;
-              ddInv5[i][j][k][l] = -(dInv5[i][j]*Ci[k][l] + Inv[4]*dCidC[k][l][i][j] + 2*J4d*Ci[i][j]*sum[k][l]) + J4d*(NI[k][i]*Idm[l][j] + Idm[k][i]*IN[l][j])/3;
-              // Higher invariants are zero for 1 fiber family
-              ddInv6[i][j][k][l] = 0.0;
-              ddInv7[i][j][k][l] = 0.0;
-              ddInv8[i][j][k][l] = 0.0;
-              ddInv9[i][j][k][l] = 0.0;
+      for (int i = 0; i < nsd; i++){
+        for (int j = 0; j < nsd; j++){
+          for (int k = 0; k < nsd; k++){
+            for (int l = 0; l < nsd; l++){
+              ddInv5(i,j,k,l) = -(dInv5[i][j]*Ci[k][l] + Inv[4]*dCidC[k][l][i][j] + 2*J4d*Ci[i][j]*sum[k][l]) + J4d*(NI[k][i]*Idm[l][j] + Idm[k][i]*IN[l][j])/3;
             }
           }
         }
