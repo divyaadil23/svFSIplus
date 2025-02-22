@@ -455,7 +455,173 @@ protected:
     }
 };
 
+// ----------------------------------------------------------------------------
+// --------------------------- CANN Neo-Hookean Material ---------------------------
+// ----------------------------------------------------------------------------
 
+/**
+ * @brief Test fixture class for the CANN Neo-Hookean material model.
+ *
+ * This class sets up the necessary parameters and objects for testing the Neo-Hookean material model.
+ */
+class CANN_NH_Test : public MaterialModelTest {
+protected:
+    // Material parameters object
+    CANN_NH_Params params;
+
+    // Add the test object
+    TestCANN_NH* TestCANNNH;
+
+    // Setup method to initialize variables before each test
+    void SetUp() override {
+
+        MaterialModelTest::SetUp();
+        params.w[0][0] = 1;
+        params.w[0][1] = 1;
+        params.w[0][2] = 1;
+        params.w[0][3] = 1;
+        params.w[0][4] = 1.0;
+        params.w[0][5] = 1.0;
+        // params.w[1][0] = 3;
+        // params.w[1][1] = 1;
+        // params.w[1][2] = 2;
+        // params.w[1][3] = 1;
+        // params.w[1][4] = 1.0;
+        // params.w[1][5] = 1.0;
+        // params.w[1][6] = pow(10,-9);
+
+        // // Set random values for the Neo-Hookean parameters between 1000 and 10000
+        // params.w[0][6] = getRandomDouble(1000000.0, 10000000.0);
+        params.w[0][6] = 2234.32; //same as C10
+
+        // Initialize the test object
+        TestCANNNH = new TestCANN_NH(params);
+
+        if (TestCANNNH == nullptr) {
+            __throw_runtime_error("TestCANNNH is not properly initialized");
+        }
+    }
+
+    // TearDown method to clean up after each test, if needed
+    void TearDown() override {
+        // Clean up the test object
+        delete TestCANNNH;
+        TestCANNNH = nullptr;
+    }
+};
+
+/**
+ * @brief Test fixture class for STRUCT Neo-Hookean material model.
+ */
+class STRUCT_CANN_NH_Test : public CANN_NH_Test {
+protected:
+    void SetUp() override {
+        CANN_NH_Test::SetUp();
+
+        // Use struct
+        TestCANNNH->ustruct = false;
+    }
+};
+
+/**
+ * @brief Test fixture class for USTRUCT Neo-Hookean material model.
+ */
+class USTRUCT_CANN_NH_Test : public CANN_NH_Test {
+protected:
+    void SetUp() override {
+        CANN_NH_Test::SetUp();
+
+        // Use ustruct
+        TestCANNNH->ustruct = true;
+    }
+};
+
+// ----------------------------------------------------------------------------
+// -------- Compare CANN w/ NH params against NH Model ------------------------
+// ----------------------------------------------------------------------------
+/**
+ * @brief Test fixture class for comparing the CANN model with Neo-Hookean mdoel.
+ *
+ * This class sets up the necessary parameters and objects for comparing CANN model with NH parameters against the Neo-Hookean model.
+ */
+class NeoHookeanCompareTest : public MaterialModelTest {
+protected:
+    // Material parameters objects
+    NeoHookeanParams params_NH; // Neo-Hookean parameters
+    CANN_NH_Params params_CANN_NH; // CANN with neo-hookean parameters
+
+    // Add the test objects
+    TestNeoHookean* TestNH;
+    TestCANN_NH* TestCANNNH;
+
+    // Setup method to initialize variables before each test
+    void SetUp() override {
+
+        MaterialModelTest::SetUp();
+
+        // Set random values for the Neo-Hookean parameters between 1000 and 10000
+        // double C10 = getRandomDouble(1000.0, 10000000.0);
+        double C10 = 4.0094326666666664e+07;
+        // std:: cout<<"C10 in Setup"<<C10<<std::endl;
+        params_NH.C10 = C10;
+        // std::cout<<"C10"<<C10<<std::endl;
+        params_CANN_NH.w[0][0] = 1;
+        params_CANN_NH.w[0][1] = 1;
+        params_CANN_NH.w[0][2] = 1;
+        params_CANN_NH.w[0][3] = 1;
+        params_CANN_NH.w[0][4] = 1.0;
+        params_CANN_NH.w[0][5] = 1.0;
+        params_CANN_NH.w[0][6] = C10;
+
+        // Initialize the test objects
+        TestNH = new TestNeoHookean(params_NH);
+        TestCANNNH = new TestCANN_NH(params_CANN_NH);
+
+        if (TestCANNNH == nullptr) {
+            __throw_runtime_error("TestCANNNH is not properly initialized");
+        }
+        if (TestNH == nullptr) {
+            __throw_runtime_error("TestNH is not properly initialized");
+        }
+    }
+
+    // TearDown method to clean up after each test, if needed
+    void TearDown() override {
+        // Clean up the test objects
+        delete TestNH;
+        TestNH = nullptr;
+        delete TestCANNNH;
+        TestCANNNH = nullptr;
+    }
+};
+
+/**
+ * @brief Test fixture class for STRUCT Neo-Hookean Compare model.
+ */
+class STRUCT_CANNNeoHookeanTest : public NeoHookeanCompareTest {
+protected:
+    void SetUp() override {
+        NeoHookeanCompareTest::SetUp();
+
+        // Use struct
+        TestNH->ustruct = false;
+        TestCANNNH->ustruct = false;
+    }
+};
+
+/**
+ * @brief Test fixture class for USTRUCT Neo-Hookean Compare model.
+ */
+class USTRUCT_CANNNeoHookeanTest : public NeoHookeanCompareTest {
+protected:
+    void SetUp() override {
+        NeoHookeanCompareTest::SetUp();
+
+        // Use ustruct
+        TestNH->ustruct = true;
+        TestCANNNH->ustruct = true;
+    }
+};
 
 
 
@@ -1790,6 +1956,198 @@ TEST_F(USTRUCT_HolzapfelOgdenMATest, TestMaterialElasticityConsistencyConvergenc
         // Check order of convergence of consistency of material elasticity
         TestHO_ma->testMaterialElasticityConsistencyConvergenceOrder(F, delta_max, delta_min, order, convergence_order_tol, verbose);
     }
+}
+
+// ----------------------------------------------------------------------------
+// ------- CANN w/ NH param using Neo-Hookean Material --------
+// ----------------------------------------------------------------------------
+
+// ------------------------------ STRUCT Tests --------------------------------
+
+// Test PK2 stress zero for F = I
+TEST_F(STRUCT_CANNNeoHookeanTest, TestPK2StressIdentityF) {
+    verbose = true; // Show values of S and S_ref
+
+    // Check identity F produces zero PK2 stress
+    Array<double> F = {{1.0, 0.0, 0.0},
+                       {0.0, 1.0, 0.0},
+                       {0.0, 0.0, 1.0}};
+    Array<double> S_ref; // PK2 stress initialized to zero - want to get result from NH and set that to S_ref
+    // TestNH->calcPK2StressFiniteDifference(F,delta,order,S_ref); // Computing S_ref from NH
+    Array<double> Dm(6,6);
+    TestNH->compute_pk2cc(F,S_ref,Dm); // Computing S_ref from NH
+    TestCANNNH->testPK2StressAgainstReference(F, S_ref, rel_tol, abs_tol, verbose); // Comparing with CANN
+}
+
+// Test PK2 stress
+TEST_F(STRUCT_CANNNeoHookeanTest, TestPK2StressTriaxialStretch) {
+    verbose = true; // Show values of S and S_ref
+
+    // Check identity F produces zero PK2 stress
+    Array<double> F = {{1.1, 0.0, 0.0},
+                       {0.0, 1.2, 0.0},
+                       {0.0, 0.0, 0.757}};
+    Array<double> S_ref; // PK2 stress initialized to zero - want to get result from NH and set that to S_ref
+    // TestNH->calcPK2StressFiniteDifference(F,delta,order,S_ref); // Computing S_ref from NH
+    Array<double> Dm(6,6);
+    TestNH->compute_pk2cc(F,S_ref,Dm); // Computing S_ref from NH
+    TestCANNNH->testPK2StressAgainstReference(F, S_ref, rel_tol, abs_tol, verbose); // Comparing with CANN
+}
+
+// Test order of convergence between finite difference PK2 stress and compute_pk2cc() PK2 stress for random F (small)
+TEST_F(STRUCT_CANNNeoHookeanTest, TestPK2StressConvergenceOrderAgainstReferenceRandomFSmall) {
+    //verbose = true; // Show order of convergence, errors, F, S
+
+    // Loop over F in F_small_list
+    for (auto F_std : F_small_list) {
+        // Convert to C array
+        convertToArray(F_std, F);
+
+        // Check order of convergence between finite difference and compute_pk2cc() PK2 stress
+        Array<double> S_ref(3,3), Dm(6,6);
+        TestCANNNH->compute_pk2cc(F,S_ref,Dm); // Computing S_ref from CANN
+        TestNH->testPK2StressConvergenceOrderAgainstReference(F, S_ref, delta_max, delta_min, order, convergence_order_tol, verbose);
+    }
+}
+
+// Test order of convergence between finite difference PK2 stress and compute_pk2cc() PK2 stress for random F (medium)
+TEST_F(STRUCT_CANNNeoHookeanTest, TestPK2StressConvergenceOrderAgainstReferenceRandomFMedium) {
+    //verbose = true; // Show order of convergence, errors, F, S
+
+    // Loop over F in F_medium_list
+    for (auto F_std : F_medium_list) {
+        // Convert to C array
+        convertToArray(F_std, F);
+
+        // Check order of convergence between finite difference and compute_pk2cc() PK2 stress
+        Array<double> S_ref(3,3), Dm(6,6);
+        TestCANNNH->compute_pk2cc(F,S_ref,Dm); // Computing S_ref from CANN
+        TestNH->testPK2StressConvergenceOrderAgainstReference(F, S_ref, delta_max, delta_min, order, convergence_order_tol, verbose);
+    }
+}
+
+// Test order of convergence between finite difference PK2 stress and compute_pk2cc() PK2 stress for random F (large)
+TEST_F(STRUCT_CANNNeoHookeanTest, TestPK2StressConvergenceOrderAgainstReferenceRandomFLarge) {
+    //verbose = true; // Show order of convergence, errors, F, S
+
+        // Use struct
+        //TestQVP->ustruct = false;
+    // Loop over F in F_large_list
+    for (auto F_std : F_large_list) {
+        // Convert to C array
+        convertToArray(F_std, F);
+
+        // Check order of convergence between finite difference and compute_pk2cc() PK2 stress
+        Array<double> S_ref(3,3), Dm(6,6);
+        TestCANNNH->compute_pk2cc(F,S_ref,Dm); // Computing S_ref from CANN
+        TestNH->testPK2StressConvergenceOrderAgainstReference(F,S_ref, delta_max, delta_min, order, convergence_order_tol, verbose);
+    }
+}
+
+// Test order of convergence of consistency of material elasticity for random F (small)
+TEST_F(STRUCT_CANNNeoHookeanTest, TestMaterialElasticityConsistencyConvergenceOrderAgainstNHRandomFSmall) {
+    //verbose = true; // Show order of convergence, errors, F, S
+
+    // Loop over F in F_small_list
+    for (auto F_std : F_small_list) {
+        // Convert to C array
+        convertToArray(F_std, F);
+        // Generating perturbation
+        Array<double> dF(3,3);
+        std::vector<double> deltas;
+        TestNH->generatePerturbationdF(F,dF,delta_max, delta_min, deltas,order,verbose);
+        // Calculating dS and CCdE
+        Array<double> dS(3,3), CCdE(3,3);
+        for (int i = 0; i < deltas.size(); i++) {
+            TestCANNNH->calcCCdEFiniteDifference(F, dF, deltas[i], order, CCdE);
+            TestNH->calcdSFiniteDifference(F, dF, deltas[i], order, dS);
+
+            // Check order of convergence of consistency of material elasticity
+            TestNH->testMaterialElasticityConsistencyConvergenceOrderBetweenMaterialModels(F, dS, CCdE, deltas, order, convergence_order_tol, verbose);
+        }
+    }
+}
+
+// Test order of convergence of consistency of material elasticity for random F (medium)
+TEST_F(STRUCT_CANNNeoHookeanTest, TestMaterialElasticityConsistencyConvergenceOrderAgainstNHRandomFMedium) {
+    //verbose = true; // Show order of convergence, errors, F, S
+
+    // Loop over F in F_medium_list
+    for (auto F_std : F_medium_list) {
+        // Convert to C array
+        convertToArray(F_std, F);
+        // Generating perturbation
+        Array<double> dF(3,3);
+        std::vector<double> deltas;
+        TestNH->generatePerturbationdF(F,dF,delta_max, delta_min, deltas,order,verbose);
+        // Calculating dS and CCdE
+        Array<double> dS(3,3), CCdE(3,3);
+        for (int i = 0; i < deltas.size(); i++) {
+            TestCANNNH->calcCCdEFiniteDifference(F, dF, deltas[i], order, CCdE);
+            TestNH->calcdSFiniteDifference(F, dF, deltas[i], order, dS);
+
+            // Check order of convergence of consistency of material elasticity
+            TestNH->testMaterialElasticityConsistencyConvergenceOrderBetweenMaterialModels(F, dS, CCdE, deltas, order, convergence_order_tol, verbose);
+        }
+    }
+}
+
+// Test order of convergence of consistency of material elasticity for random F (large)
+TEST_F(STRUCT_CANNNeoHookeanTest, TestMaterialElasticityConsistencyConvergenceOrderAgainstNHRandomFLarge) {
+    //verbose = true; // Show order of convergence, errors, F, S
+
+    // Loop over F in F_large_list
+    for (auto F_std : F_large_list) {
+        // Convert to array
+        convertToArray(F_std, F);
+        // Generating perturbation
+        Array<double> dF(3,3);
+        std::vector<double> deltas;
+        TestNH->generatePerturbationdF(F,dF,delta_max, delta_min, deltas,order,verbose);
+        // Calculating dS and CCdE
+        Array<double> dS(3,3), CCdE(3,3);
+        for (int i = 0; i < deltas.size(); i++) {
+            TestCANNNH->calcCCdEFiniteDifference(F, dF, deltas[i], order, CCdE);
+            TestNH->calcdSFiniteDifference(F, dF, deltas[i], order, dS);
+
+            // Check order of convergence of consistency of material elasticity
+            TestNH->testMaterialElasticityConsistencyConvergenceOrderBetweenMaterialModels(F, dS, CCdE, deltas, order, convergence_order_tol, verbose);
+        }
+    }
+}
+
+// Test PK2 stress
+TEST_F(STRUCT_CANNNeoHookeanTest, TestMaterialElasticityAgainstReferenceIdentityF) {
+    verbose = true; // Show values of S and S_ref
+
+    // Check identity F produces zero PK2 stress
+    Array<double> F = {{1.0, 0.0, 0.0},
+                       {0.0, 1.0, 0.0},
+                       {0.0, 0.0, 1.0}};
+    Tensor4<double> CC_ref(3,3,3,3); // CC_ref initialized to zero
+    // double S_ref[3][3], Dm[6][6];
+    // TestNH->compute_pk2cc(F,S_ref,Dm); // Computing S_ref and Dm from NH
+    // mat_models_carray::voigt_to_cc_carray<3>(Dm, CC_ref);
+    TestNH->calcMaterialElasticityReference(F,CC_ref,verbose);
+    TestCANNNH->testMaterialElasticityAgainstReference(F, CC_ref, rel_tol, abs_tol, verbose); // Comparing with CANN
+}
+
+// Test PK2 stress
+TEST_F(STRUCT_CANNNeoHookeanTest, TestMaterialElasticityAgainstReference) {
+    verbose = true; // Show values of S and S_ref
+
+    // Check identity F produces zero PK2 stress
+    Array<double> F = {{1.1, 0.0, 0.0},
+                       {0.0, 1.2, 0.0},
+                       {0.0, 0.0, 1.3}};
+    Tensor4<double> CC_ref(3,3,3,3); // CC_ref initialized to zero
+    // double S_ref[3][3], Dm[6][6];
+    // TestNH->compute_pk2cc(F,S_ref,Dm); // Computing S_ref and Dm from NH
+    // mat_fun_carray::print<6>("Dm from NH",Dm);
+    // mat_models_carray::voigt_to_cc_carray<3>(Dm, CC_ref);
+    // mat_fun_carray::print<3>("C_ref from NH", CC_ref);
+    TestNH->calcMaterialElasticityReference(F,CC_ref,verbose);
+    TestCANNNH->testMaterialElasticityAgainstReference(F, CC_ref, rel_tol, abs_tol, verbose); // Comparing with CANN
 }
 
 

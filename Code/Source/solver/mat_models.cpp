@@ -772,123 +772,55 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
       Matrix<nsd> dInv5 = J4d*(N1*C + C*N1) - Inv[4]/3*Ci;
 
       // Setting anisotropic invariants for 2 fiber families to 0
-      Matrix<nsd> dInv6 = 0.0;
-      Matrix<nsd> dInv7 = 0.0;
-      Matrix<nsd> dInv8 = 0.0;
-      Matrix<nsd> dInv9 = 0.0;
+      Matrix<nsd> dInv6;
+      Matrix<nsd> dInv7;
+      Matrix<nsd> dInv8;
+      Matrix<nsd> dInv9;
 
       // 2nd derivative of invariant wrt C - d2Inv/dCdC
 
       // some useful derivatives
-      Tensor4<double> dCidC;
+      Tensor<nsd> dCidC = symmetric_dyadic_product<nsd>(Ci,Ci);
       Matrix<nsd> dJ4ddC = -2/3*J4d*Ci;
 
-      for (int i = 0; i < N; i++){
-        for (int j = 0; j < N; j++){
-          for (int k = 0; k < N; k++){
-            for (int l = 0; l < N; l++){
-              dCidC(i,j,k,l) = -0.5*(Ci(i,k)*Ci(j,l) + Ci(i,l)*Ci(j,k));
-            }
-          }
-        }
-      }
-
-      Matrix<nsd> NI = N1*Idm;
-      Matrix<nsd> IN = Idm*N1;
-
-      Tensor4<double> ddInv1 = -(dyadic_product<nsd>(dInv1,Ci) + Inv[0]*dCidC + J2d*dyadic_product(Ci,Idm))/3;
-      Tensor4<double> ddInv2 = dyadic_product<nsd>(dInv1,dInv1) + Inv[0]*ddInv1 + C2.trace()/3*dCidC + dyadic_product<nsd>((C2.trace()*dJ4ddC + 2*J4d*C),Ci)/3 + dyadic_product<nsd>(dJ4ddC,C) - J4d*fourth_order_identity<nsd>();
-      Tensor4<double> ddInv3 = dyadic_product<nsd>(dInv3,Ci) + Inv[2]*dCidC;
-      Tensor4<double> ddInv4 = -(dyadic_product<nsd>(dInv4,Ci) + J2d*dyadic_product<nsd>(Ci,N1) + Inv[3]*dCidC)/3;
-      Tensor4<double> ddInv5;
+      Tensor<nsd> ddInv1 = -1/3*(dyadic_product<nsd>(dInv1,Ci) + Inv[0]*dCidC + J2d*dyadic_product(Ci,Idm));
+      Tensor<nsd> ddInv2 = dyadic_product<nsd>(dInv1,dInv1) + Inv[0]*ddInv1 + 1/3*C2.trace()*dCidC + 1/3*dyadic_product<nsd>((C2.trace()*dJ4ddC + 2*J4d*C),Ci) + dyadic_product<nsd>(dJ4ddC,C) - J4d*fourth_order_identity<nsd>();
+      Tensor<nsd> ddInv3 = dyadic_product<nsd>(dInv3,Ci) + Inv[2]*dCidC;
+      Tensor<nsd> ddInv4 = -1/3*(dyadic_product<nsd>(dInv4,Ci) + J2d*dyadic_product<nsd>(Ci,N1) + Inv[3]*dCidC);
+      Tensor<nsd> ddInv5 = -1/3*(dyadic_product<nsd>(dInv5,Ci) + Inv[4]*dCidC + 2*J4d*dyadic_product<nsd>(Ci,(N1*C + C*N1))) + J4d*(2*symmetric_dyadic_product<nsd>(N1,Idm) - dyadic_product<nsd>(N1,Idm) + 2*symmetric_dyadic_product<nsd>(Idm,N1) - dyadic_product<nsd>(Idm,N1));
       // Higher invariants are zero for 1 fiber family
-      Tensor4<double> ddInv6 = 0.0;
-      Tensor4<double> ddInv7 = 0.0;
-      Tensor4<double> ddInv8 = 0.0;
-      Tensor4<double> ddInv9 = 0.0;
-
-      for (int i = 0; i < nsd; i++){
-        for (int j = 0; j < nsd; j++){
-          for (int k = 0; k < nsd; k++){
-            for (int l = 0; l < nsd; l++){
-              ddInv5(i,j,k,l) = -(dInv5[i][j]*Ci[k][l] + Inv[4]*dCidC[k][l][i][j] + 2*J4d*Ci[i][j]*sum[k][l]) + J4d*(NI[k][i]*Idm[l][j] + Idm[k][i]*IN[l][j])/3;
-            }
-          }
-        }
-      }
+      Tensor<nsd> ddInv6;
+      Tensor<nsd> ddInv7;
+      Tensor<nsd> ddInv8;
+      Tensor<nsd> ddInv9;
 
       if (nfd==2) //Anisotropic invariants for 2nd fiber direction
       {
-        // std::cout << nfd << std::endl;
-        double prod12[N][N];
-        auto n1 = fl.col(1);
-        mat_fun_carray::mat_dyad_prod<N>(n0, n1, prod12);
-        Inv[5] = J2d*mat_fun_carray::mat_ddot<N>(C,prod12);//Inv6_bar or Inv4s_bar
-        Inv[6] = J4d*mat_fun_carray::mat_ddot<N>(C2,prod12);//Inv7_bar or Inv5s_bar
-        double prod2[N][N];
-        mat_fun_carray::mat_dyad_prod<N>(fl.col(1), fl.col(1), prod2);
-        Inv[7] = J2d*mat_fun_carray::mat_ddot<N>(C,prod2);//Inv8_bar or Inv4_fs_bar
-        Inv[8] = J4d*mat_fun_carray::mat_ddot<N>(C2,prod2);//Inv9_bar or Inv5_fs_bar
-
+        Matrix<nsd> N12 = fl.col(0)* fl.col(1).transpose();
+        Inv[5] = J2d*double_dot_product<nsd>(C,N12);
+        Inv[6] = J4d*double_dot_product<nsd>(C2,N12);
+        Matrix<nsd> N2 = fl.col(1)* fl.col(1).transpose();
+        Inv[7] = J2d*double_dot_product<nsd>(C,N2);
+        Inv[8] = J4d*double_dot_product<nsd>(C2,N2);
+        
         //Invariant derivatives wrt C
-
-        //dInv6
-        mat_fun_carray::mat_scmul(Ci,-Inv[5]/3,term1);
-        mat_fun_carray::mat_scmul(prod12,J2d,term2);
-        mat_fun_carray::mat_sum(term1,term2,dInv6);
-
-        //dInv7
-        double NC12[N][N];
-        mat_fun_carray::mat_mul<N>(prod12,C,NC12);
-        double CN12[N][N];
-        mat_fun_carray::mat_mul<N>(C,prod12,CN12);
-        mat_fun_carray::mat_sum(NC12,CN12,sum);
-        mat_fun_carray::mat_scmul(sum,J4d,term2);
-        mat_fun_carray::mat_scmul(Ci,-Inv[6]/3,term1);
-        mat_fun_carray::mat_sum(term1,term2,dInv7);
-
-        //dInv8
-        mat_fun_carray::mat_scmul(Ci,-Inv[7]/3,term1);
-        mat_fun_carray::mat_scmul(prod2,J2d,term2);
-        mat_fun_carray::mat_sum(term1,term2,dInv8);
-
-        //dInv9
-        double NC2[N][N];
-        mat_fun_carray::mat_mul<N>(prod2,C,NC2);
-        double CN2[N][N];
-        double sum2[N][N];
-        mat_fun_carray::mat_mul<N>(C,prod2,CN2);
-        mat_fun_carray::mat_sum(NC2,CN2,sum2);
-        mat_fun_carray::mat_scmul(sum2,J4d,term2);
-        mat_fun_carray::mat_scmul(Ci,-Inv[8]/3,term1);
-        mat_fun_carray::mat_sum(term1,term2,dInv9);
+        dInv6 = -Inv[5]/3*Ci + J2d*N12;
+        dInv7 = J4d*(N12*C + C*N12) - Inv[6]/3*Ci;
+        dInv8 = -Inv[7]/3*Ci + J2d*N2;
+        dInv9 = J4d*(N2*C + C*N2) - Inv[8]/3*Ci;
 
         // 2nd Derivatives of Invariants wrt C
-
-        mat_fun_carray::mat_mul(prod2,Idm,NI);
-        mat_fun_carray::mat_mul(Idm,prod2,IN);
-        CArray2 MI;
-        CArray2 IM;
-        mat_fun_carray::mat_mul(prod12,Idm,MI);
-        mat_fun_carray::mat_mul(Idm,prod12,IM);
-
-        for (int i = 0; i < N; i++){
-          for (int j = 0; j < N; j++){
-            for (int k = 0; k < N; k++){
-              for (int l = 0; l < N; l++){
-                ddInv6[i][j][k][l] = -(dInv6[i][j]*Ci[k][l] + J2d*Ci[i][j]*prod12[k][l] + Inv[5]*dCidC[k][l][i][j])/3;
-                ddInv7[i][j][k][l] = -(dInv7[i][j]*Ci[k][l] + Inv[6]*dCidC[k][l][i][j] + 2*J4d*Ci[i][j]*sum[k][l]) + J4d*(MI[k][i]*Idm[l][j] + Idm[k][i]*IM[l][j])/3;
-                ddInv8[i][j][k][l] = -(dInv8[i][j]*Ci[k][l] + J2d*Ci[i][j]*prod2[k][l] + Inv[7]*dCidC[k][l][i][j])/3;
-                ddInv9[i][j][k][l] = -(dInv9[i][j]*Ci[k][l] + Inv[8]*dCidC[k][l][i][j] + 2*J4d*Ci[i][j]*sum2[k][l]) + J4d*(NI[k][i]*Idm[l][j] + Idm[k][i]*IN[l][j])/3;
-              }
-            }
-          }
-        }
+        ddInv6 = -1/3*(dyadic_product<nsd>(dInv6,Ci) + J2d*dyadic_product<nsd>(Ci,N12) + Inv[5]*dCidC);
+        ddInv7 = -1/3*(dyadic_product<nsd>(dInv7,Ci) + Inv[6]*dCidC + 2*J4d*dyadic_product<nsd>(Ci,(N12*C + C*N12))) + J4d*(2*symmetric_dyadic_product<nsd>(N12,Idm) - dyadic_product<nsd>(N12,Idm) + 2*symmetric_dyadic_product<nsd>(Idm,N12) - dyadic_product<nsd>(Idm,N12));
+        ddInv8 = -1/3*(dyadic_product<nsd>(dInv8,Ci) + J2d*dyadic_product<nsd>(Ci,N2) + Inv[7]*dCidC);
+        ddInv9 = -1/3*(dyadic_product<nsd>(dInv9,Ci) + Inv[8]*dCidC + 2*J4d*dyadic_product<nsd>(Ci,(N2*C + C*N2))) + J4d*(2*symmetric_dyadic_product<nsd>(N2,Idm) - dyadic_product<nsd>(N2,Idm) + 2*symmetric_dyadic_product<nsd>(Idm,N2) - dyadic_product<nsd>(Idm,N2));
       }
 
       //storing the invariant derivatives in array of pointers
-      double (*dInv[9])[N] = {dInv1, dInv2, dInv3, dInv4, dInv5, dInv6, dInv7, dInv8, dInv9};
-      double (*ddInv[9])[N][N][N] = {ddInv1, ddInv2, ddInv3, ddInv4, ddInv5, ddInv6, ddInv7, ddInv8, ddInv9};
+      // Matrix<nsd> (*dInv[9]) = {dInv1, dInv2, dInv3, dInv4, dInv5, dInv6, dInv7, dInv8, dInv9};
+      // Tensor<nsd> (*ddInv[9]) = {ddInv1, ddInv2, ddInv3, ddInv4, ddInv5, ddInv6, ddInv7, ddInv8, ddInv9};
+      std::array<Matrix<nsd>, 9> dInv = {dInv1, dInv2, dInv3, dInv4, dInv5, dInv6, dInv7, dInv8, dInv9};
+      std::array<Tensor<nsd>,9> ddInv = {ddInv1, ddInv2, ddInv3, ddInv4, ddInv5, ddInv6, ddInv7, ddInv8, ddInv9};
 
       //reading parameters
       auto &w = stM.w; //- this is the correct one
@@ -901,70 +833,19 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
       double psi,dpsi[9],ddpsi[9];
       UAnisoHyper_inv::uanisohyper_inv(Inv,w,psi,dpsi,ddpsi);
 
-      mat_fun_carray::mat_zero<N>(S);
-      double prod[N][N];
-      double Fi[N][N];
-      for (int i = 0; i < 9; i++)
-      {
-        mat_fun_carray::mat_scmul(dInv[i],2*dpsi[i],prod);
-        mat_fun_carray::mat_sum(prod,S,S);
+      for (int i = 0; i < 9; i++) {
+        S += 2*dInv[i]*dpsi[i];
       }
 
       // Fiber reinforcement/active stress
-      for (int i = 0; i < nsd; i++) {
-        for (int j = 0; j < nsd; j++) {
-          // if (nfd==2){
-          //   S[i][j] += Tfa * prod1[i][j] + Tsa*prod2[i][j];
-          //   }
-          // else {
-            S[i][j] += Tfa * prod1[i][j];
-          // }
-          }
-        }
-
+      S += Tfa*N1;
 
       // Stiffness Tensor
       // pl and p represent the volumetric terms
-      mat_fun_carray::ten_zero(CC);
-      double Ci_Ci_prod[N][N][N][N];
-      mat_fun_carray::ten_dyad_prod<N>(Ci, Ci, Ci_Ci_prod);
-      double Ci_Ci_symprod[N][N][N][N];
-      mat_fun_carray::ten_symm_prod(Ci, Ci, Ci_Ci_symprod);
-
-        // each element
-        for (int i = 0; i < N; i++){
-          for (int j = 0; j < N; j++){
-            for (int k = 0; k < N; k++){
-              for (int l = 0; l < N; l++){
-                for (int x = 0; x < 9; x++){
-                  CC[i][j][k][l] += 4*dpsi[x]*(ddInv[x])[i][j][k][l];
-                }
-                CC[i][j][k][l] += pl*J*Ci_Ci_prod[i][j][k][l] - 2*p*J*Ci_Ci_symprod[i][j][k][l];
-              }
-            }
-          }
-        }     
-
-      for (int x = 0; x < 9; x++){
-        for (int y = 0; y < 9; y++){
-          // each element
-          for (int i = 0; i < N; i++){
-            for (int j = 0; j < N; j++){
-              for (int k = 0; k < N; k++){
-                for (int l = 0; l < N; l++){
-                  CC[i][j][k][l] += 4*ddpsi[x]*(dInv[x])[i][j]*(dInv[y])[k][l];
-
-              }
-            }
-          }
-        }   
-        }
-      }
-
-      // Pressure term (incompressible)
-      for (int j = 0; j < N; j++) {
-        for (int i = 0; i < N; i++) {
-          S[i][j] += p * J * Ci[i][j];
+      for(int x = 0; x < 9; x++){
+        CC += 4*dpsi[x]*ddInv[x];
+        for(int y = 0; y < 9; y++){
+          CC += 4*ddpsi[x]*dyadic_product<nsd>(dInv[x],dInv[y]);
         }
       }
 
