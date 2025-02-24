@@ -1972,7 +1972,7 @@ TEST_F(STRUCT_CANNNeoHookeanTest, TestPK2StressIdentityF) {
     Array<double> F = {{1.0, 0.0, 0.0},
                        {0.0, 1.0, 0.0},
                        {0.0, 0.0, 1.0}};
-    Array<double> S_ref; // PK2 stress initialized to zero - want to get result from NH and set that to S_ref
+    Array<double> S_ref(3,3); // PK2 stress initialized to zero - want to get result from NH and set that to S_ref
     // TestNH->calcPK2StressFiniteDifference(F,delta,order,S_ref); // Computing S_ref from NH
     Array<double> Dm(6,6);
     TestNH->compute_pk2cc(F,S_ref,Dm); // Computing S_ref from NH
@@ -1987,7 +1987,7 @@ TEST_F(STRUCT_CANNNeoHookeanTest, TestPK2StressTriaxialStretch) {
     Array<double> F = {{1.1, 0.0, 0.0},
                        {0.0, 1.2, 0.0},
                        {0.0, 0.0, 0.757}};
-    Array<double> S_ref; // PK2 stress initialized to zero - want to get result from NH and set that to S_ref
+    Array<double> S_ref(3,3); // PK2 stress initialized to zero - want to get result from NH and set that to S_ref
     // TestNH->calcPK2StressFiniteDifference(F,delta,order,S_ref); // Computing S_ref from NH
     Array<double> Dm(6,6);
     TestNH->compute_pk2cc(F,S_ref,Dm); // Computing S_ref from NH

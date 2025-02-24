@@ -753,7 +753,7 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
     // Universal Material Subroutine - stAnisoHyper_Inv
 
     case ConstitutiveModelType::stAnisoHyper_Inv: {
-
+      std::cout<< "CANN mat_models starts" << std:: endl;
       //Isochoric Invariant definitions
       double Inv[9] = {0,0,0,0,0,0,0,0,0};
       Inv[0] = Inv1;//Inv1_bar
@@ -763,6 +763,8 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
       Matrix<nsd> C2 = C * C;
       Inv[4] = J4d * (fl.col(0).dot(C2 * fl.col(0)));//Inv5_bar
 
+      std::cout<< "invariants done" << std:: endl;
+
       //Invariant derivatives wrt C
       Matrix<nsd> dInv1 = -Inv[0]/3 * Ci + J2d * Idm;
       Matrix<nsd> dInv2 = (C2.trace()/3)*Ci + Inv[0]*dInv1 + J4d*C;
@@ -770,6 +772,8 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
       Matrix<nsd> N1 = fl.col(0)* fl.col(0).transpose();
       Matrix<nsd> dInv4 = -Inv[3]/3*Ci + J2d*N1;
       Matrix<nsd> dInv5 = J4d*(N1*C + C*N1) - Inv[4]/3*Ci;
+
+      std::cout<< "invariant derivs done" << std:: endl;
 
       // Setting anisotropic invariants for 2 fiber families to 0
       Matrix<nsd> dInv6;
@@ -794,8 +798,12 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
       Tensor<nsd> ddInv8;
       Tensor<nsd> ddInv9;
 
+      std::cout<< "2nd deriv of invar done" << std:: endl;
+
       if (nfd==2) //Anisotropic invariants for 2nd fiber direction
       {
+        std::cout<< "2 fiber dirs if statement" << std:: endl;
+
         Matrix<nsd> N12 = fl.col(0)* fl.col(1).transpose();
         Inv[5] = J2d*double_dot_product<nsd>(C,N12);
         Inv[6] = J4d*double_dot_product<nsd>(C2,N12);
@@ -821,9 +829,15 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
       // Tensor<nsd> (*ddInv[9]) = {ddInv1, ddInv2, ddInv3, ddInv4, ddInv5, ddInv6, ddInv7, ddInv8, ddInv9};
       std::array<Matrix<nsd>, 9> dInv = {dInv1, dInv2, dInv3, dInv4, dInv5, dInv6, dInv7, dInv8, dInv9};
       std::array<Tensor<nsd>,9> ddInv = {ddInv1, ddInv2, ddInv3, ddInv4, ddInv5, ddInv6, ddInv7, ddInv8, ddInv9};
+      std::cout<< "stored everything in arrays" << std:: endl;
 
       //reading parameters
       auto &w = stM.w; //- this is the correct one
+
+      // std::vector<std::vector<double>> w = {
+      //     {1,1,1,1,1.0,1.0,40.0943265e6}
+      //   }; // for unit test
+      // std::cout<< "w is defined" << std:: endl;
 
       //hardcoding the parameters for integrated tests
       // std::vector<std::vector<double>> w = {
@@ -832,6 +846,7 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
       //Strain energy function and derivatives
       double psi,dpsi[9],ddpsi[9];
       UAnisoHyper_inv::uanisohyper_inv(Inv,w,psi,dpsi,ddpsi);
+      std::cout<< "called uanisohyper" << std:: endl;
 
       for (int i = 0; i < 9; i++) {
         S += 2*dInv[i]*dpsi[i];
@@ -839,6 +854,7 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
 
       // Fiber reinforcement/active stress
       S += Tfa*N1;
+      std::cout<< "S calculated" << std::endl;
 
       // Stiffness Tensor
       // pl and p represent the volumetric terms
@@ -848,6 +864,7 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
           CC += 4*ddpsi[x]*dyadic_product<nsd>(dInv[x],dInv[y]);
         }
       }
+      std::cout<< "CC calculated" << std::endl;
 
     } break;
 

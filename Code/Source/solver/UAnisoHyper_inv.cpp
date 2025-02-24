@@ -82,7 +82,7 @@ void uCANN(const double xInv,const int kInv,const int kf0, const int kf1, const 
 
 /// @brief function to build psi and dpsidI1 to 5
 void uanisohyper_inv(const double aInv[9],const std::vector<std::vector<double>> w, double &psi, double dpsi[9], double ddpsi[9]){
-    // std::cout << "uanisohyper_inv called" << std::endl;
+    std::cout << "uanisohyper_inv called in file" << std::endl;
     //initialising
     for (int i = 0; i < 9; i++)
     {
