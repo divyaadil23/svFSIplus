@@ -655,7 +655,7 @@ public:
      * @param[in] convergence_order_tol Tolerance for comparing convergence order with expected value
      * @param[in] verbose Show values error and order of convergence if true.
      **/
-    template<int N>
+    
     void testPK2StressConvergenceOrderAgainstReference(Array<double>& F, const Array<double>& S_ref, const double delta_max, const double delta_min, const int order, const double convergence_order_tol, const bool verbose = false) {
         // Check delta_max > delta_min
         if (delta_max <= delta_min) {
