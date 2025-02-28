@@ -61,7 +61,7 @@ void uCANN_h2(const double x, const int kf, const double W, double &f, double &d
 }
 
 /// @brief Updates psi and its derivatives
-void uCANN(const double xInv,const int kInv,const int kf0, const int kf1, const int kf2, const double W0, const double W1,const double W2, double &psi, double dpsi[9], double ddpsi[9]){
+void uCANN(const double xInv,const int kInv,const int kf0, const int kf1, const int kf2, const double W0, const double W1,const double W2, double &psi, double (&dpsi)[9], double (&ddpsi)[9]){
     double f0,df0,ddf0;
     uCANN_h0(xInv, kf0, f0,df0,ddf0);
     double f1,df1,ddf1;
@@ -72,6 +72,7 @@ void uCANN(const double xInv,const int kInv,const int kf0, const int kf1, const 
     psi = psi + W2*f2;
     dpsi[kInv-1] = dpsi[kInv-1] + W2*df2*df1*df0;
     ddpsi[kInv-1] = ddpsi[kInv-1] + W2*((ddf2*df1*df1+df2*ddf1)*df0*df0+df2*df1*ddf0);
+    std::cout<< "ddpsi" << ddpsi[kInv-1] << std:: endl;
     // for (int i = 0; i < 9; i++)
     // {
     //     dpsi[i] = dpsi[i] + W2*df2*df1*df0;
@@ -81,7 +82,7 @@ void uCANN(const double xInv,const int kInv,const int kf0, const int kf1, const 
 }
 
 /// @brief function to build psi and dpsidI1 to 5
-void uanisohyper_inv(const double aInv[9],const std::vector<std::vector<double>> w, double &psi, double dpsi[9], double ddpsi[9]){
+void uanisohyper_inv(const double aInv[9],const std::vector<std::vector<double>> w, double &psi, double (&dpsi)[9], double (&ddpsi)[9]){
     std::cout << "uanisohyper_inv called in file" << std::endl;
     //initialising
     for (int i = 0; i < 9; i++)
@@ -96,6 +97,7 @@ void uanisohyper_inv(const double aInv[9],const std::vector<std::vector<double>>
     int nRows = w.size();
     for (int i = 0; i < nRows; i++) //each row of param table
     {
+        std::cout<<"i:"<<i<<std::endl;
         //extract invariant, activation function and weight
         kInv = w[i][0];
         kf0 = w[i][1];

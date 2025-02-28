@@ -784,14 +784,14 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
       // 2nd derivative of invariant wrt C - d2Inv/dCdC
 
       // some useful derivatives
-      Tensor<nsd> dCidC = symmetric_dyadic_product<nsd>(Ci,Ci);
-      Matrix<nsd> dJ4ddC = -2/3*J4d*Ci;
+      Tensor<nsd> dCidC = - symmetric_dyadic_product<nsd>(Ci,Ci);
+      Matrix<nsd> dJ4ddC = -2.0/3.0*J4d*Ci;
 
-      Tensor<nsd> ddInv1 = -1/3*(dyadic_product<nsd>(dInv1,Ci) + Inv[0]*dCidC + J2d*dyadic_product(Ci,Idm));
+      Tensor<nsd> ddInv1 = (-1.0/3.0)*(dyadic_product<nsd>(dInv1,Ci) + Inv[0]*dCidC + J2d*dyadic_product(Ci,Idm));
       Tensor<nsd> ddInv2 = dyadic_product<nsd>(dInv1,dInv1) + Inv[0]*ddInv1 + 1/3*C2.trace()*dCidC + 1/3*dyadic_product<nsd>((C2.trace()*dJ4ddC + 2*J4d*C),Ci) + dyadic_product<nsd>(dJ4ddC,C) - J4d*fourth_order_identity<nsd>();
       Tensor<nsd> ddInv3 = dyadic_product<nsd>(dInv3,Ci) + Inv[2]*dCidC;
-      Tensor<nsd> ddInv4 = -1/3*(dyadic_product<nsd>(dInv4,Ci) + J2d*dyadic_product<nsd>(Ci,N1) + Inv[3]*dCidC);
-      Tensor<nsd> ddInv5 = -1/3*(dyadic_product<nsd>(dInv5,Ci) + Inv[4]*dCidC + 2*J4d*dyadic_product<nsd>(Ci,(N1*C + C*N1))) + J4d*(2*symmetric_dyadic_product<nsd>(N1,Idm) - dyadic_product<nsd>(N1,Idm) + 2*symmetric_dyadic_product<nsd>(Idm,N1) - dyadic_product<nsd>(Idm,N1));
+      Tensor<nsd> ddInv4 = (-1.0/3.0)*(dyadic_product<nsd>(dInv4,Ci) + J2d*dyadic_product<nsd>(Ci,N1) + Inv[3]*dCidC);
+      Tensor<nsd> ddInv5 = (-1.0/3.0)*(dyadic_product<nsd>(dInv5,Ci) + Inv[4]*dCidC + 2*J4d*dyadic_product<nsd>(Ci,(N1*C + C*N1))) + J4d*(2*symmetric_dyadic_product<nsd>(N1,Idm) - dyadic_product<nsd>(N1,Idm) + 2*symmetric_dyadic_product<nsd>(Idm,N1) - dyadic_product<nsd>(Idm,N1));
       // Higher invariants are zero for 1 fiber family
       Tensor<nsd> ddInv6;
       Tensor<nsd> ddInv7;
@@ -818,10 +818,10 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
         dInv9 = J4d*(N2*C + C*N2) - Inv[8]/3*Ci;
 
         // 2nd Derivatives of Invariants wrt C
-        ddInv6 = -1/3*(dyadic_product<nsd>(dInv6,Ci) + J2d*dyadic_product<nsd>(Ci,N12) + Inv[5]*dCidC);
-        ddInv7 = -1/3*(dyadic_product<nsd>(dInv7,Ci) + Inv[6]*dCidC + 2*J4d*dyadic_product<nsd>(Ci,(N12*C + C*N12))) + J4d*(2*symmetric_dyadic_product<nsd>(N12,Idm) - dyadic_product<nsd>(N12,Idm) + 2*symmetric_dyadic_product<nsd>(Idm,N12) - dyadic_product<nsd>(Idm,N12));
-        ddInv8 = -1/3*(dyadic_product<nsd>(dInv8,Ci) + J2d*dyadic_product<nsd>(Ci,N2) + Inv[7]*dCidC);
-        ddInv9 = -1/3*(dyadic_product<nsd>(dInv9,Ci) + Inv[8]*dCidC + 2*J4d*dyadic_product<nsd>(Ci,(N2*C + C*N2))) + J4d*(2*symmetric_dyadic_product<nsd>(N2,Idm) - dyadic_product<nsd>(N2,Idm) + 2*symmetric_dyadic_product<nsd>(Idm,N2) - dyadic_product<nsd>(Idm,N2));
+        ddInv6 = -1.0/3.0*(dyadic_product<nsd>(dInv6,Ci) + J2d*dyadic_product<nsd>(Ci,N12) + Inv[5]*dCidC);
+        ddInv7 = -1.0/3.0*(dyadic_product<nsd>(dInv7,Ci) + Inv[6]*dCidC + 2*J4d*dyadic_product<nsd>(Ci,(N12*C + C*N12))) + J4d*(2*symmetric_dyadic_product<nsd>(N12,Idm) - dyadic_product<nsd>(N12,Idm) + 2*symmetric_dyadic_product<nsd>(Idm,N12) - dyadic_product<nsd>(Idm,N12));
+        ddInv8 = -1.0/3.0*(dyadic_product<nsd>(dInv8,Ci) + J2d*dyadic_product<nsd>(Ci,N2) + Inv[7]*dCidC);
+        ddInv9 = -1.0/3.0*(dyadic_product<nsd>(dInv9,Ci) + Inv[8]*dCidC + 2*J4d*dyadic_product<nsd>(Ci,(N2*C + C*N2))) + J4d*(2*symmetric_dyadic_product<nsd>(N2,Idm) - dyadic_product<nsd>(N2,Idm) + 2*symmetric_dyadic_product<nsd>(Idm,N2) - dyadic_product<nsd>(Idm,N2));
       }
 
       //storing the invariant derivatives in array of pointers
@@ -846,25 +846,28 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
       //Strain energy function and derivatives
       double psi,dpsi[9],ddpsi[9];
       UAnisoHyper_inv::uanisohyper_inv(Inv,w,psi,dpsi,ddpsi);
-      std::cout<< "called uanisohyper" << std:: endl;
 
       for (int i = 0; i < 9; i++) {
         S += 2*dInv[i]*dpsi[i];
+        std::cout<< "dpsi" << dpsi[i] << std:: endl;
       }
 
       // Fiber reinforcement/active stress
       S += Tfa*N1;
       std::cout<< "S calculated" << std::endl;
 
+      // std::cout<< "CC before adding CANN terms: " << CC << std::endl;
       // Stiffness Tensor
-      // pl and p represent the volumetric terms
       for(int x = 0; x < 9; x++){
         CC += 4*dpsi[x]*ddInv[x];
+        std::cout<< "ddInv: " << ddInv[x]<< std::endl;
         for(int y = 0; y < 9; y++){
           CC += 4*ddpsi[x]*dyadic_product<nsd>(dInv[x],dInv[y]);
+          // std::cout<< "ddpsi" << ddpsi[y] << std:: endl;
+          // std::cout<< "CC intermediate 2: " << CC<< std::endl;
         }
       }
-      std::cout<< "CC calculated" << std::endl;
+      // std::cout<< "CC calculated: " << CC<< std::endl;
 
     } break;
 

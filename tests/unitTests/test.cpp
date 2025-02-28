@@ -2125,6 +2125,16 @@ TEST_F(STRUCT_CANNNeoHookeanTest, TestMaterialElasticityAgainstReferenceIdentity
                        {0.0, 1.0, 0.0},
                        {0.0, 0.0, 1.0}};
     Tensor4<double> CC_ref(3,3,3,3); // CC_ref initialized to zero
+    for (int i = 0; i < 3; i++){
+        for (int j = 0; j < 3; j++){
+            for (int k = 0; k < 3; k++){
+                for (int l = 0; l < 3; l++){
+                    CC_ref(i,j,k,l) = 0;
+                } 
+            }
+        }
+    }
+    
     // double S_ref[3][3], Dm[6][6];
     // TestNH->compute_pk2cc(F,S_ref,Dm); // Computing S_ref and Dm from NH
     // mat_models_carray::voigt_to_cc_carray<3>(Dm, CC_ref);
@@ -2141,6 +2151,15 @@ TEST_F(STRUCT_CANNNeoHookeanTest, TestMaterialElasticityAgainstReference) {
                        {0.0, 1.2, 0.0},
                        {0.0, 0.0, 1.3}};
     Tensor4<double> CC_ref(3,3,3,3); // CC_ref initialized to zero
+    for (int i = 0; i < 3; i++){
+        for (int j = 0; j < 3; j++){
+            for (int k = 0; k < 3; k++){
+                for (int l = 0; l < 3; l++){
+                    CC_ref(i,j,k,l) = 0;
+                } 
+            }
+        }
+    }
     // double S_ref[3][3], Dm[6][6];
     // TestNH->compute_pk2cc(F,S_ref,Dm); // Computing S_ref and Dm from NH
     // mat_fun_carray::print<6>("Dm from NH",Dm);
