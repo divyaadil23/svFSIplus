@@ -1540,8 +1540,6 @@ public:
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 // Generate dF with 1.0 in (i,j) component
-                // dF(3,3) = {};
-                // dF = Array<double>(3, 3, 0.0);
                 dF(i,j) = 1.0;
 
                 // Print results if verbose

@@ -3,11 +3,10 @@
 
 namespace UAnisoHyper_inv {
 
-// extern Array<int> t_ind;
-
 //void ten_init(const int nd);
 /// @brief 0th layer output of CANN for activation func kf, input x
 void uCANN_h0(const double x, const int kf, double &f, double &df, double &ddf){
+    
     if (kf==1)
     {
         f = x;
@@ -29,6 +28,7 @@ void uCANN_h0(const double x, const int kf, double &f, double &df, double &ddf){
 
 /// @brief 1st layer output of CANN for activation func kf, input x, weight W0
 void uCANN_h1(const double x, const int kf, const double W, double &f, double &df, double &ddf){
+    
     if (kf==1){
         f = W*x;
         df = W*1;
@@ -43,6 +43,7 @@ void uCANN_h1(const double x, const int kf, const double W, double &f, double &d
 
 /// @brief 2nd layer output of CANN for activation func kf, input x, weight W1
 void uCANN_h2(const double x, const int kf, const double W, double &f, double &df, double &ddf){
+    
     if (kf==1){
         f = W*x;
         df = W*1;
@@ -62,28 +63,23 @@ void uCANN_h2(const double x, const int kf, const double W, double &f, double &d
 
 /// @brief Updates psi and its derivatives
 void uCANN(const double xInv,const int kInv,const int kf0, const int kf1, const int kf2, const double W0, const double W1,const double W2, double &psi, double (&dpsi)[9], double (&ddpsi)[9]){
+    
     double f0,df0,ddf0;
     uCANN_h0(xInv, kf0, f0,df0,ddf0);
     double f1,df1,ddf1;
     uCANN_h1(f0, kf1, W0, f1, df1, ddf1);
     double f2,df2,ddf2;
     uCANN_h2(f1, kf2, W1,f2,df2,ddf2);
+
     //updating
     psi = psi + W2*f2;
     dpsi[kInv-1] = dpsi[kInv-1] + W2*df2*df1*df0;
     ddpsi[kInv-1] = ddpsi[kInv-1] + W2*((ddf2*df1*df1+df2*ddf1)*df0*df0+df2*df1*ddf0);
-    std::cout<< "ddpsi" << ddpsi[kInv-1] << std:: endl;
-    // for (int i = 0; i < 9; i++)
-    // {
-    //     dpsi[i] = dpsi[i] + W2*df2*df1*df0;
-    //     ddpsi[i] = ddpsi[i] + W2*((ddf2*df1*df1+df2*ddf1)*df0*df0+df2*df1*ddf0);
-    // }
-
 }
 
 /// @brief function to build psi and dpsidI1 to 5
 void uanisohyper_inv(const double aInv[9],const std::vector<std::vector<double>> w, double &psi, double (&dpsi)[9], double (&ddpsi)[9]){
-    std::cout << "uanisohyper_inv called in file" << std::endl;
+    
     //initialising
     for (int i = 0; i < 9; i++)
     {
@@ -92,9 +88,11 @@ void uanisohyper_inv(const double aInv[9],const std::vector<std::vector<double>>
     }
     int kInv=0,kf0=0,kf1=0,kf2=0;//activation function for layer
     double W0=0,W1=0,W2=0;//weight for layers
+
     //reference config
     double ref[9] = {3, 3, 1, 1, 1, 1, 1, 1, 1};
     int nRows = w.size();
+
     for (int i = 0; i < nRows; i++) //each row of param table
     {
         std::cout<<"i:"<<i<<std::endl;
@@ -112,8 +110,6 @@ void uanisohyper_inv(const double aInv[9],const std::vector<std::vector<double>>
 
         //psi and 1st and 2nd derivatives
         uCANN(xInv,kInv,kf0,kf1,kf2,W0,W1,W2,psi,dpsi,ddpsi);
-        //printing each row/term
-        // std::cout<< "dpsi after term" << i << "=" << dpsi[i]<<std::endl;
     }
 
 }

@@ -750,10 +750,10 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
       CC += g2*dyadic_product<nsd>(Hss, Hss);
     } break;
 
-    // Universal Material Subroutine - stAnisoHyper_Inv
+    // Universal Material Subroutine - stAnisoHyper_Inv/CANN
 
     case ConstitutiveModelType::stAnisoHyper_Inv: {
-      std::cout<< "CANN mat_models starts" << std:: endl;
+      
       //Isochoric Invariant definitions
       double Inv[9] = {0,0,0,0,0,0,0,0,0};
       Inv[0] = Inv1;//Inv1_bar
@@ -763,8 +763,6 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
       Matrix<nsd> C2 = C * C;
       Inv[4] = J4d * (fl.col(0).dot(C2 * fl.col(0)));//Inv5_bar
 
-      std::cout<< "invariants done" << std:: endl;
-
       //Invariant derivatives wrt C
       Matrix<nsd> dInv1 = -Inv[0]/3 * Ci + J2d * Idm;
       Matrix<nsd> dInv2 = (C2.trace()/3)*Ci + Inv[0]*dInv1 + J4d*C;
@@ -772,8 +770,6 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
       Matrix<nsd> N1 = fl.col(0)* fl.col(0).transpose();
       Matrix<nsd> dInv4 = -Inv[3]/3*Ci + J2d*N1;
       Matrix<nsd> dInv5 = J4d*(N1*C + C*N1) - Inv[4]/3*Ci;
-
-      std::cout<< "invariant derivs done" << std:: endl;
 
       // Setting anisotropic invariants for 2 fiber families to 0
       Matrix<nsd> dInv6;
@@ -792,18 +788,15 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
       Tensor<nsd> ddInv3 = dyadic_product<nsd>(dInv3,Ci) + Inv[2]*dCidC;
       Tensor<nsd> ddInv4 = (-1.0/3.0)*(dyadic_product<nsd>(dInv4,Ci) + J2d*dyadic_product<nsd>(Ci,N1) + Inv[3]*dCidC);
       Tensor<nsd> ddInv5 = (-1.0/3.0)*(dyadic_product<nsd>(dInv5,Ci) + Inv[4]*dCidC + 2*J4d*dyadic_product<nsd>(Ci,(N1*C + C*N1))) + J4d*(2*symmetric_dyadic_product<nsd>(N1,Idm) - dyadic_product<nsd>(N1,Idm) + 2*symmetric_dyadic_product<nsd>(Idm,N1) - dyadic_product<nsd>(Idm,N1));
+      
       // Higher invariants are zero for 1 fiber family
       Tensor<nsd> ddInv6;
       Tensor<nsd> ddInv7;
       Tensor<nsd> ddInv8;
       Tensor<nsd> ddInv9;
 
-      std::cout<< "2nd deriv of invar done" << std:: endl;
-
       if (nfd==2) //Anisotropic invariants for 2nd fiber direction
       {
-        std::cout<< "2 fiber dirs if statement" << std:: endl;
-
         Matrix<nsd> N12 = fl.col(0)* fl.col(1).transpose();
         Inv[5] = J2d*double_dot_product<nsd>(C,N12);
         Inv[6] = J4d*double_dot_product<nsd>(C2,N12);
@@ -825,19 +818,11 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
       }
 
       //storing the invariant derivatives in array of pointers
-      // Matrix<nsd> (*dInv[9]) = {dInv1, dInv2, dInv3, dInv4, dInv5, dInv6, dInv7, dInv8, dInv9};
-      // Tensor<nsd> (*ddInv[9]) = {ddInv1, ddInv2, ddInv3, ddInv4, ddInv5, ddInv6, ddInv7, ddInv8, ddInv9};
       std::array<Matrix<nsd>, 9> dInv = {dInv1, dInv2, dInv3, dInv4, dInv5, dInv6, dInv7, dInv8, dInv9};
       std::array<Tensor<nsd>,9> ddInv = {ddInv1, ddInv2, ddInv3, ddInv4, ddInv5, ddInv6, ddInv7, ddInv8, ddInv9};
-      std::cout<< "stored everything in arrays" << std:: endl;
-
+      
       //reading parameters
       auto &w = stM.w; //- this is the correct one
-
-      // std::vector<std::vector<double>> w = {
-      //     {1,1,1,1,1.0,1.0,40.0943265e6}
-      //   }; // for unit test
-      // std::cout<< "w is defined" << std:: endl;
 
       //hardcoding the parameters for integrated tests
       // std::vector<std::vector<double>> w = {
@@ -849,25 +834,18 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
 
       for (int i = 0; i < 9; i++) {
         S += 2*dInv[i]*dpsi[i];
-        std::cout<< "dpsi" << dpsi[i] << std:: endl;
       }
 
       // Fiber reinforcement/active stress
       S += Tfa*N1;
-      std::cout<< "S calculated" << std::endl;
-
-      // std::cout<< "CC before adding CANN terms: " << CC << std::endl;
+      
       // Stiffness Tensor
       for(int x = 0; x < 9; x++){
         CC += 4*dpsi[x]*ddInv[x];
-        std::cout<< "ddInv: " << ddInv[x]<< std::endl;
         for(int y = 0; y < 9; y++){
           CC += 4*ddpsi[x]*dyadic_product<nsd>(dInv[x],dInv[y]);
-          // std::cout<< "ddpsi" << ddpsi[y] << std:: endl;
-          // std::cout<< "CC intermediate 2: " << CC<< std::endl;
         }
       }
-      // std::cout<< "CC calculated: " << CC<< std::endl;
 
     } break;
 

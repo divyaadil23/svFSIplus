@@ -562,9 +562,9 @@ protected:
         // Set random values for the Neo-Hookean parameters between 1000 and 10000
         // double C10 = getRandomDouble(1000.0, 10000000.0);
         double C10 = 4.0094326666666664e+07;
-        // std:: cout<<"C10 in Setup"<<C10<<std::endl;
+
         params_NH.C10 = C10;
-        // std::cout<<"C10"<<C10<<std::endl;
+
         params_CANN_NH.w[0][0] = 1;
         params_CANN_NH.w[0][1] = 1;
         params_CANN_NH.w[0][2] = 1;
@@ -1973,7 +1973,6 @@ TEST_F(STRUCT_CANNNeoHookeanTest, TestPK2StressIdentityF) {
                        {0.0, 1.0, 0.0},
                        {0.0, 0.0, 1.0}};
     Array<double> S_ref(3,3); // PK2 stress initialized to zero - want to get result from NH and set that to S_ref
-    // TestNH->calcPK2StressFiniteDifference(F,delta,order,S_ref); // Computing S_ref from NH
     Array<double> Dm(6,6);
     TestNH->compute_pk2cc(F,S_ref,Dm); // Computing S_ref from NH
     TestCANNNH->testPK2StressAgainstReference(F, S_ref, rel_tol, abs_tol, verbose); // Comparing with CANN
@@ -1988,7 +1987,6 @@ TEST_F(STRUCT_CANNNeoHookeanTest, TestPK2StressTriaxialStretch) {
                        {0.0, 1.2, 0.0},
                        {0.0, 0.0, 0.757}};
     Array<double> S_ref(3,3); // PK2 stress initialized to zero - want to get result from NH and set that to S_ref
-    // TestNH->calcPK2StressFiniteDifference(F,delta,order,S_ref); // Computing S_ref from NH
     Array<double> Dm(6,6);
     TestNH->compute_pk2cc(F,S_ref,Dm); // Computing S_ref from NH
     TestCANNNH->testPK2StressAgainstReference(F, S_ref, rel_tol, abs_tol, verbose); // Comparing with CANN
@@ -2030,8 +2028,8 @@ TEST_F(STRUCT_CANNNeoHookeanTest, TestPK2StressConvergenceOrderAgainstReferenceR
 TEST_F(STRUCT_CANNNeoHookeanTest, TestPK2StressConvergenceOrderAgainstReferenceRandomFLarge) {
     //verbose = true; // Show order of convergence, errors, F, S
 
-        // Use struct
-        //TestQVP->ustruct = false;
+    // Use struct
+    //TestQVP->ustruct = false;
     // Loop over F in F_large_list
     for (auto F_std : F_large_list) {
         // Convert to C array
@@ -2134,10 +2132,6 @@ TEST_F(STRUCT_CANNNeoHookeanTest, TestMaterialElasticityAgainstReferenceIdentity
             }
         }
     }
-    
-    // double S_ref[3][3], Dm[6][6];
-    // TestNH->compute_pk2cc(F,S_ref,Dm); // Computing S_ref and Dm from NH
-    // mat_models_carray::voigt_to_cc_carray<3>(Dm, CC_ref);
     TestNH->calcMaterialElasticityReference(F,CC_ref,verbose);
     TestCANNNH->testMaterialElasticityAgainstReference(F, CC_ref, rel_tol, abs_tol, verbose); // Comparing with CANN
 }
@@ -2160,11 +2154,6 @@ TEST_F(STRUCT_CANNNeoHookeanTest, TestMaterialElasticityAgainstReference) {
             }
         }
     }
-    // double S_ref[3][3], Dm[6][6];
-    // TestNH->compute_pk2cc(F,S_ref,Dm); // Computing S_ref and Dm from NH
-    // mat_fun_carray::print<6>("Dm from NH",Dm);
-    // mat_models_carray::voigt_to_cc_carray<3>(Dm, CC_ref);
-    // mat_fun_carray::print<3>("C_ref from NH", CC_ref);
     TestNH->calcMaterialElasticityReference(F,CC_ref,verbose);
     TestCANNNH->testMaterialElasticityAgainstReference(F, CC_ref, rel_tol, abs_tol, verbose); // Comparing with CANN
 }
