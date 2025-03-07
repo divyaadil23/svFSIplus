@@ -393,7 +393,7 @@ class stModelType
     static constexpr int ncols = 7;
 
     // Parameter for umber of terms in strain energy function
-    int nterms = 1; //Initialized to 1 right now
+    int nterms = 0; //Initialized to 0
 
     // 2D vector parameter for storing the parameter table
     std::vector<std::vector<double>> w;

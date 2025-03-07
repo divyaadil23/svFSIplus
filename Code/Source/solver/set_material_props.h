@@ -186,7 +186,28 @@ SeMaterialPropertiesMapType set_material_props = {
   auto& params = domain_params->constitutive_model.cann;
   std::cout <<"Within CANN" <<std::endl;
   lDmn.stM.nterms = params.nterms.value();
-  // lDmn.stM.w = params.w.value(); - w is being read in read_files.cpp
+
+  // Resize `w` to match the number of rows
+    lDmn.stM.w.resize(lDmn.stM.nterms, std::vector<double>(stModelType::ncols, 0.0));
+
+  // Populate `w`
+    for (size_t i = 0; i < params.rows.size(); i++) {
+        if (i >= lDmn.stM.nterms) break; // Ensure we don't exceed allocated space
+
+        lDmn.stM.w[i][0] = params.rows[i].index_invariant.value(); // Store index_invariant
+
+        size_t col = 1;
+
+        // Store activation function values
+        for (double f : params.rows[i].activation_function.value()) {
+            lDmn.stM.w[i][col++] = f;
+        }
+
+        // Store weights
+        for (double w_val : params.rows[i].weights.value()) {
+            lDmn.stM.w[i][col++] = w_val;
+        }
+    }
 } },
 
 //---------------------------//

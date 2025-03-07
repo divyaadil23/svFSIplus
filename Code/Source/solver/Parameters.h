@@ -283,6 +283,13 @@ class VectorParameter
     std::vector<T> range_;
 };
 
+/// @brief struct to define a row of CANN model parameter table
+struct CANNRow {
+    Parameter<int> invariant_index;
+    VectorParameter<int> activation_functions;  // Fixed size (3 values)
+    VectorParameter<double> weights;           // Fixed size (3 values)
+};
+
 /// @brief Defines parameter name and value, and stores them in
 /// maps for settng values from XML.
 class ParameterLists
@@ -340,14 +347,27 @@ class ParameterLists
       params_map[name] = &param;
     }
 
+    // /// @brief set_parameter function to handle CANNRow
+    // void set_parameter(const int invariant, const std::vector<int>& activation_func, std::vector<double>& weights_vec, CANNRow& param)
+    // {
+    //   param.invariant_index = invariant;
+    //   param.activation_functions = activation_func;
+    //   param.weights = weights_vec;
+    // } 
+
     /// @brief Set the value of a paramter from a string.
     void set_parameter_value(const std::string& name, const std::string& value) 
     {
+      std::cout<< "set_parameter_value" << std::endl;
+      std::cout<< "name" << name << std::endl;
+      std::cout<< "value" << value << std::endl;
       if (params_map.count(name) == 0) {
+        std::cout<< "set_parameter_value if condition" << std::endl;
         throw std::runtime_error("Unknown " + xml_element_name + " XML element '" + name + "'.");
       }
-
+      
       std::visit([value](auto&& p) { p->set(value); }, params_map[name]);
+      print_parameter_list();
     }
 
     /// @brief Check if any required parameters have not been set.
@@ -503,6 +523,36 @@ class StVenantKirchhoffParameters : public ParameterLists
     bool value_set = false;
 };
 
+/// @brief The CANNRowParameters class is used to store the parameters for
+/// each row of the CANN table for the xml element "Add_row"
+class CANNRowParameters : public ParameterLists
+{
+  public:
+    CANNRowParameters();
+
+    void print_parameters();
+    void set_values(tinyxml2::XMLElement* xml_elem);
+
+    static const std::string xml_element_name_;
+
+    Parameter<std::string> row_name; // to identify each row
+    CANNRow row;
+
+};
+
+/// @brief The CANNParameters class stores the parameters table rows
+/// for xml element "Constitutive_model type=CANN". Each row is handled
+/// with xml element "Add_row"
+///
+/// \code {.xml}
+/// <Constitutive_model type="CANN">
+/// <Add_row row_name="first">
+///   <Invariant_num> 1 </Invariant_num>
+///   <Activation_functions> (1,1,1) </Activation_functions>
+///   <Weights> (1.0,1.0,1.0) </Weights>
+///  </Add_row>
+///  </Constitutive_model>
+/// \endcode
 class CANNParameters : public ParameterLists
 { 
   public:
@@ -510,8 +560,9 @@ class CANNParameters : public ParameterLists
     bool defined() const { return value_set; };
     void set_values(tinyxml2::XMLElement* con_model_params);
     void print_parameters();
-    Parameter<int> nterms;
-    // MatrixParameter<double> w; //Not sure if I should have this. Instead just keep nterms as input param
+    
+    std::vector<CANNRowParameters*> rows;  // Store multiple rows
+
     bool value_set = false;
 };
 

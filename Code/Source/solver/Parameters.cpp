@@ -83,12 +83,15 @@ void xml_util_set_parameters( std::function<void(const std::string&, const std::
 
   while (item != nullptr) {
     auto name = std::string(item->Value());
+    std::cout << "xml element item " << name << std::endl;
 
     if (sub_sections.count(name) == 0) {
       if (item->GetText() != nullptr) {
         auto value = item->GetText();
         try {
           fn(name, value);
+          std::cout<< "name xml" << name << std::endl;
+          std::cout<< "value xml" << value << std::endl;
         } catch (const std::bad_function_call& exception) {
           throw std::runtime_error(error_msg + name + "'.");
         }
@@ -755,23 +758,94 @@ void StVenantKirchhoffParameters::print_parameters()
 {
 }
 
-/// @brief There is 1 parameter associated with a CANN model.
+/// @brief  Process parameters for the "Add_row" xml element
+///
+/// Define the xml element name for CANN row parameters
+const std::string CANNRowParameters::xml_element_name_ = "Add_row";
+CANNRowParameters::CANNRowParameters()
+{
+  set_xml_element_name(xml_element_name_);
+
+  // A parameter that must be defined.
+  bool required = true;
+
+  set_parameter("row_name", "", required, row_name);
+
+  // initialize row parameters and add it to params map
+  int invariant = 1;
+  std::initializer_list<int> activation_func = {1,1,1}; 
+  std::initializer_list<double> weights_vec = {1.0,1.0,1.0};
+  // set_parameter(1, activation_func, weights_vec, row);
+  set_parameter("Invariant_num", invariant ,required, row.invariant_index);
+  set_parameter("Activation_functions", activation_func,required, row.activation_functions);
+  set_parameter("Weights", weights_vec,required,row.weights);
+}
+
+void CANNRowParameters::print_parameters()
+{
+  std::cout << std::endl;
+  std::cout << "---------------" << std::endl;
+  std::cout << "CANN Row Parameters" << std::endl;
+  std::cout << "---------------" << std::endl;
+  std::cout << "Invariant number: " << row.invariant_index << std::endl;
+  std::cout << "Activation function 0: " << row.activation_functions[0] << std::endl;
+  std::cout << "Activation function 1: " << row.activation_functions[1] << std::endl;
+  std::cout << "Activation function 2: " << row.activation_functions[2] << std::endl;
+  std::cout << "Weight 0: " << row.weights[0] << std::endl;
+  std::cout << "Weight 1: " << row.weights[1] << std::endl;
+  std::cout << "Weight 2: " << row.weights[2] << std::endl;
+}
+
+void CANNRowParameters::set_values(tinyxml2::XMLElement* row_elem)
+{
+  using namespace tinyxml2;
+
+  std::string error_msg = "Unknown " + xml_element_name_ + " XML element '"; 
+
+  // set row_name for current row element
+  const char* row_name_input;
+  auto result = row_elem->QueryStringAttribute("row_name", &row_name_input);
+  row_name.set(std::string(row_name_input));
+
+  auto item = row_elem->FirstChildElement();
+
+  // iterate over all child elements for this row
+  while(item != nullptr) {
+    auto name = std::string(item->Value());
+    auto value = item->GetText();
+
+    if (value == nullptr) { 
+      throw std::runtime_error(error_msg + name + "'.");
+    }
+
+    try {
+      set_parameter_value(name, value);
+    } catch (const std::bad_function_call& exception) {
+      throw std::runtime_error(error_msg + name + "'.");
+    }
+
+    item = item->NextSiblingElement();
+  }
+}
+
+/// @brief constructor for CANNParameters class. initializes CANNTable
 CANNParameters::CANNParameters()
 {
   // A parameter that must be defined.
   bool required = true;
 
-  set_parameter("nterms", 1, required, nterms); //default value for nterms is 1
-
   set_xml_element_name("Constitutive_model type=CANN");
+
+  // no need to initialize rows.
 }
 
 void CANNParameters::set_values(tinyxml2::XMLElement* xml_elem)
-{
+{ // NEED TO FIX THIS
   std::string error_msg = "Unknown Constitutive_model type=CANN XML element '";
 
   using std::placeholders::_1;
   using std::placeholders::_2;
+  
   std::function<void(const std::string&, const std::string&)> ftpr =
       std::bind( &CANNParameters::set_parameter_value, *this, _1, _2);
 
@@ -779,13 +853,20 @@ void CANNParameters::set_values(tinyxml2::XMLElement* xml_elem)
   xml_util_set_parameters(ftpr, xml_elem, error_msg);
   std::cout << "Finished xml_util_set_parameters." << std::endl;
 
+
   value_set = true;
 }
 
 void CANNParameters::print_parameters()
 {
-  std::cout << "CANN: " << std::endl;
-  std::cout << nterms.name() << ": " << nterms.value() << std::endl;;
+  std::cout << std::endl;
+  std::cout << "---------------" << std::endl;
+  std::cout << "CANN Parameters" << std::endl;
+  std::cout << "---------------" << std::endl;
+
+  for (auto& row : rows) {
+    row->print_parameters();
+  }
 }
 
 ConstitutiveModelParameters::ConstitutiveModelParameters()
