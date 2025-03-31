@@ -51,6 +51,8 @@
 
 #include "fils_struct.hpp"
 
+#include "Parameters.h"
+
 #include <array>
 #include <iostream>
 #include <string>
@@ -389,20 +391,20 @@ class stModelType
     fibStrsType Tf;
 
     // CANN Model/UAnisoHyper_inv
-    // The number of columns in param table or w does not change
-    static constexpr int ncols = 7;
 
     // Parameter for umber of terms in strain energy function
     int nterms = 0; //Initialized to 0
 
     // 2D vector parameter for storing the parameter table
-    std::vector<std::vector<double>> w;
+    std::vector<CANNRow> CANNTable;
 
-    // Constructor to initialize `w` as it needs nterms to be initialized first
-    stModelType()
-        : w(nterms, std::vector<double>(ncols, 0.0)) {}
-
+    // Initialize CANNTable in constructor.
+    stModelType();
 };
+
+stModelType::stModelType(){
+    CANNTable.resize(nterms); // Reserves space for `nterms` CANNRow objects
+}
 
 /// @brief Fluid viscosity model type
 //

@@ -557,6 +557,7 @@ class CANNParameters : public ParameterLists
 { 
   public:
     CANNParameters();
+    ~CANNParameters();
     bool defined() const { return value_set; };
     void set_values(tinyxml2::XMLElement* con_model_params);
     void print_parameters();

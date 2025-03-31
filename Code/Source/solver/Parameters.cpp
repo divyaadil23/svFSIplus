@@ -839,20 +839,34 @@ CANNParameters::CANNParameters()
   // no need to initialize rows.
 }
 
+/// @brief destructor for CANNParameters class. deletes memory dynamically allocated
+/// to the rows of the table.
+CANNParameters::~CANNParameters()
+{
+    for (auto row : rows) {
+        delete row;  // Free allocated memory
+    }
+    rows.clear();
+}
+
 void CANNParameters::set_values(tinyxml2::XMLElement* xml_elem)
-{ // NEED TO FIX THIS
+{ 
+  using namespace tinyxml2;
   std::string error_msg = "Unknown Constitutive_model type=CANN XML element '";
 
-  using std::placeholders::_1;
-  using std::placeholders::_2;
-  
-  std::function<void(const std::string&, const std::string&)> ftpr =
-      std::bind( &CANNParameters::set_parameter_value, *this, _1, _2);
+  auto row_elem = xml_elem->FirstChildElement("Add_row"); // initializes pointer to first row name
 
-  std::cout << "Calling xml_util_set_parameters..." << std::endl;
-  xml_util_set_parameters(ftpr, xml_elem, error_msg);
-  std::cout << "Finished xml_util_set_parameters." << std::endl;
+  while (row_elem != nullptr) {
+    CANNRowParameters* row = new CANNRowParameters();
+    row->set_values(row_elem); // Populate row parameters
+    rows.push_back(row); // store the pointer to row in vector
 
+    row_elem = row_elem->NextSiblingElement("Add_row");
+
+    if (rows.empty()) {
+        throw std::runtime_error(error_msg + "Add_row'. No rows found.");
+    }
+  }
 
   value_set = true;
 }
