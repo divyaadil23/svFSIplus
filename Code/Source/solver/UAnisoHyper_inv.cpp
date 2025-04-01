@@ -1,5 +1,6 @@
 #include "mat_fun.h"
 #include "utils.h"
+#include "Parameters.h"
 
 namespace UAnisoHyper_inv {
 
@@ -78,7 +79,7 @@ void uCANN(const double xInv,const int kInv,const int kf0, const int kf1, const 
 }
 
 /// @brief function to build psi and dpsidI1 to 5
-void uanisohyper_inv(const double aInv[9],const std::vector<std::vector<double>> CANNTable, double &psi, double (&dpsi)[9], double (&ddpsi)[9]){
+void uanisohyper_inv(const double aInv[9],const std::vector<CANNRow> CANNTable, double &psi, double (&dpsi)[9], double (&ddpsi)[9]){
     
     //initialising
     for (int i = 0; i < 9; i++)
@@ -97,13 +98,13 @@ void uanisohyper_inv(const double aInv[9],const std::vector<std::vector<double>>
     {
         std::cout<<"i:"<<i<<std::endl;
         //extract invariant, activation function and weight
-        kInv = CANNTable[i][0];
-        kf0 = CANNTable[i][1];
-        kf1 = CANNTable[i][2];
-        kf2 = CANNTable[i][3];
-        W0 = CANNTable[i][4];
-        W1 = CANNTable[i][5];
-        W2 = CANNTable[i][6];
+        kInv = CANNTable[i].invariant_index.value_;
+        kf0 = CANNTable[i].activation_functions[0];
+        kf1 = CANNTable[i].activation_functions[1];
+        kf2 = CANNTable[i].activation_functions[2];
+        W0 = CANNTable[i].weights[0];
+        W1 = CANNTable[i].weights[1];
+        W2 = CANNTable[i].weights[2];
 
         //invariants in reference configuration
         double xInv = aInv[kInv-1] - ref[kInv-1];

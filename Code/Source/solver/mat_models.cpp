@@ -822,7 +822,7 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
       std::array<Tensor<nsd>,9> ddInv = {ddInv1, ddInv2, ddInv3, ddInv4, ddInv5, ddInv6, ddInv7, ddInv8, ddInv9};
       
       //reading parameters
-      auto &CANNTable = stM.CANNTable //- this is the correct one
+      auto &CANNTable = stM.CANNTable; //- this is the correct one
 
       //hardcoding the parameters for integrated tests
       // std::vector<std::vector<double>> CANNTable = {
