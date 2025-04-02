@@ -1915,6 +1915,11 @@ public:
 
     // Default constructor
     CANN_NH_Params() {
+        std::cout << "within default constructor" << std::endl;
+
+        // Resize Table to ensure there's at least 1 element
+        Table.resize(1);  // Ensure there's space for at least one row
+
         Table[0].invariant_index.value_ = 1;
         Table[0].activation_functions.value_ = {1,1,1};
         Table[0].weights.value_ = {1.0,1.0,40.0943265e6};
@@ -2357,6 +2362,8 @@ public:
         auto &dmn = com_mod.mockEq.mockDmn;
         int nrows = 1;
         std::vector<CANNRow> CANNTable;
+        dmn.stM.CANNTable.resize(nrows);  // Ensure it has space for `nrows`
+
         for (int i = 0; i < nrows; i++){
             dmn.stM.CANNTable[i].invariant_index = params.Table[i].invariant_index;
             dmn.stM.CANNTable[i].activation_functions = params.Table[i].activation_functions;

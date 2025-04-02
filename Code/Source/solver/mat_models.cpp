@@ -821,9 +821,13 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
       std::array<Matrix<nsd>, 9> dInv = {dInv1, dInv2, dInv3, dInv4, dInv5, dInv6, dInv7, dInv8, dInv9};
       std::array<Tensor<nsd>,9> ddInv = {ddInv1, ddInv2, ddInv3, ddInv4, ddInv5, ddInv6, ddInv7, ddInv8, ddInv9};
       
+      std::cout << "everything before CANNTable in matmodels" << std::endl;
       //reading parameters
       auto &CANNTable = stM.CANNTable; //- this is the correct one
-
+      std::cout << "CANNTable initialized." << std::endl;
+      std::cout << "invariant num" << CANNTable[0].invariant_index << std::endl;
+      std::cout << "act func" << CANNTable[0].activation_functions << std::endl;
+      std::cout << "weights" << CANNTable[0].weights << std::endl;
       //hardcoding the parameters for integrated tests
       // std::vector<std::vector<double>> CANNTable = {
       // {1,1,1,1,1.0,1.0,240.56596E6}};
@@ -831,6 +835,17 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
       //Strain energy function and derivatives
       double psi,dpsi[9],ddpsi[9];
       UAnisoHyper_inv::uanisohyper_inv(Inv,CANNTable,psi,dpsi,ddpsi);
+      std::cout << "psi: " << psi << std::endl;
+      std::cout << "dpsi: ";
+      for (int i = 0; i < 9; ++i) {
+        std::cout << dpsi[i] << " ";
+      }
+      std::cout << std::endl;
+      std::cout << "ddpsi: " << ddpsi << std::endl;
+      for (int i = 0; i < 9; ++i) {
+        std::cout << ddpsi[i] << " ";
+      }
+      std::cout << std::endl;
 
       for (int i = 0; i < 9; i++) {
         S += 2*dInv[i]*dpsi[i];

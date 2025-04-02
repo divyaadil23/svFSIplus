@@ -559,7 +559,7 @@ protected:
 
     // Setup method to initialize variables before each test
     void SetUp() override {
-
+        std::cout << "In NeoHookeanCompareTest SetUp" << std::endl;
         MaterialModelTest::SetUp();
 
         // Set random values for the Neo-Hookean parameters between 1000 and 10000
@@ -567,6 +567,8 @@ protected:
         double C10 = 4.0094326666666664e+07;
 
         params_NH.C10 = C10;
+
+        params_CANN_NH.Table.resize(1);  // Ensure it has at least one entry
         params_CANN_NH.Table[0].invariant_index.value_ = 1;
         params_CANN_NH.Table[0].activation_functions.value_ = {1,1,1};
         params_CANN_NH.Table[0].weights.value_ = {1.0,1.0,C10};
@@ -606,6 +608,7 @@ protected:
 class STRUCT_CANNNeoHookeanTest : public NeoHookeanCompareTest {
 protected:
     void SetUp() override {
+        std::cout << "setting up testing class" << std::endl;
         NeoHookeanCompareTest::SetUp();
 
         // Use struct
@@ -1971,6 +1974,7 @@ TEST_F(USTRUCT_HolzapfelOgdenMATest, TestMaterialElasticityConsistencyConvergenc
 
 // Test PK2 stress zero for F = I
 TEST_F(STRUCT_CANNNeoHookeanTest, TestPK2StressIdentityF) {
+    std::cout << "1st test called" << std::endl;
     verbose = true; // Show values of S and S_ref
 
     // Check identity F produces zero PK2 stress
@@ -1979,8 +1983,11 @@ TEST_F(STRUCT_CANNNeoHookeanTest, TestPK2StressIdentityF) {
                        {0.0, 0.0, 1.0}};
     Array<double> S_ref(3,3); // PK2 stress initialized to zero - want to get result from NH and set that to S_ref
     Array<double> Dm(6,6);
+    std::cout << "all arrays initialized" << std::endl;
     TestNH->compute_pk2cc(F,S_ref,Dm); // Computing S_ref from NH
+    std::cout << "NH solution calculated" << std::endl;
     TestCANNNH->testPK2StressAgainstReference(F, S_ref, rel_tol, abs_tol, verbose); // Comparing with CANN
+    std::cout << "CANN solution compared to NH" << std::endl;
 }
 
 // Test PK2 stress

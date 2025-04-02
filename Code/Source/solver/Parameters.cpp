@@ -798,6 +798,10 @@ void CANNRowParameters::print_parameters()
 
 void CANNRowParameters::set_values(tinyxml2::XMLElement* row_elem)
 {
+  if (!row_elem) {
+    throw std::runtime_error("CANNRowParameters::set_values: Received null XML element.");
+  }
+
   using namespace tinyxml2;
 
   std::string error_msg = "Unknown " + xml_element_name_ + " XML element '"; 
@@ -862,10 +866,10 @@ void CANNParameters::set_values(tinyxml2::XMLElement* xml_elem)
     rows.push_back(row); // store the pointer to row in vector
 
     row_elem = row_elem->NextSiblingElement("Add_row");
+  }
 
-    if (rows.empty()) {
-        throw std::runtime_error(error_msg + "Add_row'. No rows found.");
-    }
+  if (rows.empty()) {
+    throw std::runtime_error(error_msg + "Add_row'. No rows found.");
   }
 
   value_set = true;
