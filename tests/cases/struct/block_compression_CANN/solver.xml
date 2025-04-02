@@ -68,7 +68,7 @@
     <Add_row row_name="first">
       <Invariant_num> 1 </Invariant_num>
       <Activation_functions> (1,1,1) </Activation_functions>
-      <Weights> (1.0,1.0,1.0) </Weights>
+      <Weights> (1.0,1.0,240.56596E6) </Weights>
       </Add_row>
    </Constitutive_model>
 

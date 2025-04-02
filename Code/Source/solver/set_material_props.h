@@ -187,8 +187,14 @@ SeMaterialPropertiesMapType set_material_props = {
   std::cout <<"Within CANN" <<std::endl;
   lDmn.stM.nterms = params.rows.size();
 
+  // Resize the vector to ensure it has enough space
+  lDmn.stM.CANNTable.resize(lDmn.stM.nterms);
+
+  std::cout << "CANNTable resized to: " << lDmn.stM.nterms << std::endl;
+
   // Populate `CANNTable` in stM
     for (size_t i = 0; i < lDmn.stM.nterms; i++) {
+      std::cout <<"Within CANN for loop to populate CANNTable" <<std::endl;
       // Store invariant index
       lDmn.stM.CANNTable[i].invariant_index = params.rows[i]->row.invariant_index; 
 
@@ -198,6 +204,7 @@ SeMaterialPropertiesMapType set_material_props = {
       // Store weights
       lDmn.stM.CANNTable[i].weights = params.rows[i]->row.weights;
     }
+    std::cout <<"Done with initializing stM CANNTable" <<std::endl;
 } },
 
 //---------------------------//
