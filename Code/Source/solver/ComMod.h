@@ -398,13 +398,10 @@ class stModelType
     // 2D vector parameter for storing the parameter table
     std::vector<CANNRow> CANNTable;
 
-    // Initialize CANNTable in constructor.
+    // Initialize CANNTable in constructor in cpp.
     stModelType();
 };
 
-stModelType::stModelType(){
-    CANNTable.resize(nterms); // Reserves space for `nterms` CANNRow objects
-}
 
 /// @brief Fluid viscosity model type
 //

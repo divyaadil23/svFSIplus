@@ -1911,19 +1911,22 @@ public:
 // Class to contain CANN model with Neo-Hookean material parameters
 class CANN_NH_Params : public MatParams {
 public:
-    std::vector<std::vector<double>> w;
+    std::vector<CANNRow> Table;
 
     // Default constructor
     CANN_NH_Params() {
-        w ={{1,1,1,1,1.0,1.0,40.0943265e6}};
+        Table[0].invariant_index.value_ = 1;
+        Table[0].activation_functions.value_ = {1,1,1};
+        Table[0].weights.value_ = {1.0,1.0,40.0943265e6};
+        // w ={{1,1,1,1,1.0,1.0,40.0943265e6}};
       };
 
     // Constructor with parameters
-    CANN_NH_Params(std::vector<std::vector<double>> w) {
+    CANN_NH_Params(std::vector<CANNRow> TableValues) {
         for (int i = 0; i < 1; i++){
-            for (int j = 0; j < 7; j++){
-                this -> w[i][j] = w[i][j];
-            }
+            this -> Table[i].invariant_index = TableValues[i].invariant_index;
+            this -> Table[i].activation_functions = TableValues[i].activation_functions;
+            this -> Table[i].weights = TableValues[i].weights;
         }     
     };
 
@@ -2353,13 +2356,11 @@ public:
         // Set Neo-Hookean material parameters for svFSIplus
         auto &dmn = com_mod.mockEq.mockDmn;
         int nrows = 1;
-        // Vector<Vector<double>> w;
-        std::vector<std::vector<double>> w(1, std::vector<double>(7));
+        std::vector<CANNRow> CANNTable;
         for (int i = 0; i < nrows; i++){
-            for (int j = 0; j < 7; j++){
-                dmn.stM.w[i][j] = params.w[i][j];
-                // std::cout<<"w"<< w[i][j]<<std::endl;
-            }
+            dmn.stM.CANNTable[i].invariant_index = params.Table[i].invariant_index;
+            dmn.stM.CANNTable[i].activation_functions = params.Table[i].activation_functions;
+            dmn.stM.CANNTable[i].weights = params.Table[i].weights;
         }
         dmn.stM.Kpen = 0.0;         // Zero volumetric penalty parameter
     }
@@ -2370,9 +2371,14 @@ public:
     void printMaterialParameters() {
         int nrows = 1;
         for (int i = 0; i < nrows; i++){
-            for (int j = 0; j < 7; j++){
-                std::cout << "w = " << params.w[i][j] << std::endl;
-            }
+            std::cout << "ROW: " << i+1 << std::endl;
+            std::cout << "Invariant number: " << params.Table[i].invariant_index << std::endl;
+            std::cout << "Activation function 0: " << params.Table[i].activation_functions[0] << std::endl;
+            std::cout << "Activation function 1: " << params.Table[i].activation_functions[1] << std::endl;
+            std::cout << "Activation function 2: " << params.Table[i].activation_functions[2] << std::endl;
+            std::cout << "Weight 0: " << params.Table[i].weights[0] << std::endl;
+            std::cout << "Weight 1: " << params.Table[i].weights[1] << std::endl;
+            std::cout << "Weight 2: " << params.Table[i].weights[2] << std::endl;
         }
     }
 
@@ -2388,7 +2394,7 @@ public:
 
         // Strain energy density for Neo-Hookean material model
         // Psi_iso = C10 * (Ib1 - 3)
-        double Psi_iso = params.w[0][6] * (smTerms.Ib1 - 3.); //w[0][6] = C10
+        double Psi_iso = params.Table[0].weights[2] * (smTerms.Ib1 - 3.); //w[0][6] = C10
 
         return Psi_iso;
     }
