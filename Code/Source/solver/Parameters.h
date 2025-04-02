@@ -358,16 +358,11 @@ class ParameterLists
     /// @brief Set the value of a paramter from a string.
     void set_parameter_value(const std::string& name, const std::string& value) 
     {
-      std::cout<< "set_parameter_value" << std::endl;
-      std::cout<< "name" << name << std::endl;
-      std::cout<< "value" << value << std::endl;
       if (params_map.count(name) == 0) {
-        std::cout<< "set_parameter_value if condition" << std::endl;
         throw std::runtime_error("Unknown " + xml_element_name + " XML element '" + name + "'.");
       }
-      
+
       std::visit([value](auto&& p) { p->set(value); }, params_map[name]);
-      print_parameter_list();
     }
 
     /// @brief Check if any required parameters have not been set.

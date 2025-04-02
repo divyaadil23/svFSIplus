@@ -109,6 +109,7 @@ void uanisohyper_inv(const double aInv[9],const std::vector<CANNRow> CANNTable, 
     //reference config
     double ref[9] = {3, 3, 1, 1, 1, 1, 1, 1, 1};
     int nRows = CANNTable.size();
+    std::cout << "nRows in function" << nRows << std::endl;
 
     for (int i = 0; i < nRows; i++) //each row of param table
     {

@@ -200,11 +200,14 @@ SeMaterialPropertiesMapType set_material_props = {
 
       // Store activation function values
       lDmn.stM.CANNTable[i].activation_functions = params.rows[i]->row.activation_functions;
+      std::cout << "num activation functions: " << lDmn.stM.CANNTable[i].activation_functions.size() <<std::endl;
 
       // Store weights
       lDmn.stM.CANNTable[i].weights = params.rows[i]->row.weights;
+      std::cout << "num weights: " << lDmn.stM.CANNTable[i].weights.size() <<std::endl;
     }
     std::cout <<"Done with initializing stM CANNTable" <<std::endl;
+    std::cout <<"num rows in CANNTable: " << lDmn.stM.CANNTable.size() << std::endl;
 } },
 
 //---------------------------//

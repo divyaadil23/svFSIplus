@@ -824,7 +824,8 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
       std::cout << "everything before CANNTable in matmodels" << std::endl;
       //reading parameters
       auto &CANNTable = stM.CANNTable; //- this is the correct one
-      std::cout << "CANNTable initialized." << std::endl;
+
+      std::cout << "CANNTable initialized with number of rows: " << CANNTable.size() << std::endl;
       std::cout << "invariant num" << CANNTable[0].invariant_index << std::endl;
       std::cout << "act func" << CANNTable[0].activation_functions << std::endl;
       std::cout << "weights" << CANNTable[0].weights << std::endl;
