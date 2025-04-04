@@ -83,15 +83,12 @@ void xml_util_set_parameters( std::function<void(const std::string&, const std::
 
   while (item != nullptr) {
     auto name = std::string(item->Value());
-    std::cout << "xml element item " << name << std::endl;
 
     if (sub_sections.count(name) == 0) {
       if (item->GetText() != nullptr) {
         auto value = item->GetText();
         try {
           fn(name, value);
-          std::cout<< "name xml" << name << std::endl;
-          std::cout<< "value xml" << value << std::endl;
         } catch (const std::bad_function_call& exception) {
           throw std::runtime_error(error_msg + name + "'.");
         }
@@ -775,7 +772,7 @@ CANNRowParameters::CANNRowParameters()
   int invariant = 1;
   std::initializer_list<int> activation_func = {1,1,1}; 
   std::initializer_list<double> weights_vec = {1.0,1.0,1.0};
-  // set_parameter(1, activation_func, weights_vec, row);
+
   set_parameter("Invariant_num", invariant ,required, row.invariant_index);
   set_parameter("Activation_functions", activation_func,required, row.activation_functions);
   set_parameter("Weights", weights_vec,required,row.weights);
@@ -823,9 +820,7 @@ void CANNRowParameters::set_values(tinyxml2::XMLElement* row_elem)
     }
 
     try {
-      std::cout << "Before set_parameterval_CANN: " << value << std::endl;
       set_parameter_value_CANN(name, value);
-      std::cout << "After calling set_parameter_value_CANN" << value << std::endl;
     } catch (const std::bad_function_call& exception) {
       throw std::runtime_error(error_msg + name + "'.");
     }

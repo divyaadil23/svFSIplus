@@ -1915,7 +1915,6 @@ public:
 
     // Default constructor
     CANN_NH_Params() {
-        std::cout << "within default constructor" << std::endl;
 
         // Resize Table to ensure there's at least 1 element
         Table.resize(1);  // Ensure there's space for at least one row
@@ -1923,7 +1922,6 @@ public:
         Table[0].invariant_index.value_ = 1;
         Table[0].activation_functions.value_ = {1,1,1};
         Table[0].weights.value_ = {1.0,1.0,40.0943265e6};
-        // w ={{1,1,1,1,1.0,1.0,40.0943265e6}};
       };
 
     // Constructor with parameters

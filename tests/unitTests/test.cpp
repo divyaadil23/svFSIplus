@@ -478,25 +478,8 @@ protected:
         MaterialModelTest::SetUp();
         params.Table[0].invariant_index.value_ = 1;
         params.Table[0].activation_functions.value_ = {1,1,1};
-        params.Table[0].weights.value_ = {1.0,1.0,2234.32};
-        // params.w[0][0] = 1;
-        // params.w[0][1] = 1;
-        // params.w[0][2] = 1;
-        // params.w[0][3] = 1;
-        // params.w[0][4] = 1.0;
-        // params.w[0][5] = 1.0;
-        // params.w[1][0] = 3;
-        // params.w[1][1] = 1;
-        // params.w[1][2] = 2;
-        // params.w[1][3] = 1;
-        // params.w[1][4] = 1.0;
-        // params.w[1][5] = 1.0;
-        // params.w[1][6] = pow(10,-9);
-
-        // // Set random values for the Neo-Hookean parameters between 1000 and 10000
-        // params.w[0][6] = getRandomDouble(1000000.0, 10000000.0);
-        // params.w[0][6] = 2234.32; //same as C10
-
+        params.Table[0].weights.value_ = {1.0,1.0,2234.32}; // same as C10
+        
         // Initialize the test object
         TestCANNNH = new TestCANN_NH(params);
 
@@ -572,13 +555,6 @@ protected:
         params_CANN_NH.Table[0].invariant_index.value_ = 1;
         params_CANN_NH.Table[0].activation_functions.value_ = {1,1,1};
         params_CANN_NH.Table[0].weights.value_ = {1.0,1.0,C10};
-        // params_CANN_NH.w[0][0] = 1;
-        // params_CANN_NH.w[0][1] = 1;
-        // params_CANN_NH.w[0][2] = 1;
-        // params_CANN_NH.w[0][3] = 1;
-        // params_CANN_NH.w[0][4] = 1.0;
-        // params_CANN_NH.w[0][5] = 1.0;
-        // params_CANN_NH.w[0][6] = C10;
 
         // Initialize the test objects
         TestNH = new TestNeoHookean(params_NH);

@@ -184,30 +184,24 @@ SeMaterialPropertiesMapType set_material_props = {
 {
   lDmn.stM.isoType = consts::ConstitutiveModelType::stAnisoHyper_Inv;
   auto& params = domain_params->constitutive_model.cann;
-  std::cout <<"Within CANN" <<std::endl;
   lDmn.stM.nterms = params.rows.size();
 
   // Resize the vector to ensure it has enough space
   lDmn.stM.CANNTable.resize(lDmn.stM.nterms);
 
-  std::cout << "CANNTable resized to: " << lDmn.stM.nterms << std::endl;
-
   // Populate `CANNTable` in stM
     for (size_t i = 0; i < lDmn.stM.nterms; i++) {
-      std::cout <<"Within CANN for loop to populate CANNTable" <<std::endl;
+      
       // Store invariant index
       lDmn.stM.CANNTable[i].invariant_index = params.rows[i]->row.invariant_index; 
 
       // Store activation function values
       lDmn.stM.CANNTable[i].activation_functions = params.rows[i]->row.activation_functions;
-      std::cout << "num activation functions: " << lDmn.stM.CANNTable[i].activation_functions.size() <<std::endl;
 
       // Store weights
       lDmn.stM.CANNTable[i].weights = params.rows[i]->row.weights;
-      std::cout << "num weights: " << lDmn.stM.CANNTable[i].weights.size() <<std::endl;
+      
     }
-    std::cout <<"Done with initializing stM CANNTable" <<std::endl;
-    std::cout <<"num rows in CANNTable: " << lDmn.stM.CANNTable.size() << std::endl;
 } },
 
 //---------------------------//

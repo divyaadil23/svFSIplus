@@ -347,53 +347,40 @@ class ParameterLists
       params_map[name] = &param;
     }
 
-    // /// @brief set_parameter function to handle CANNRow
-    // void set_parameter(const int invariant, const std::vector<int>& activation_func, std::vector<double>& weights_vec, CANNRow& param)
-    // {
-    //   param.invariant_index = invariant;
-    //   param.activation_functions = activation_func;
-    //   param.weights = weights_vec;
-    // } 
-
+    /// @brief set_parameter function to handle CANNRow
     void set_parameter_value_CANN(const std::string& name, const std::string& value) 
-{
-  std::cout << "[set_parameter_value_CANN] Setting: " << name << " = " << value << std::endl;
+    {
+      if (params_map.count(name) == 0) {
+        throw std::runtime_error("Unknown " + xml_element_name + " XML element '" + name + "'.");
+      }
 
-  if (params_map.count(name) == 0) {
-    throw std::runtime_error("Unknown " + xml_element_name + " XML element '" + name + "'.");
-  }
+      auto& param_variant = params_map[name];
 
-  auto& param_variant = params_map[name];
-
-  // Check for Activation_functions
-  if (name == "Activation_functions") {
-    if (auto* vec_param = std::get_if<VectorParameter<int>*>(&param_variant)) {
-      std::cout << "  Clearing activation_functions before set...\n";
-      (*vec_param)->value_.clear();  // Clear the vector before setting
-      (*vec_param)->set(value);  // Set the new value
-      std::cout << "  Size after set: " << (*vec_param)->size() << std::endl;
-    } else {
-      throw std::runtime_error("Activation_functions is not a VectorParameter<int>.");
+      // Check for Activation_functions
+      if (name == "Activation_functions") {
+        if (auto* vec_param = std::get_if<VectorParameter<int>*>(&param_variant)) {
+          (*vec_param)->value_.clear();  // Clear the vector before setting
+          (*vec_param)->set(value);  // Set the new value
+        } else {
+          throw std::runtime_error("Activation_functions is not a VectorParameter<int>.");
+        }
+      }
+      // Check for Weights
+      else if (name == "Weights") {
+        if (auto* vec_param = std::get_if<VectorParameter<double>*>(&param_variant)) {
+          (*vec_param)->value_.clear();  // Clear the vector before setting
+          (*vec_param)->set(value);  // Set the new value
+        } else {
+          throw std::runtime_error("Weights is not a VectorParameter<double>.");
+        }
+      }
+      // Default: everything else
+      else {
+        std::visit([&](auto&& p) -> void {
+          p->set(value);
+        }, param_variant);
+      }
     }
-  }
-  // Check for Weights
-  else if (name == "Weights") {
-    if (auto* vec_param = std::get_if<VectorParameter<double>*>(&param_variant)) {
-      std::cout << "  Clearing weights before set...\n";
-      (*vec_param)->value_.clear();  // Clear the vector before setting
-      (*vec_param)->set(value);  // Set the new value
-      std::cout << "  Size after set: " << (*vec_param)->size() << std::endl;
-    } else {
-      throw std::runtime_error("Weights is not a VectorParameter<double>.");
-    }
-  }
-  // Default: everything else
-  else {
-    std::visit([&](auto&& p) -> void {
-      p->set(value);
-    }, param_variant);
-  }
-}
 
 
 

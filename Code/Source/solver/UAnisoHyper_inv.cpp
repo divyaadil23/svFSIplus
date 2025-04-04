@@ -24,10 +24,6 @@ void uCANN_h0(const double x, const int kf, double &f, double &df, double &ddf){
         df = abs(x)/x;
         ddf = 0;
     }
-    std::cout << "kf in layer 0" << kf << std::endl;
-    std::cout << "f" << f << std::endl;
-    std::cout << "df" << df << std::endl;
-    std::cout << "ddf" << ddf << std::endl;
 }
 
 /// @brief 1st layer output of CANN for activation func kf, input x, weight W0
@@ -70,19 +66,10 @@ void uCANN(const double xInv,const int kInv,const int kf0, const int kf1, const 
     
     double f0,df0,ddf0;
     uCANN_h0(xInv, kf0, f0,df0,ddf0);
-    std::cout << "f0" << f0 << std::endl;
-    std::cout << "df0" << df0 << std::endl;
-    std::cout << "ddf0" << ddf0 << std::endl;
     double f1,df1,ddf1;
     uCANN_h1(f0, kf1, W0, f1, df1, ddf1);
-    std::cout << "f1" << f1 << std::endl;
-    std::cout << "df1" << df1 << std::endl;
-    std::cout << "ddf1" << ddf1 << std::endl;
     double f2,df2,ddf2;
     uCANN_h2(f1, kf2, W1,f2,df2,ddf2);
-    std::cout << "f2" << f2 << std::endl;
-    std::cout << "df2" << df2 << std::endl;
-    std::cout << "ddf2" << ddf2 << std::endl;
 
     //updating
     psi = psi + W2*f2;
@@ -92,11 +79,6 @@ void uCANN(const double xInv,const int kInv,const int kf0, const int kf1, const 
 
 /// @brief function to build psi and dpsidI1 to 5
 void uanisohyper_inv(const double aInv[9],const std::vector<CANNRow> CANNTable, double &psi, double (&dpsi)[9], double (&ddpsi)[9]){
-    
-    std::cout << "CANNTable in function." << std::endl;
-    std::cout << "invariant num" << CANNTable[0].invariant_index << std::endl;
-    std::cout << "act func" << CANNTable[0].activation_functions << std::endl;
-    std::cout << "weights" << CANNTable[0].weights << std::endl;
     //initialising
     for (int i = 0; i < 9; i++)
     {
@@ -109,11 +91,9 @@ void uanisohyper_inv(const double aInv[9],const std::vector<CANNRow> CANNTable, 
     //reference config
     double ref[9] = {3, 3, 1, 1, 1, 0, 0, 1, 1};
     int nRows = CANNTable.size();
-    std::cout << "nRows in function" << nRows << std::endl;
 
     for (int i = 0; i < nRows; i++) //each row of param table
     {
-        std::cout<<"i:"<<i<<std::endl;
         //extract invariant, activation function and weight
         kInv = CANNTable[i].invariant_index.value_;
         kf0 = CANNTable[i].activation_functions.value_[0];
@@ -126,11 +106,8 @@ void uanisohyper_inv(const double aInv[9],const std::vector<CANNRow> CANNTable, 
         //invariants in reference configuration
         double xInv = aInv[kInv-1] - ref[kInv-1];
 
-        //psi and 1st and 2nd derivatives
-        std::cout << "kf0" << kf0 << std::endl;
+        //psi and 1st and 2nd derivative
         uCANN(xInv,kInv,kf0,kf1,kf2,W0,W1,W2,psi,dpsi,ddpsi);
-
-        std::cout << "successful" << std::endl;
     }
 
 }
