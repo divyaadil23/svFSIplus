@@ -107,7 +107,7 @@ void uanisohyper_inv(const double aInv[9],const std::vector<CANNRow> CANNTable, 
     double W0=0,W1=0,W2=0;//weight for layers
 
     //reference config
-    double ref[9] = {3, 3, 1, 1, 1, 1, 1, 1, 1};
+    double ref[9] = {3, 3, 1, 1, 1, 0, 0, 1, 1};
     int nRows = CANNTable.size();
     std::cout << "nRows in function" << nRows << std::endl;
 
