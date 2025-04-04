@@ -823,7 +823,9 @@ void CANNRowParameters::set_values(tinyxml2::XMLElement* row_elem)
     }
 
     try {
-      set_parameter_value(name, value);
+      std::cout << "Before set_parameterval_CANN: " << value << std::endl;
+      set_parameter_value_CANN(name, value);
+      std::cout << "After calling set_parameter_value_CANN" << value << std::endl;
     } catch (const std::bad_function_call& exception) {
       throw std::runtime_error(error_msg + name + "'.");
     }
