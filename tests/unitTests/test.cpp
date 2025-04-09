@@ -736,7 +736,7 @@ protected:
             cout << "s = [" << params_HO.s[0] << ", " << params_HO.s[1] << ", " << params_HO.s[2] << "]" << endl;
             throw runtime_error("f and s are not orthogonal");
         }
-
+        std::cout << "f and s in tests" << params_HO.f[0] << params_HO.f[1] << params_HO.f[2] << params_HO.s[0] << params_HO.s[1] << params_HO.s[2] << std::endl;
         // Initializing paramter table
         params_CANN_HO.Table.resize(4);  // Ensure it has 4 entries
 
@@ -755,6 +755,10 @@ protected:
         params_CANN_HO.Table[3].invariant_index.value_ = 6;
         params_CANN_HO.Table[3].activation_functions.value_ = {1,2,2};
         params_CANN_HO.Table[3].weights.value_ = {1.0, params_HO.b_fs, params_HO.a_fs / (2 * params_HO.b_fs)};
+
+        // initializing fiber directions for CANN
+        params_CANN_HO.f[0] = params_HO.f[0]; params_CANN_HO.f[1] = params_HO.f[1]; params_CANN_HO.f[2] = params_HO.f[2];
+        params_CANN_HO.s[0] = params_HO.s[0]; params_CANN_HO.s[1] = params_HO.s[1]; params_CANN_HO.s[2] = params_HO.s[2];
 
         // Initialize the test objects
         TestHO = new TestHolzapfelOgden(params_HO);

@@ -797,14 +797,22 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
 
       if (nfd==2) //Anisotropic invariants for 2nd fiber direction
       {
-        Matrix<nsd> N12 = fl.col(0)* fl.col(1).transpose();
-        Inv[5] = J2d*double_dot_product<nsd>(C,N12);
-        Inv[6] = J4d*double_dot_product<nsd>(C2,N12);
-        Matrix<nsd> N2 = fl.col(1)* fl.col(1).transpose();
-        Inv[7] = J2d*double_dot_product<nsd>(C,N2);
-        Inv[8] = J4d*double_dot_product<nsd>(C2,N2);
+        std::cout << "number of fiber directions" << nfd << std::endl;
+        std::cout << "f and s in mat_models" << fl.col(0)[0] << fl.col(0)[1] << fl.col(0)[2] << fl.col(1)[0] << fl.col(1)[1] << fl.col(1)[2] << std::endl;
+        // Matrix<nsd> N12 = fl.col(0)* fl.col(1).transpose();
+        Inv[5] = J2d * (fl.col(0).dot(C * fl.col(1)));
+        Inv[6] = J4d * (fl.col(0).dot(C2 * fl.col(1)));
+        // Inv[5] = J2d*double_dot_product<nsd>(C,N12);
+        // Inv[6] = J4d*double_dot_product<nsd>(C2,N12);
+        // Matrix<nsd> N2 = fl.col(1)* fl.col(1).transpose();
+        // Inv[7] = J2d*double_dot_product<nsd>(C,N2);
+        // Inv[8] = J4d*double_dot_product<nsd>(C2,N2);
+        Inv[7] = J2d * (fl.col(1).dot(C * fl.col(1)));
+        Inv[8] = J4d * (fl.col(1).dot(C2 * fl.col(1)));
         
         //Invariant derivatives wrt C
+        Matrix<nsd> N2 = fl.col(1)* fl.col(1).transpose();
+        Matrix<nsd> N12 = fl.col(0)* fl.col(1).transpose();
         dInv6 = -Inv[5]/3*Ci + J2d*N12;
         dInv7 = J4d*(N12*C + C*N12) - Inv[6]/3*Ci;
         dInv8 = -Inv[7]/3*Ci + J2d*N2;
@@ -821,6 +829,12 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
       std::array<Matrix<nsd>, 9> dInv = {dInv1, dInv2, dInv3, dInv4, dInv5, dInv6, dInv7, dInv8, dInv9};
       std::array<Tensor<nsd>,9> ddInv = {ddInv1, ddInv2, ddInv3, ddInv4, ddInv5, ddInv6, ddInv7, ddInv8, ddInv9};
       
+      std::cout << "Inv vector: [ ";
+      for (const auto& val : Inv) {
+          std::cout << val << " ";
+      }
+      std::cout << "]" << std::endl;
+
       //reading parameters
       auto &CANNTable = stM.CANNTable;
 
