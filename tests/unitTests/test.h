@@ -2532,8 +2532,8 @@ public:
         double Psi = 0.0;
         int nterms = 4;
         Psi += params.Table[0].weights[2] * exp(params.Table[0].weights[1] * (I1_bar - 3.0)); // isotropic term
-        Psi += params.Table[1].weights[2] * 0.5 * (exp(params.Table[1].weights[1] * pow(I4_bar_f - 1.0, 2)) - 1.0);   // Fiber term
-        Psi += params.Table[2].weights[2] * 0.5 * (exp(params.Table[2].weights[1] * pow(I4_bar_s - 1.0, 2)) - 1.0);   // Sheet term
+        Psi += params.Table[1].weights[2] * (exp(params.Table[1].weights[1] * pow(I4_bar_f - 1.0, 2)) - 1.0);   // Fiber term; 0.5 included in params
+        Psi += params.Table[2].weights[2] * (exp(params.Table[2].weights[1] * pow(I4_bar_s - 1.0, 2)) - 1.0);   // Sheet term
         Psi += params.Table[3].weights[2] * (exp(params.Table[3].weights[1] * pow(I8_bar_fs, 2)) - 1.0);                   // Cross-fiber term
 
 

@@ -592,6 +592,7 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
 
       // Smoothed Heaviside function: 1 / (1 + exp(-kx)) = 1 - 1 / (1 + exp(kx))
       double k = stM.khs;
+      std::cout << "k: " << k << std::endl;
       double one_over_exp_plus_one_f = 1.0 / (exp(k * Eff) + 1.0);
       double one_over_exp_plus_one_s = 1.0 / (exp(k * Ess) + 1.0);
       double c4f  = 1.0 - one_over_exp_plus_one_f;
@@ -769,6 +770,9 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
       Matrix<nsd> dInv3 = Inv[2]*Ci;
       Matrix<nsd> N1 = fl.col(0)* fl.col(0).transpose();
       Matrix<nsd> dInv4 = -Inv[3]/3*Ci + J2d*N1;
+      std::cout << "Ci Tensor:\n" << Ci << std::endl;
+      std::cout << "N1 Tensor:\n" << N1 << std::endl;
+      std::cout << "dInv4 Tensor:\n" << dInv4 << std::endl;
       Matrix<nsd> dInv5 = J4d*(N1*C + C*N1) - Inv[4]/3*Ci;
 
       // Setting anisotropic invariants for 2 fiber families to 0
@@ -828,12 +832,6 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
       //storing the invariant derivatives in array of pointers
       std::array<Matrix<nsd>, 9> dInv = {dInv1, dInv2, dInv3, dInv4, dInv5, dInv6, dInv7, dInv8, dInv9};
       std::array<Tensor<nsd>,9> ddInv = {ddInv1, ddInv2, ddInv3, ddInv4, ddInv5, ddInv6, ddInv7, ddInv8, ddInv9};
-      
-      std::cout << "Inv vector: [ ";
-      for (const auto& val : Inv) {
-          std::cout << val << " ";
-      }
-      std::cout << "]" << std::endl;
 
       //reading parameters
       auto &CANNTable = stM.CANNTable;
