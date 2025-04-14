@@ -618,6 +618,7 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
       g1 = 2.0*J4d*stM.b*g1;
       g2 = 4.0*J4d*stM.afs*(1.0 + 2.0*stM.bfs*Efs*Efs)* exp(stM.bfs*Efs*Efs);
       Tensor<nsd> CC_bar  = g1 * dyadic_product<nsd>(Idm, Idm) + g2 * dyadic_product<nsd>(Hfs, Hfs);
+      std::cout << "CC with iso terms HO: " << CC_bar << std::endl;
 
       // 2.S) Add fiber-fiber interaction stress + additional fiber reinforcement/active stress (Tfa)
       double rexp = exp(stM.bff*Eff*Eff);
@@ -631,7 +632,9 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
       g1 = c4f * (1.0 + 2.0*stM.bff*Eff*Eff);
       g1 = (g1 + 2.0*dc4f*Eff) * rexp;
       g1 = g1 + (0.5*ddc4f/stM.bff)*(rexp - 1.0);
+      std::cout << "g1 with heaviside terms HO: " << g1 << std::endl;
       g1 = 4.0 * J4d * stM.aff * g1;
+      std::cout << "g1 HO: " << g1 << std::endl;
       CC_bar += g1*dyadic_product<nsd>(Hff, Hff);
 
       // 3.S) Add sheet-sheet interaction stress + additional cross-fiber active stress (Tsa)
@@ -816,11 +819,15 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
         
         //Invariant derivatives wrt C
         Matrix<nsd> N2 = fl.col(1)* fl.col(1).transpose();
-        Matrix<nsd> N12 = fl.col(0)* fl.col(1).transpose();
+        Matrix<nsd> N12 = 0.5*(fl.col(0)* fl.col(1).transpose() + fl.col(1)* fl.col(0).transpose());
         dInv6 = -Inv[5]/3*Ci + J2d*N12;
         dInv7 = J4d*(N12*C + C*N12) - Inv[6]/3*Ci;
         dInv8 = -Inv[7]/3*Ci + J2d*N2;
         dInv9 = J4d*(N2*C + C*N2) - Inv[8]/3*Ci;
+
+        std::cout << "N12 Tensor:\n" << N12 << std::endl;
+        std::cout << "dInv6 Tensor:\n" << dInv6 << std::endl;
+        std::cout << "dInv8 Tensor:\n" << dInv8 << std::endl;
 
         // 2nd Derivatives of Invariants wrt C
         ddInv6 = -1.0/3.0*(dyadic_product<nsd>(dInv6,Ci) + J2d*dyadic_product<nsd>(Ci,N12) + Inv[5]*dCidC);
