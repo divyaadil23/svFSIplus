@@ -2440,7 +2440,7 @@ TEST_F(STRUCT_CANNHolzapfelOgdenTest, TestPK2StressConvergenceOrderAgainstRefere
 }
 
 // Test order of convergence of consistency of material elasticity for random F (small)
-TEST_F(STRUCT_CANNHolzapfelOgdenTest, TestMaterialElasticityConsistencyConvergenceOrderAgainstNHRandomFSmall) {
+TEST_F(STRUCT_CANNHolzapfelOgdenTest, TestMaterialElasticityConsistencyConvergenceOrderAgainstHORandomFSmall) {
     //verbose = true; // Show order of convergence, errors, F, S
 
     // Loop over F in F_small_list
@@ -2464,7 +2464,7 @@ TEST_F(STRUCT_CANNHolzapfelOgdenTest, TestMaterialElasticityConsistencyConvergen
 }
 
 // Test order of convergence of consistency of material elasticity for random F (medium)
-TEST_F(STRUCT_CANNHolzapfelOgdenTest, TestMaterialElasticityConsistencyConvergenceOrderAgainstNHRandomFMedium) {
+TEST_F(STRUCT_CANNHolzapfelOgdenTest, TestMaterialElasticityConsistencyConvergenceOrderAgainstHORandomFMedium) {
     //verbose = true; // Show order of convergence, errors, F, S
 
     // Loop over F in F_medium_list
@@ -2488,7 +2488,7 @@ TEST_F(STRUCT_CANNHolzapfelOgdenTest, TestMaterialElasticityConsistencyConvergen
 }
 
 // Test order of convergence of consistency of material elasticity for random F (large)
-TEST_F(STRUCT_CANNHolzapfelOgdenTest, TestMaterialElasticityConsistencyConvergenceOrderAgainstNHRandomFLarge) {
+TEST_F(STRUCT_CANNHolzapfelOgdenTest, TestMaterialElasticityConsistencyConvergenceOrderAgainstHORandomFLarge) {
     //verbose = true; // Show order of convergence, errors, F, S
 
     // Loop over F in F_large_list
@@ -2540,7 +2540,7 @@ TEST_F(STRUCT_CANNHolzapfelOgdenTest, TestMaterialElasticityAgainstReference) {
     // Check identity F produces zero PK2 stress
     Array<double> F = {{1.1, 0.0, 0.0},
                        {0.0, 1.2, 0.0},
-                       {0.0, 0.0, 1.3}};
+                       {0.0, 0.0, 0.757}};
     Tensor4<double> CC_ref(3,3,3,3); // CC_ref initialized to zero
     for (int i = 0; i < 3; i++){
         for (int j = 0; j < 3; j++){

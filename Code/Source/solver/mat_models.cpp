@@ -592,7 +592,6 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
 
       // Smoothed Heaviside function: 1 / (1 + exp(-kx)) = 1 - 1 / (1 + exp(kx))
       double k = stM.khs;
-      std::cout << "k: " << k << std::endl;
       double one_over_exp_plus_one_f = 1.0 / (exp(k * Eff) + 1.0);
       double one_over_exp_plus_one_s = 1.0 / (exp(k * Ess) + 1.0);
       double c4f  = 1.0 - one_over_exp_plus_one_f;
@@ -618,7 +617,6 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
       g1 = 2.0*J4d*stM.b*g1;
       g2 = 4.0*J4d*stM.afs*(1.0 + 2.0*stM.bfs*Efs*Efs)* exp(stM.bfs*Efs*Efs);
       Tensor<nsd> CC_bar  = g1 * dyadic_product<nsd>(Idm, Idm) + g2 * dyadic_product<nsd>(Hfs, Hfs);
-      std::cout << "CC with iso terms HO: " << CC_bar << std::endl;
 
       // 2.S) Add fiber-fiber interaction stress + additional fiber reinforcement/active stress (Tfa)
       double rexp = exp(stM.bff*Eff*Eff);
@@ -632,9 +630,7 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
       g1 = c4f * (1.0 + 2.0*stM.bff*Eff*Eff);
       g1 = (g1 + 2.0*dc4f*Eff) * rexp;
       g1 = g1 + (0.5*ddc4f/stM.bff)*(rexp - 1.0);
-      std::cout << "g1 with heaviside terms HO: " << g1 << std::endl;
       g1 = 4.0 * J4d * stM.aff * g1;
-      std::cout << "g1 HO: " << g1 << std::endl;
       CC_bar += g1*dyadic_product<nsd>(Hff, Hff);
 
       // 3.S) Add sheet-sheet interaction stress + additional cross-fiber active stress (Tsa)
@@ -773,9 +769,6 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
       Matrix<nsd> dInv3 = Inv[2]*Ci;
       Matrix<nsd> N1 = fl.col(0)* fl.col(0).transpose();
       Matrix<nsd> dInv4 = -Inv[3]/3*Ci + J2d*N1;
-      std::cout << "Ci Tensor:\n" << Ci << std::endl;
-      std::cout << "N1 Tensor:\n" << N1 << std::endl;
-      std::cout << "dInv4 Tensor:\n" << dInv4 << std::endl;
       Matrix<nsd> dInv5 = J4d*(N1*C + C*N1) - Inv[4]/3*Ci;
 
       // Setting anisotropic invariants for 2 fiber families to 0
@@ -804,16 +797,8 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
 
       if (nfd==2) //Anisotropic invariants for 2nd fiber direction
       {
-        std::cout << "number of fiber directions" << nfd << std::endl;
-        std::cout << "f and s in mat_models" << fl.col(0)[0] << fl.col(0)[1] << fl.col(0)[2] << fl.col(1)[0] << fl.col(1)[1] << fl.col(1)[2] << std::endl;
-        // Matrix<nsd> N12 = fl.col(0)* fl.col(1).transpose();
         Inv[5] = J2d * (fl.col(0).dot(C * fl.col(1)));
         Inv[6] = J4d * (fl.col(0).dot(C2 * fl.col(1)));
-        // Inv[5] = J2d*double_dot_product<nsd>(C,N12);
-        // Inv[6] = J4d*double_dot_product<nsd>(C2,N12);
-        // Matrix<nsd> N2 = fl.col(1)* fl.col(1).transpose();
-        // Inv[7] = J2d*double_dot_product<nsd>(C,N2);
-        // Inv[8] = J4d*double_dot_product<nsd>(C2,N2);
         Inv[7] = J2d * (fl.col(1).dot(C * fl.col(1)));
         Inv[8] = J4d * (fl.col(1).dot(C2 * fl.col(1)));
         
@@ -824,10 +809,6 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
         dInv7 = J4d*(N12*C + C*N12) - Inv[6]/3*Ci;
         dInv8 = -Inv[7]/3*Ci + J2d*N2;
         dInv9 = J4d*(N2*C + C*N2) - Inv[8]/3*Ci;
-
-        std::cout << "N12 Tensor:\n" << N12 << std::endl;
-        std::cout << "dInv6 Tensor:\n" << dInv6 << std::endl;
-        std::cout << "dInv8 Tensor:\n" << dInv8 << std::endl;
 
         // 2nd Derivatives of Invariants wrt C
         ddInv6 = -1.0/3.0*(dyadic_product<nsd>(dInv6,Ci) + J2d*dyadic_product<nsd>(Ci,N12) + Inv[5]*dCidC);
@@ -857,9 +838,7 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
       // Stiffness Tensor
       for(int x = 0; x < 9; x++){
         CC += 4*dpsi[x]*ddInv[x];
-        for(int y = 0; y < 9; y++){
-          CC += 4*ddpsi[x]*dyadic_product<nsd>(dInv[x],dInv[y]);
-        }
+        CC += 4*ddpsi[x]*dyadic_product<nsd>(dInv[x],dInv[x]);
       }
 
     } break;
