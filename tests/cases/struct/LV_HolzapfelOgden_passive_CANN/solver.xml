@@ -68,12 +68,12 @@
     <Add_row row_name="2">
       <Invariant_num> 4 </Invariant_num>
       <Activation_functions> (1,2,2) </Activation_functions>
-      <Weights> (1.0,16.026,11526.269) </Weights> <!-- 1, bf, af/2bf * 0.5 where heaviside func smoothing param k = 0 -->
+      <Weights> (1.0,16.026,2881.6) </Weights> <!-- 1, bf, af/2bf * 0.5 where heaviside func smoothing param k = 0 -->
       </Add_row>
     <Add_row row_name="3">
       <Invariant_num> 8 </Invariant_num>
       <Activation_functions> (1,2,2) </Activation_functions>
-      <Weights> (1.0,11.12,2231.115) </Weights> <!-- 1, bs, as/2bs * 0.5 where heaviside func smoothing param k = 0 -->
+      <Weights> (1.0,11.12,557.7788) </Weights> <!-- 1, bs, as/2bs * 0.5 where heaviside func smoothing param k = 0 -->
       </Add_row>
     <Add_row row_name="4">
       <Invariant_num> 6 </Invariant_num>
