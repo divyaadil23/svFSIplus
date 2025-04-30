@@ -753,7 +753,7 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
     // Universal Material Subroutine - CANN Model
     case ConstitutiveModelType::stAnisoHyper_Inv: {
       
-      //Isochoric Invariant definitions
+      // Isochoric Invariant definitions
       double Inv[9] = {0,0,0,0,0,0,0,0,0};
       Inv[0] = Inv1; // Inv1_bar
       Inv[1] = Inv2; // Inv2_bar
@@ -762,7 +762,7 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
       Matrix<nsd> C2 = C * C;
       Inv[4] = J4d * (fl.col(0).dot(C2 * fl.col(0))); // Inv5_bar
 
-      //Invariant derivatives wrt C
+      // Invariant derivatives wrt C
       Matrix<nsd> dInv1 = -Inv[0]/3 * Ci + J2d * Idm;
       Matrix<nsd> dInv2 = (C2.trace()/3)*Ci + Inv[0]*dInv1 + J4d*C;
       Matrix<nsd> dInv3 = Inv[2]*Ci;
@@ -776,11 +776,11 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
       Matrix<nsd> dInv8;
       Matrix<nsd> dInv9;
 
-      // 2nd derivative of invariant wrt C - d2Inv/dCdC
-      // some useful derivatives
+      // Some useful derivatives
       Tensor<nsd> dCidC = - symmetric_dyadic_product<nsd>(Ci,Ci);
       Matrix<nsd> dJ4ddC = -2.0/3.0*J4d*Ci;
 
+      // 2nd derivative of invariant wrt C - d2Inv/dCdC
       Tensor<nsd> ddInv1 = (-1.0/3.0)*(dyadic_product<nsd>(dInv1,Ci) + Inv[0]*dCidC + J2d*dyadic_product(Ci,Idm));
       Tensor<nsd> ddInv2 = dyadic_product<nsd>(dInv1,dInv1) + Inv[0]*ddInv1 + 1/3*C2.trace()*dCidC + 1/3*dyadic_product<nsd>((C2.trace()*dJ4ddC + 2*J4d*C),Ci) + dyadic_product<nsd>(dJ4ddC,C) - J4d*fourth_order_identity<nsd>();
       Tensor<nsd> ddInv3 = dyadic_product<nsd>(dInv3,Ci) + Inv[2]*dCidC;
@@ -793,14 +793,14 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
       Tensor<nsd> ddInv8;
       Tensor<nsd> ddInv9;
 
-      if (nfd==2) //Anisotropic invariants for 2nd fiber direction
+      if (nfd==2) // Anisotropic invariants for 2nd fiber direction
       {
         Inv[5] = J2d * (fl.col(0).dot(C * fl.col(1)));
         Inv[6] = J4d * (fl.col(0).dot(C2 * fl.col(1)));
         Inv[7] = J2d * (fl.col(1).dot(C * fl.col(1)));
         Inv[8] = J4d * (fl.col(1).dot(C2 * fl.col(1)));
         
-        //Invariant derivatives wrt C
+        // Invariant derivatives wrt C
         Matrix<nsd> N2 = fl.col(1)* fl.col(1).transpose();
         Matrix<nsd> N12 = 0.5*(fl.col(0)* fl.col(1).transpose() + fl.col(1)* fl.col(0).transpose());
         dInv6 = -Inv[5]/3*Ci + J2d*N12;
@@ -815,11 +815,11 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
         ddInv9 = -1.0/3.0*(dyadic_product<nsd>(dInv9,Ci) + Inv[8]*dCidC + 2*J4d*dyadic_product<nsd>(Ci,(N2*C + C*N2))) + J4d*(2*symmetric_dyadic_product<nsd>(N2,Idm) - dyadic_product<nsd>(N2,Idm) + 2*symmetric_dyadic_product<nsd>(Idm,N2) - dyadic_product<nsd>(Idm,N2));
       }
 
-      // storing the invariant derivatives in array of matrices/tensors
+      // Storing the invariant derivatives in array of matrices/tensors
       std::array<Matrix<nsd>, 9> dInv = {dInv1, dInv2, dInv3, dInv4, dInv5, dInv6, dInv7, dInv8, dInv9};
       std::array<Tensor<nsd>,9> ddInv = {ddInv1, ddInv2, ddInv3, ddInv4, ddInv5, ddInv6, ddInv7, ddInv8, ddInv9};
 
-      // reading parameter table
+      // Reading parameter table
       auto &CANNTable = stM.CANNTable;
 
       // Strain energy function and derivatives

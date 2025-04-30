@@ -542,11 +542,9 @@ protected:
 
     // Setup method to initialize variables before each test
     void SetUp() override {
-        std::cout << "In NeoHookeanCompareTest SetUp" << std::endl;
         MaterialModelTest::SetUp();
 
-        // Set random values for the Neo-Hookean parameters between 1000 and 10000
-        // double C10 = getRandomDouble(1000.0, 10000000.0);
+        // Set values for the Neo-Hookean parameters
         double C10 = 4.0094326666666664e+07;
 
         params_NH.C10 = C10;
@@ -584,7 +582,6 @@ protected:
 class STRUCT_CANNNeoHookeanTest : public NeoHookeanCompareTest {
 protected:
     void SetUp() override {
-        std::cout << "setting up testing class" << std::endl;
         NeoHookeanCompareTest::SetUp();
 
         // Use struct
@@ -691,7 +688,6 @@ protected:
 
     // Setup method to initialize variables before each test
     void SetUp() override {
-        std::cout << "In HOCompareTest SetUp" << std::endl;
         MaterialModelTest::SetUp();
 
         // Set Holzapfel-Ogden parameters from cardiac benchmark paper
@@ -736,8 +732,6 @@ protected:
             cout << "s = [" << params_HO.s[0] << ", " << params_HO.s[1] << ", " << params_HO.s[2] << "]" << endl;
             throw runtime_error("f and s are not orthogonal");
         }
-        std::cout << "f in tests" << params_HO.f[0] << "," << params_HO.f[1]<< "," << params_HO.f[2] << std::endl;
-        std::cout << "s in tests" << params_HO.s[0] << "," << params_HO.s[1] << "," << params_HO.s[2] << std::endl;
         
         // Initializing paramter table
         params_CANN_HO.Table.resize(4);  // Ensure it has 4 entries
@@ -790,7 +784,6 @@ protected:
 class STRUCT_CANNHolzapfelOgdenTest : public HolzapfelOgdenCompareTest {
 protected:
     void SetUp() override {
-        std::cout << "setting up testing class" << std::endl;
         HolzapfelOgdenCompareTest::SetUp();
 
         // Use struct
@@ -2155,7 +2148,6 @@ TEST_F(USTRUCT_HolzapfelOgdenMATest, TestMaterialElasticityConsistencyConvergenc
 
 // Test PK2 stress zero for F = I
 TEST_F(STRUCT_CANNNeoHookeanTest, TestPK2StressIdentityF) {
-    std::cout << "1st test called" << std::endl;
     verbose = true; // Show values of S and S_ref
 
     // Check identity F produces zero PK2 stress
@@ -2164,11 +2156,8 @@ TEST_F(STRUCT_CANNNeoHookeanTest, TestPK2StressIdentityF) {
                        {0.0, 0.0, 1.0}};
     Array<double> S_ref(3,3); // PK2 stress initialized to zero - want to get result from NH and set that to S_ref
     Array<double> Dm(6,6);
-    std::cout << "all arrays initialized" << std::endl;
     TestNH->compute_pk2cc(F,S_ref,Dm); // Computing S_ref from NH
-    std::cout << "NH solution calculated" << std::endl;
     TestCANNNH->testPK2StressAgainstReference(F, S_ref, rel_tol, abs_tol, verbose); // Comparing with CANN
-    std::cout << "CANN solution compared to NH" << std::endl;
 }
 
 // Test PK2 stress
@@ -2359,7 +2348,6 @@ TEST_F(STRUCT_CANNNeoHookeanTest, TestMaterialElasticityAgainstReference) {
 
 // Test PK2 stress zero for F = I
 TEST_F(STRUCT_CANNHolzapfelOgdenTest, TestPK2StressIdentityF) {
-    std::cout << "1st HO test called" << std::endl;
     verbose = true; // Show values of S and S_ref
 
     // Check identity F produces zero PK2 stress
@@ -2368,11 +2356,8 @@ TEST_F(STRUCT_CANNHolzapfelOgdenTest, TestPK2StressIdentityF) {
                        {0.0, 0.0, 1.0}};
     Array<double> S_ref(3,3); // PK2 stress initialized to zero - want to get result from NH and set that to S_ref
     Array<double> Dm(6,6);
-    std::cout << "all arrays initialized" << std::endl;
     TestHO->compute_pk2cc(F,S_ref,Dm); // Computing S_ref from NH
-    std::cout << "HO solution calculated" << std::endl;
     TestCANNHO->testPK2StressAgainstReference(F, S_ref, rel_tol, abs_tol, verbose); // Comparing with CANN
-    std::cout << "CANN solution compared to NH" << std::endl;
 }
 
 // Test PK2 stress
