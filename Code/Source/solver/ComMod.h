@@ -392,8 +392,8 @@ class stModelType
 
     // CANN Model/UAnisoHyper_inv
 
-    // Parameter for umber of terms in strain energy function
-    int nterms = 0; //Initialized to 0
+    // Parameter for number of terms in strain energy function initialized to 0
+    int nterms = 0;
 
     // 2D vector parameter for storing the parameter table
     std::vector<CANNRow> CANNTable;

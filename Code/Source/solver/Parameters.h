@@ -570,7 +570,7 @@ class CANNRowParameters : public ParameterLists
 ///
 /// \code {.xml}
 /// <Constitutive_model type="CANN">
-/// <Add_row row_name="first">
+/// <Add_row row_name="1">
 ///   <Invariant_num> 1 </Invariant_num>
 ///   <Activation_functions> (1,1,1) </Activation_functions>
 ///   <Weights> (1.0,1.0,1.0) </Weights>

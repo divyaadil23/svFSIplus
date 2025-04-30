@@ -750,8 +750,7 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
       CC += g2*dyadic_product<nsd>(Hss, Hss);
     } break;
 
-    // Universal Material Subroutine - stAnisoHyper_Inv/CANN
-
+    // Universal Material Subroutine - CANN Model
     case ConstitutiveModelType::stAnisoHyper_Inv: {
       
       //Isochoric Invariant definitions
@@ -778,7 +777,6 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
       Matrix<nsd> dInv9;
 
       // 2nd derivative of invariant wrt C - d2Inv/dCdC
-
       // some useful derivatives
       Tensor<nsd> dCidC = - symmetric_dyadic_product<nsd>(Ci,Ci);
       Matrix<nsd> dJ4ddC = -2.0/3.0*J4d*Ci;
@@ -817,14 +815,14 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
         ddInv9 = -1.0/3.0*(dyadic_product<nsd>(dInv9,Ci) + Inv[8]*dCidC + 2*J4d*dyadic_product<nsd>(Ci,(N2*C + C*N2))) + J4d*(2*symmetric_dyadic_product<nsd>(N2,Idm) - dyadic_product<nsd>(N2,Idm) + 2*symmetric_dyadic_product<nsd>(Idm,N2) - dyadic_product<nsd>(Idm,N2));
       }
 
-      //storing the invariant derivatives in array of pointers
+      // storing the invariant derivatives in array of matrices/tensors
       std::array<Matrix<nsd>, 9> dInv = {dInv1, dInv2, dInv3, dInv4, dInv5, dInv6, dInv7, dInv8, dInv9};
       std::array<Tensor<nsd>,9> ddInv = {ddInv1, ddInv2, ddInv3, ddInv4, ddInv5, ddInv6, ddInv7, ddInv8, ddInv9};
 
-      //reading parameters
+      // reading parameter table
       auto &CANNTable = stM.CANNTable;
 
-      //Strain energy function and derivatives
+      // Strain energy function and derivatives
       double psi,dpsi[9],ddpsi[9];
       UAnisoHyper_inv::uanisohyper_inv(Inv,CANNTable,psi,dpsi,ddpsi);
 

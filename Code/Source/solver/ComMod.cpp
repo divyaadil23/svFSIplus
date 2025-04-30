@@ -211,37 +211,3 @@ rmshType::rmshType()
 {
   isReqd  = false;
 }
-
-/* TODO_Divya move this to Parameters.h? or readfiles. Add file path as another input 
-parameter taken from file */
-void readParameterTable(std::vector<std::vector<double>>& w) {
-    std::ifstream file("/Users/divya/svFSIplus/Code/Source/solver/ParameterTable_NH.txt");
-    if (!file.is_open()) {
-        std::cerr << "Failed to open file!" << std::endl;
-        return;
-    }
-
-    // Read numbers using the extraction (>>) operator
-    std::string line;
-    while (std::getline(file, line)) {
-        std::istringstream lineStream(line);
-        std::vector<double> row;
-        double value;
-        int count = 0;
-
-        while (lineStream >> value) {
-            // Convert the first four values to integers if needed
-            if (count < 4) {
-                row.push_back(static_cast<double>(static_cast<int>(value)));
-            } else {
-                row.push_back(value);
-            }
-            count++;
-        }
-
-        w.push_back(row);
-    }
-
-    // Close the file stream
-    file.close();
-}

@@ -768,7 +768,7 @@ CANNRowParameters::CANNRowParameters()
 
   set_parameter("row_name", "", required, row_name);
 
-  // initialize row parameters and add it to params map
+  // Initialize row parameters and add it to params map
   int invariant = 1;
   std::initializer_list<int> activation_func = {1,1,1}; 
   std::initializer_list<double> weights_vec = {1.0,1.0,1.0};
@@ -803,14 +803,14 @@ void CANNRowParameters::set_values(tinyxml2::XMLElement* row_elem)
 
   std::string error_msg = "Unknown " + xml_element_name_ + " XML element '"; 
 
-  // set row_name for current row element
+  // Set row_name for current row element
   const char* row_name_input;
   auto result = row_elem->QueryStringAttribute("row_name", &row_name_input);
   row_name.set(std::string(row_name_input));
 
   auto item = row_elem->FirstChildElement();
 
-  // iterate over all child elements for this row
+  // Iterate over all child elements for this row
   while(item != nullptr) {
     auto name = std::string(item->Value());
     auto value = item->GetText();
@@ -829,7 +829,7 @@ void CANNRowParameters::set_values(tinyxml2::XMLElement* row_elem)
   }
 }
 
-/// @brief constructor for CANNParameters class. initializes CANNTable
+/// @brief Constructor for CANNParameters class. Initializes CANNTable
 CANNParameters::CANNParameters()
 {
   // A parameter that must be defined.
@@ -837,10 +837,10 @@ CANNParameters::CANNParameters()
 
   set_xml_element_name("Constitutive_model type=CANN");
 
-  // no need to initialize rows.
+  // No need to initialize rows.
 }
 
-/// @brief destructor for CANNParameters class. deletes memory dynamically allocated
+/// @brief Destructor for CANNParameters class. Deletes memory dynamically allocated
 /// to the rows of the table.
 CANNParameters::~CANNParameters()
 {

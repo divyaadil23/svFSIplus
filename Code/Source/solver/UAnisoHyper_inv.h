@@ -28,11 +28,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-// The classes defined here duplicate the data structures in the Fortran COMMOD module
-// defined in MOD.f. 
-//
-// All of the data structures used for the mesh, boundarsy conditions and solver parameters, etc. 
-// are defined here.
 
 #ifndef UANISOHYPER_INV_H
 #define UANISOHYPER_INV_H

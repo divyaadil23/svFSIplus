@@ -28,11 +28,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-// The classes defined here duplicate the data structures in the Fortran COMMOD module
-// defined in MOD.f. 
-//
-// All of the data structures used for the mesh, boundarsy conditions and solver parameters, etc. 
-// are defined here.
+// The functions required for CANN material model implementations are defined here
 
 #include "mat_fun.h"
 #include "utils.h"
