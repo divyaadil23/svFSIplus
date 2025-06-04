@@ -130,8 +130,8 @@ constArtificialNeuralNetworkModel::constArtificialNeuralNetworkModel()
 // s t m o d e l  T y p e //
 ////////////////////////////
 
-stModelType::stModelType(){
-    // CANNTable.resize(nterms); // Reserves space for `nterms` CANNRow objects
+stModelType::stModelType()
+{
 }
 
 //////////////////////

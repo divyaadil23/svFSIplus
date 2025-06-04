@@ -2387,12 +2387,11 @@ public:
         int nrows = 1;
 
         dmn.stM.paramTable.nRows = nrows;
-        // std::vector<CANNRow> CANNTable;
+        
         // Resize Arrays and Vectors to ensure there is enough space
         dmn.stM.paramTable.CANNTable_invariant_indices.resize(dmn.stM.paramTable.nRows);
         dmn.stM.paramTable.CANNTable_activation_functions.resize(dmn.stM.paramTable.nRows,3);
         dmn.stM.paramTable.CANNTable_weights.resize(dmn.stM.paramTable.nRows,3);
-        // dmn.stM.CANNTable.resize(nrows);  // Ensure it has space for `nrows`
 
         // Populate components of the table in stM
         for (size_t i = 0; i < dmn.stM.paramTable.nRows; i++)
@@ -2412,11 +2411,6 @@ public:
 
         }
 
-        // for (int i = 0; i < nrows; i++){
-        //     dmn.stM.CANNTable[i].invariant_index = params.Table[i].invariant_index;
-        //     dmn.stM.CANNTable[i].activation_functions = params.Table[i].activation_functions;
-        //     dmn.stM.CANNTable[i].weights = params.Table[i].weights;
-        // }
         dmn.stM.Kpen = 0.0;         // Zero volumetric penalty parameter
     }
 
@@ -2482,15 +2476,14 @@ public:
         // Set HO material parameters for svFSIplus
         auto &dmn = com_mod.mockEq.mockDmn;
         int nrows = 4;
-        // std::vector<CANNRow> CANNTable;
 
         dmn.stM.paramTable.nRows = nrows;
+
         // Resize Arrays and Vectors to ensure there is enough space
         dmn.stM.paramTable.CANNTable_invariant_indices.resize(dmn.stM.paramTable.nRows);
         dmn.stM.paramTable.CANNTable_activation_functions.resize(dmn.stM.paramTable.nRows,3);
         dmn.stM.paramTable.CANNTable_weights.resize(dmn.stM.paramTable.nRows,3);
-        // dmn.stM.CANNTable.resize(nrows);  // Ensure it has space for `nrows`
-
+        
         // Populate components of the table in stM
         for (size_t i = 0; i < dmn.stM.paramTable.nRows; i++)
         {
@@ -2508,13 +2501,7 @@ public:
             dmn.stM.paramTable.CANNTable_weights(i,2) = params.Table[i].weights.value_[2];
 
         }
-        // dmn.stM.CANNTable.resize(nrows);  // Ensure it has space for `nrows`
-
-        // for (int i = 0; i < nrows; i++){
-        //     dmn.stM.CANNTable[i].invariant_index = params.Table[i].invariant_index;
-        //     dmn.stM.CANNTable[i].activation_functions = params.Table[i].activation_functions;
-        //     dmn.stM.CANNTable[i].weights = params.Table[i].weights;
-        // }
+       
         dmn.stM.Kpen = 0.0;         // Zero volumetric penalty parameter
 
         // Set number of fiber directions and fiber directions

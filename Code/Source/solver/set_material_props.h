@@ -184,25 +184,6 @@ SeMaterialPropertiesMapType set_material_props = {
 {
   lDmn.stM.isoType = consts::ConstitutiveModelType::stAnisoHyper_Inv;
   auto& params = domain_params->constitutive_model.cann;
-  // lDmn.stM.nterms = params.rows.size();
-
-
-  // // Resize the vector to ensure it has enough space
-  // lDmn.stM.CANNTable.resize(lDmn.stM.nterms);
-
-  // // Populate `CANNTable` in stM
-  //   for (size_t i = 0; i < lDmn.stM.nterms; i++) {
-      
-  //     // Store invariant index
-  //     lDmn.stM.CANNTable[i].invariant_index = params.rows[i]->row.invariant_index; 
-
-  //     // Store activation function values
-  //     lDmn.stM.CANNTable[i].activation_functions = params.rows[i]->row.activation_functions;
-
-  //     // Store weights
-  //     lDmn.stM.CANNTable[i].weights = params.rows[i]->row.weights;
-      
-  //   }
 
   lDmn.stM.paramTable.nRows = params.rows.size();
 

@@ -145,38 +145,3 @@ void uanisohyper_inv(const double aInv[9],const constArtificialNeuralNetworkMode
 
 }
 }
-
-// /// @brief function to build psi and dpsidI1 to 5
-// void uanisohyper_inv(const double aInv[9],const std::vector<CANNRow> CANNTable, double &psi, double (&dpsi)[9], double (&ddpsi)[9]){
-//     //initialising
-//     for (int i = 0; i < 9; i++)
-//     {
-//         dpsi[i] = 0;
-//         ddpsi[i] = 0;
-//     }
-//     int kInv=0,kf0=0,kf1=0,kf2=0;//activation function for layer
-//     double W0=0,W1=0,W2=0;//weight for layers
-
-//     //reference config
-//     double ref[9] = {3, 3, 1, 1, 1, 0, 0, 1, 1};
-//     int nRows = CANNTable.size();
-
-//     for (int i = 0; i < nRows; i++) //each row of param table
-//     {
-//         //extract invariant, activation function and weight
-//         kInv = CANNTable[i].invariant_index.value_;
-//         kf0 = CANNTable[i].activation_functions.value_[0];
-//         kf1 = CANNTable[i].activation_functions.value_[1];
-//         kf2 = CANNTable[i].activation_functions.value_[2];
-//         W0 = CANNTable[i].weights.value_[0];
-//         W1 = CANNTable[i].weights.value_[1];
-//         W2 = CANNTable[i].weights.value_[2];
-
-//         //invariants in reference configuration
-//         double xInv = aInv[kInv-1] - ref[kInv-1];
-
-//         //psi and 1st and 2nd derivative
-//         uCANN(xInv,kInv,kf0,kf1,kf2,W0,W1,W2,psi,dpsi,ddpsi);
-//     }
-
-// }

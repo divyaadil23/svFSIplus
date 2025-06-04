@@ -412,17 +412,9 @@ class stModelType
     fibStrsType Tf;
 
     // CANN Model/UAnisoHyper_inv
-
-    // // Parameter for number of terms in strain energy function initialized to 0
-    // int nterms = 0;
-
-    // // 2D vector parameter for storing the parameter table
-    // std::vector<CANNRow> CANNTable;
-
-    // Initialize CANNTable in constructor in cpp.
-    stModelType();
-
     constArtificialNeuralNetworkModel paramTable;
+  
+    stModelType();
 };
 
 
