@@ -1228,8 +1228,15 @@ void dist_mat_consts(const ComMod& com_mod, const CmMod& cm_mod, const cmType& c
 
   // Distribute CANN parameter table
   cm.bcast(cm_mod, &lStM.paramTable.nRows);
+  if (cm.slv(cm_mod))
+  {
+    lStM.paramTable.CANNTable_invariant_indices.resize(lStM.paramTable.nRows);
+    lStM.paramTable.CANNTable_activation_functions.resize(lStM.paramTable.nRows,3);
+    lStM.paramTable.CANNTable_weights.resize(lStM.paramTable.nRows,3);
+  }
+  
   cm.bcast(cm_mod, lStM.paramTable.CANNTable_invariant_indices);
-  cm.bcast(cm_mod, lStM.paramTable.CANNTable_activation_functions, "paramTable.CANNTable_activation_functions");
+  cm.bcast(cm_mod, lStM.paramTable.CANNTable_activation_functions, "paramTable.CANNTable_act_func");
   cm.bcast(cm_mod, lStM.paramTable.CANNTable_weights, "paramTable.CANNTable_weights");
 
 }
