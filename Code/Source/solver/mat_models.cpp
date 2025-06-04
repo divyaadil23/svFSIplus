@@ -820,7 +820,7 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
       std::array<Tensor<nsd>,9> ddInv = {ddInv1, ddInv2, ddInv3, ddInv4, ddInv5, ddInv6, ddInv7, ddInv8, ddInv9};
 
       // Reading parameter table
-      auto &CANNTable = stM.CANNTable;
+      auto &CANNTable = stM.paramTable;
 
       // Strain energy function and derivatives
       double psi,dpsi[9],ddpsi[9];

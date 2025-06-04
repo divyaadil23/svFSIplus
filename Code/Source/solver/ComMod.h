@@ -344,6 +344,27 @@ class fibStrsType
     fcType gt;
 };
 
+// Class for parameter table for material models discovered by constitutive artificial neural network (CANN)
+class constArtificialNeuralNetworkModel
+{
+  public:
+
+    // Invariant indices
+    Vector<int> CANNTable_invariant_indices;
+
+    // Activation functions
+    Array<int> CANNTable_activation_functions;
+
+    // Weights
+    Array<double> CANNTable_weights;
+
+    // Number of rows in parameter table
+    int nRows;
+
+    // Constructor
+    constArtificialNeuralNetworkModel();
+};
+
 /// @brief Structural domain type
 //
 class stModelType
@@ -392,14 +413,16 @@ class stModelType
 
     // CANN Model/UAnisoHyper_inv
 
-    // Parameter for number of terms in strain energy function initialized to 0
-    int nterms = 0;
+    // // Parameter for number of terms in strain energy function initialized to 0
+    // int nterms = 0;
 
-    // 2D vector parameter for storing the parameter table
-    std::vector<CANNRow> CANNTable;
+    // // 2D vector parameter for storing the parameter table
+    // std::vector<CANNRow> CANNTable;
 
     // Initialize CANNTable in constructor in cpp.
     stModelType();
+
+    constArtificialNeuralNetworkModel paramTable;
 };
 
 

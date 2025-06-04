@@ -1225,6 +1225,13 @@ void dist_mat_consts(const ComMod& com_mod, const CmMod& cm_mod, const cmType& c
    cm.bcast(cm_mod, lStM.Tf.gt.i, "lStM.Tf.gt.i");
   }
   cm.bcast(cm_mod, &lStM.Tf.eta_s);
+
+  // Distribute CANN parameter table
+  cm.bcast(cm_mod, &lStM.paramTable.nRows);
+  cm.bcast(cm_mod, lStM.paramTable.CANNTable_invariant_indices);
+  cm.bcast(cm_mod, lStM.paramTable.CANNTable_activation_functions, "paramTable.CANNTable_activation_functions");
+  cm.bcast(cm_mod, lStM.paramTable.CANNTable_weights, "paramTable.CANNTable_weights");
+
 }
 
 

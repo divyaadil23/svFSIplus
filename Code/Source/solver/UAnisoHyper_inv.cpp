@@ -33,6 +33,7 @@
 #include "mat_fun.h"
 #include "utils.h"
 #include "Parameters.h"
+#include "ComMod.h"
 
 namespace UAnisoHyper_inv {
 
@@ -110,7 +111,7 @@ void uCANN(const double xInv,const int kInv,const int kf0, const int kf1, const 
 }
 
 /// @brief function to build psi and dpsidI1 to 5
-void uanisohyper_inv(const double aInv[9],const std::vector<CANNRow> CANNTable, double &psi, double (&dpsi)[9], double (&ddpsi)[9]){
+void uanisohyper_inv(const double aInv[9],const constArtificialNeuralNetworkModel paramTable, double &psi, double (&dpsi)[9], double (&ddpsi)[9]){
     //initialising
     for (int i = 0; i < 9; i++)
     {
@@ -122,18 +123,18 @@ void uanisohyper_inv(const double aInv[9],const std::vector<CANNRow> CANNTable, 
 
     //reference config
     double ref[9] = {3, 3, 1, 1, 1, 0, 0, 1, 1};
-    int nRows = CANNTable.size();
+    int nRows = paramTable.nRows;
 
     for (int i = 0; i < nRows; i++) //each row of param table
     {
         //extract invariant, activation function and weight
-        kInv = CANNTable[i].invariant_index.value_;
-        kf0 = CANNTable[i].activation_functions.value_[0];
-        kf1 = CANNTable[i].activation_functions.value_[1];
-        kf2 = CANNTable[i].activation_functions.value_[2];
-        W0 = CANNTable[i].weights.value_[0];
-        W1 = CANNTable[i].weights.value_[1];
-        W2 = CANNTable[i].weights.value_[2];
+        kInv = paramTable.CANNTable_invariant_indices(i);
+        kf0 = paramTable.CANNTable_activation_functions(i,0);
+        kf1 = paramTable.CANNTable_activation_functions(i,1);
+        kf2 = paramTable.CANNTable_activation_functions(i,2);
+        W0 = paramTable.CANNTable_weights(i,0);
+        W1 = paramTable.CANNTable_weights(i,1);
+        W2 = paramTable.CANNTable_weights(i,2);
 
         //invariants in reference configuration
         double xInv = aInv[kInv-1] - ref[kInv-1];
@@ -144,3 +145,38 @@ void uanisohyper_inv(const double aInv[9],const std::vector<CANNRow> CANNTable, 
 
 }
 }
+
+// /// @brief function to build psi and dpsidI1 to 5
+// void uanisohyper_inv(const double aInv[9],const std::vector<CANNRow> CANNTable, double &psi, double (&dpsi)[9], double (&ddpsi)[9]){
+//     //initialising
+//     for (int i = 0; i < 9; i++)
+//     {
+//         dpsi[i] = 0;
+//         ddpsi[i] = 0;
+//     }
+//     int kInv=0,kf0=0,kf1=0,kf2=0;//activation function for layer
+//     double W0=0,W1=0,W2=0;//weight for layers
+
+//     //reference config
+//     double ref[9] = {3, 3, 1, 1, 1, 0, 0, 1, 1};
+//     int nRows = CANNTable.size();
+
+//     for (int i = 0; i < nRows; i++) //each row of param table
+//     {
+//         //extract invariant, activation function and weight
+//         kInv = CANNTable[i].invariant_index.value_;
+//         kf0 = CANNTable[i].activation_functions.value_[0];
+//         kf1 = CANNTable[i].activation_functions.value_[1];
+//         kf2 = CANNTable[i].activation_functions.value_[2];
+//         W0 = CANNTable[i].weights.value_[0];
+//         W1 = CANNTable[i].weights.value_[1];
+//         W2 = CANNTable[i].weights.value_[2];
+
+//         //invariants in reference configuration
+//         double xInv = aInv[kInv-1] - ref[kInv-1];
+
+//         //psi and 1st and 2nd derivative
+//         uCANN(xInv,kInv,kf0,kf1,kf2,W0,W1,W2,psi,dpsi,ddpsi);
+//     }
+
+// }

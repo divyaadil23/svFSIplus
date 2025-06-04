@@ -119,12 +119,19 @@ eqType::~eqType()
 {
 }
 
+////////////////////////
+// C A N N  T a b l e //
+////////////////////////
+constArtificialNeuralNetworkModel::constArtificialNeuralNetworkModel()
+{
+}
+
 ////////////////////////////
 // s t m o d e l  T y p e //
 ////////////////////////////
 
 stModelType::stModelType(){
-    CANNTable.resize(nterms); // Reserves space for `nterms` CANNRow objects
+    // CANNTable.resize(nterms); // Reserves space for `nterms` CANNRow objects
 }
 
 //////////////////////
