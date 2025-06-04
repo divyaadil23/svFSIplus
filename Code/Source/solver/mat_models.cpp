@@ -751,6 +751,11 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
     } break;
 
     // Universal Material Subroutine - CANN Model
+    /* This material model implementation is based on the following paper: 
+    Peirlinck, M., Hurtado, J.A., Rausch, M.K. et al. A universal material model subroutine 
+    for soft matter systems. Engineering with Computers 41, 905–927 (2025). 
+    https://doi.org/10.1007/s00366-024-02031-w */
+    
     case ConstitutiveModelType::stAnisoHyper_Inv: {
       
       // Isochoric Invariant definitions
