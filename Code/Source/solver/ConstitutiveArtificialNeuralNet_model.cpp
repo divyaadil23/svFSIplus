@@ -40,7 +40,7 @@ https://doi.org/10.1007/s00366-024-02031-w */
 #include "Parameters.h"
 #include "ComMod.h"
 
-namespace UAnisoHyper_inv {
+namespace ConstitutiveArtificialNeuralNet_model {
 
 //void ten_init(const int nd);
 /// @brief 0th layer output of CANN for activation func kf, input x
@@ -116,7 +116,7 @@ void uCANN(const double xInv,const int kInv,const int kf0, const int kf1, const 
 }
 
 /// @brief function to build psi and dpsidI1 to 5
-void uanisohyper_inv(const double aInv[9],const ConstitutiveArtificialNeuralNetModel paramTable, double &psi, double (&dpsi)[9], double (&ddpsi)[9]){
+void ConstitutiveArtificialNeuralNet_model(const double aInv[9],const ConstitutiveArtificialNeuralNetModel paramTable, double &psi, double (&dpsi)[9], double (&ddpsi)[9]){
     //initialising
     for (int i = 0; i < 9; i++)
     {

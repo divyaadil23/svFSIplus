@@ -33,20 +33,20 @@ Peirlinck, M., Hurtado, J.A., Rausch, M.K. et al. A universal material model sub
 for soft matter systems. Engineering with Computers 41, 905–927 (2025). 
 https://doi.org/10.1007/s00366-024-02031-w */
 
-#ifndef UANISOHYPER_INV_H
-#define UANISOHYPER_INV_H
+#ifndef ConstitutiveArtificialNeuralNet_model_H
+#define ConstitutiveArtificialNeuralNet_model_H
 
 #include "mat_fun.h"
 #include "utils.h"
 #include "Parameters.h"
 #include <vector>
 
-namespace UAnisoHyper_inv {
+namespace ConstitutiveArtificialNeuralNet_model {
     void uCANN_h0(const double x, const int kf, double &f, double &df, double &ddf);
     void uCANN_h1(const double x, const int kf, const double W, double &f, double &df, double &ddf);
     void uCANN_h2(const double x, const int kf, const double W, double &f, double &df, double &ddf);
     void uCANN(const double xInv, const int kf0, const int kf1, const int kf2, const double W0, const double W1, const double W2, double &psi, double (&dpsi)[9], double (&ddpsi)[9]);
-    void uanisohyper_inv(const double aInv[9],const ConstitutiveArtificialNeuralNetModel paramTable, double &psi, double (&dpsi)[9], double (&ddpsi)[9]);
+    void ConstitutiveArtificialNeuralNet_model(const double aInv[9],const ConstitutiveArtificialNeuralNetModel paramTable, double &psi, double (&dpsi)[9], double (&ddpsi)[9]);
 }
 
-#endif // UANISOHYPER_INV_H
+#endif // ConstitutiveArtificialNeuralNet_model_H

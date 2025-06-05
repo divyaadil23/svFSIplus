@@ -217,7 +217,7 @@ set(CSRCS
   CmMod.h CmMod.cpp
   ComMod.h ComMod.cpp
   Timer.h
-  UAnisoHyper_inv.h UAnisoHyper_inv.cpp
+  ConstitutiveArtificialNeuralNet_model.h ConstitutiveArtificialNeuralNet_model.cpp
   
   SPLIT.c
 

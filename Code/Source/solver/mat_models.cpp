@@ -35,7 +35,7 @@
 #include "fft.h"
 #include "mat_fun.h"
 #include "utils.h"
-#include "UAnisoHyper_inv.h"
+#include "ConstitutiveArtificialNeuralNet_model.h"
 
 #include <math.h>
 #include <utility> // std::pair
@@ -756,7 +756,7 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
     for soft matter systems. Engineering with Computers 41, 905–927 (2025). 
     https://doi.org/10.1007/s00366-024-02031-w */
     
-    case ConstitutiveModelType::stAnisoHyper_Inv: {
+    case ConstitutiveModelType::stConstitutiveArtificialNeuralNet: {
       
       // Isochoric Invariant definitions
       double Inv[9] = {0,0,0,0,0,0,0,0,0};
@@ -829,7 +829,7 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
 
       // Strain energy function and derivatives
       double psi,dpsi[9],ddpsi[9];
-      UAnisoHyper_inv::uanisohyper_inv(Inv,CANNTable,psi,dpsi,ddpsi);
+      ConstitutiveArtificialNeuralNet_model::ConstitutiveArtificialNeuralNet_model(Inv,CANNTable,psi,dpsi,ddpsi);
 
       for (int i = 0; i < 9; i++) {
         S += 2*dInv[i]*dpsi[i];

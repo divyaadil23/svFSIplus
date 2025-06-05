@@ -175,14 +175,14 @@ SeMaterialPropertiesMapType set_material_props = {
   lDmn.stM.khs = params.k.value();
 } },
 
-//---------------------------//
-//       stAnisoHyper_Inv    //
-//---------------------------//
+//--------------------------------------------//
+//       stConstitutiveArtificialNeuralNet    //
+//--------------------------------------------//
 //
-{consts::ConstitutiveModelType::stAnisoHyper_Inv, [](DomainParameters* domain_params, double mu, double kap, double lam,
+{consts::ConstitutiveModelType::stConstitutiveArtificialNeuralNet, [](DomainParameters* domain_params, double mu, double kap, double lam,
     dmnType& lDmn) -> void
 {
-  lDmn.stM.isoType = consts::ConstitutiveModelType::stAnisoHyper_Inv;
+  lDmn.stM.isoType = consts::ConstitutiveModelType::stConstitutiveArtificialNeuralNet;
   auto& params = domain_params->constitutive_model.cann;
 
   lDmn.stM.paramTable.num_rows = params.rows.size();

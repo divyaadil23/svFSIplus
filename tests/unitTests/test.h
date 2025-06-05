@@ -2379,7 +2379,7 @@ public:
      *
      * @param[in] params_ Parameters for the CANN Neo-Hookean material model.
      */
-    TestCANN_NH(const CANN_NH_Params &params_) : TestMaterialModel( consts::ConstitutiveModelType::stAnisoHyper_Inv, consts::ConstitutiveModelType::stVol_ST91),
+    TestCANN_NH(const CANN_NH_Params &params_) : TestMaterialModel( consts::ConstitutiveModelType::stConstitutiveArtificialNeuralNet, consts::ConstitutiveModelType::stVol_ST91),
         params(params_) 
         {
         // Set Neo-Hookean material parameters
@@ -2470,7 +2470,7 @@ public:
      *
      * @param[in] params_ Parameters for the CANN HO material model.
      */
-    TestCANN_HO(const CANN_HO_Params &params_) : TestMaterialModel( consts::ConstitutiveModelType::stAnisoHyper_Inv, consts::ConstitutiveModelType::stVol_ST91),
+    TestCANN_HO(const CANN_HO_Params &params_) : TestMaterialModel( consts::ConstitutiveModelType::stConstitutiveArtificialNeuralNet, consts::ConstitutiveModelType::stVol_ST91),
         params(params_) 
         {
         // Set HO material parameters for svFSIplus
