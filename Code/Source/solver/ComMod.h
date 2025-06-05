@@ -345,24 +345,22 @@ class fibStrsType
 };
 
 // Class for parameter table for material models discovered by constitutive artificial neural network (CANN)
-class constArtificialNeuralNetworkModel
+class ConstitutiveArtificialNeuralNetModel
 {
   public:
 
     // Invariant indices
-    Vector<int> CANNTable_invariant_indices;
+    Vector<int> invariant_indices;
 
     // Activation functions
-    Array<int> CANNTable_activation_functions;
+    Array<int> activation_functions;
 
     // Weights
-    Array<double> CANNTable_weights;
+    Array<double> weights;
 
     // Number of rows in parameter table
-    int nRows;
+    int num_rows;
 
-    // Constructor
-    constArtificialNeuralNetworkModel();
 };
 
 /// @brief Structural domain type
@@ -412,7 +410,7 @@ class stModelType
     fibStrsType Tf;
 
     // CANN Model/UAnisoHyper_inv
-    constArtificialNeuralNetworkModel paramTable;
+    ConstitutiveArtificialNeuralNetModel paramTable;
   
     stModelType();
 };

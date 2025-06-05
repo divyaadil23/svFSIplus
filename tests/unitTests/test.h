@@ -2386,28 +2386,28 @@ public:
         auto &dmn = com_mod.mockEq.mockDmn;
         int nrows = 1;
 
-        dmn.stM.paramTable.nRows = nrows;
+        dmn.stM.paramTable.num_rows = nrows;
         
         // Resize Arrays and Vectors to ensure there is enough space
-        dmn.stM.paramTable.CANNTable_invariant_indices.resize(dmn.stM.paramTable.nRows);
-        dmn.stM.paramTable.CANNTable_activation_functions.resize(dmn.stM.paramTable.nRows,3);
-        dmn.stM.paramTable.CANNTable_weights.resize(dmn.stM.paramTable.nRows,3);
+        dmn.stM.paramTable.invariant_indices.resize(dmn.stM.paramTable.num_rows);
+        dmn.stM.paramTable.activation_functions.resize(dmn.stM.paramTable.num_rows,3);
+        dmn.stM.paramTable.weights.resize(dmn.stM.paramTable.num_rows,3);
 
         // Populate components of the table in stM
-        for (size_t i = 0; i < dmn.stM.paramTable.nRows; i++)
+        for (size_t i = 0; i < dmn.stM.paramTable.num_rows; i++)
         {
             // Store invariant index
-            dmn.stM.paramTable.CANNTable_invariant_indices[i] = params.Table[i].invariant_index.value_;
+            dmn.stM.paramTable.invariant_indices[i] = params.Table[i].invariant_index.value_;
 
             // Store activation function values
-            dmn.stM.paramTable.CANNTable_activation_functions(i,0) = params.Table[i].activation_functions.value_[0];
-            dmn.stM.paramTable.CANNTable_activation_functions(i,1) = params.Table[i].activation_functions.value_[1];
-            dmn.stM.paramTable.CANNTable_activation_functions(i,2) = params.Table[i].activation_functions.value_[2];
+            dmn.stM.paramTable.activation_functions(i,0) = params.Table[i].activation_functions.value_[0];
+            dmn.stM.paramTable.activation_functions(i,1) = params.Table[i].activation_functions.value_[1];
+            dmn.stM.paramTable.activation_functions(i,2) = params.Table[i].activation_functions.value_[2];
 
             // Store weight values
-            dmn.stM.paramTable.CANNTable_weights(i,0) = params.Table[i].weights.value_[0];
-            dmn.stM.paramTable.CANNTable_weights(i,1) = params.Table[i].weights.value_[1];
-            dmn.stM.paramTable.CANNTable_weights(i,2) = params.Table[i].weights.value_[2];
+            dmn.stM.paramTable.weights(i,0) = params.Table[i].weights.value_[0];
+            dmn.stM.paramTable.weights(i,1) = params.Table[i].weights.value_[1];
+            dmn.stM.paramTable.weights(i,2) = params.Table[i].weights.value_[2];
 
         }
 
@@ -2477,28 +2477,28 @@ public:
         auto &dmn = com_mod.mockEq.mockDmn;
         int nrows = 4;
 
-        dmn.stM.paramTable.nRows = nrows;
+        dmn.stM.paramTable.num_rows = nrows;
 
         // Resize Arrays and Vectors to ensure there is enough space
-        dmn.stM.paramTable.CANNTable_invariant_indices.resize(dmn.stM.paramTable.nRows);
-        dmn.stM.paramTable.CANNTable_activation_functions.resize(dmn.stM.paramTable.nRows,3);
-        dmn.stM.paramTable.CANNTable_weights.resize(dmn.stM.paramTable.nRows,3);
+        dmn.stM.paramTable.invariant_indices.resize(dmn.stM.paramTable.num_rows);
+        dmn.stM.paramTable.activation_functions.resize(dmn.stM.paramTable.num_rows,3);
+        dmn.stM.paramTable.weights.resize(dmn.stM.paramTable.num_rows,3);
         
         // Populate components of the table in stM
-        for (size_t i = 0; i < dmn.stM.paramTable.nRows; i++)
+        for (size_t i = 0; i < dmn.stM.paramTable.num_rows; i++)
         {
             // Store invariant index
-            dmn.stM.paramTable.CANNTable_invariant_indices[i] = params.Table[i].invariant_index.value_;
+            dmn.stM.paramTable.invariant_indices[i] = params.Table[i].invariant_index.value_;
 
             // Store activation function values
-            dmn.stM.paramTable.CANNTable_activation_functions(i,0) = params.Table[i].activation_functions.value_[0];
-            dmn.stM.paramTable.CANNTable_activation_functions(i,1) = params.Table[i].activation_functions.value_[1];
-            dmn.stM.paramTable.CANNTable_activation_functions(i,2) = params.Table[i].activation_functions.value_[2];
+            dmn.stM.paramTable.activation_functions(i,0) = params.Table[i].activation_functions.value_[0];
+            dmn.stM.paramTable.activation_functions(i,1) = params.Table[i].activation_functions.value_[1];
+            dmn.stM.paramTable.activation_functions(i,2) = params.Table[i].activation_functions.value_[2];
 
             // Store weight values
-            dmn.stM.paramTable.CANNTable_weights(i,0) = params.Table[i].weights.value_[0];
-            dmn.stM.paramTable.CANNTable_weights(i,1) = params.Table[i].weights.value_[1];
-            dmn.stM.paramTable.CANNTable_weights(i,2) = params.Table[i].weights.value_[2];
+            dmn.stM.paramTable.weights(i,0) = params.Table[i].weights.value_[0];
+            dmn.stM.paramTable.weights(i,1) = params.Table[i].weights.value_[1];
+            dmn.stM.paramTable.weights(i,2) = params.Table[i].weights.value_[2];
 
         }
        

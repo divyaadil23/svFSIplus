@@ -116,7 +116,7 @@ void uCANN(const double xInv,const int kInv,const int kf0, const int kf1, const 
 }
 
 /// @brief function to build psi and dpsidI1 to 5
-void uanisohyper_inv(const double aInv[9],const constArtificialNeuralNetworkModel paramTable, double &psi, double (&dpsi)[9], double (&ddpsi)[9]){
+void uanisohyper_inv(const double aInv[9],const ConstitutiveArtificialNeuralNetModel paramTable, double &psi, double (&dpsi)[9], double (&ddpsi)[9]){
     //initialising
     for (int i = 0; i < 9; i++)
     {
@@ -128,18 +128,18 @@ void uanisohyper_inv(const double aInv[9],const constArtificialNeuralNetworkMode
 
     //reference config
     double ref[9] = {3, 3, 1, 1, 1, 0, 0, 1, 1};
-    int nRows = paramTable.nRows;
+    int num_rows = paramTable.num_rows;
 
-    for (int i = 0; i < nRows; i++) //each row of param table
+    for (int i = 0; i < num_rows; i++) //each row of param table
     {
         //extract invariant, activation function and weight
-        kInv = paramTable.CANNTable_invariant_indices(i);
-        kf0 = paramTable.CANNTable_activation_functions(i,0);
-        kf1 = paramTable.CANNTable_activation_functions(i,1);
-        kf2 = paramTable.CANNTable_activation_functions(i,2);
-        W0 = paramTable.CANNTable_weights(i,0);
-        W1 = paramTable.CANNTable_weights(i,1);
-        W2 = paramTable.CANNTable_weights(i,2);
+        kInv = paramTable.invariant_indices(i);
+        kf0 = paramTable.activation_functions(i,0);
+        kf1 = paramTable.activation_functions(i,1);
+        kf2 = paramTable.activation_functions(i,2);
+        W0 = paramTable.weights(i,0);
+        W1 = paramTable.weights(i,1);
+        W2 = paramTable.weights(i,2);
 
         //invariants in reference configuration
         double xInv = aInv[kInv-1] - ref[kInv-1];

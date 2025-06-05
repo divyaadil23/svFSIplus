@@ -185,28 +185,28 @@ SeMaterialPropertiesMapType set_material_props = {
   lDmn.stM.isoType = consts::ConstitutiveModelType::stAnisoHyper_Inv;
   auto& params = domain_params->constitutive_model.cann;
 
-  lDmn.stM.paramTable.nRows = params.rows.size();
+  lDmn.stM.paramTable.num_rows = params.rows.size();
 
   // Resize Arrays and Vectors to ensure there is enough space
-  lDmn.stM.paramTable.CANNTable_invariant_indices.resize(lDmn.stM.paramTable.nRows);
-  lDmn.stM.paramTable.CANNTable_activation_functions.resize(lDmn.stM.paramTable.nRows,3);
-  lDmn.stM.paramTable.CANNTable_weights.resize(lDmn.stM.paramTable.nRows,3);
+  lDmn.stM.paramTable.invariant_indices.resize(lDmn.stM.paramTable.num_rows);
+  lDmn.stM.paramTable.activation_functions.resize(lDmn.stM.paramTable.num_rows,3);
+  lDmn.stM.paramTable.weights.resize(lDmn.stM.paramTable.num_rows,3);
 
   // Populate components of the table in stM
-  for (size_t i = 0; i < lDmn.stM.paramTable.nRows; i++)
+  for (size_t i = 0; i < lDmn.stM.paramTable.num_rows; i++)
   {
     // Store invariant index
-    lDmn.stM.paramTable.CANNTable_invariant_indices[i] = params.rows[i]->row.invariant_index.value_; 
+    lDmn.stM.paramTable.invariant_indices[i] = params.rows[i]->row.invariant_index.value_; 
 
     // Store activation function values
-    lDmn.stM.paramTable.CANNTable_activation_functions(i,0) = params.rows[i]->row.activation_functions.value_[0];
-    lDmn.stM.paramTable.CANNTable_activation_functions(i,1) = params.rows[i]->row.activation_functions.value_[1];
-    lDmn.stM.paramTable.CANNTable_activation_functions(i,2) = params.rows[i]->row.activation_functions.value_[2];
+    lDmn.stM.paramTable.activation_functions(i,0) = params.rows[i]->row.activation_functions.value_[0];
+    lDmn.stM.paramTable.activation_functions(i,1) = params.rows[i]->row.activation_functions.value_[1];
+    lDmn.stM.paramTable.activation_functions(i,2) = params.rows[i]->row.activation_functions.value_[2];
 
     // Store weight values
-    lDmn.stM.paramTable.CANNTable_weights(i,0) = params.rows[i]->row.weights.value_[0];
-    lDmn.stM.paramTable.CANNTable_weights(i,1) = params.rows[i]->row.weights.value_[1];
-    lDmn.stM.paramTable.CANNTable_weights(i,2) = params.rows[i]->row.weights.value_[2];
+    lDmn.stM.paramTable.weights(i,0) = params.rows[i]->row.weights.value_[0];
+    lDmn.stM.paramTable.weights(i,1) = params.rows[i]->row.weights.value_[1];
+    lDmn.stM.paramTable.weights(i,2) = params.rows[i]->row.weights.value_[2];
 
   }
   
