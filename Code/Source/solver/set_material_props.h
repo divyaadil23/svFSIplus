@@ -187,7 +187,6 @@ SeMaterialPropertiesMapType set_material_props = {
 
   lDmn.stM.paramTable.num_rows = params.rows.size();
 
-  // Resize Arrays and Vectors to ensure there is enough space
   lDmn.stM.paramTable.invariant_indices.resize(lDmn.stM.paramTable.num_rows);
   lDmn.stM.paramTable.activation_functions.resize(lDmn.stM.paramTable.num_rows,3);
   lDmn.stM.paramTable.weights.resize(lDmn.stM.paramTable.num_rows,3);

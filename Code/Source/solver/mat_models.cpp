@@ -751,21 +751,17 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
     } break;
 
     // Universal Material Subroutine - CANN Model
-    /* This material model implementation is based on the following paper: 
-    Peirlinck, M., Hurtado, J.A., Rausch, M.K. et al. A universal material model subroutine 
-    for soft matter systems. Engineering with Computers 41, 905–927 (2025). 
-    https://doi.org/10.1007/s00366-024-02031-w */
     
     case ConstitutiveModelType::stConstitutiveArtificialNeuralNet: {
       
-      // Isochoric Invariant definitions
+      // Array of isochoric invariants
       double Inv[9] = {0,0,0,0,0,0,0,0,0};
-      Inv[0] = Inv1; // Inv1_bar
-      Inv[1] = Inv2; // Inv2_bar
-      Inv[2] = C.determinant(); // Inv3 (the only volumetric invariant)
-      Inv[3] = J2d * (fl.col(0).dot(C * fl.col(0))); // Inv4_bar
+      Inv[0] = Inv1; 
+      Inv[1] = Inv2;
+      Inv[2] = C.determinant();
+      Inv[3] = J2d * (fl.col(0).dot(C * fl.col(0)));
       Matrix<nsd> C2 = C * C;
-      Inv[4] = J4d * (fl.col(0).dot(C2 * fl.col(0))); // Inv5_bar
+      Inv[4] = J4d * (fl.col(0).dot(C2 * fl.col(0)));
 
       // Invariant derivatives wrt C
       Matrix<nsd> dInv1 = -Inv[0]/3 * Ci + J2d * Idm;
@@ -787,10 +783,14 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
 
       // 2nd derivative of invariant wrt C - d2Inv/dCdC
       Tensor<nsd> ddInv1 = (-1.0/3.0)*(dyadic_product<nsd>(dInv1,Ci) + Inv[0]*dCidC + J2d*dyadic_product(Ci,Idm));
-      Tensor<nsd> ddInv2 = dyadic_product<nsd>(dInv1,dInv1) + Inv[0]*ddInv1 + 1/3*C2.trace()*dCidC + 1/3*dyadic_product<nsd>((C2.trace()*dJ4ddC + 2*J4d*C),Ci) + dyadic_product<nsd>(dJ4ddC,C) - J4d*fourth_order_identity<nsd>();
+      Tensor<nsd> ddInv2 = dyadic_product<nsd>(dInv1,dInv1) + Inv[0]*ddInv1 + 1.0/3.0*C2.trace()*dCidC 
+                          + 1/3*dyadic_product<nsd>((C2.trace()*dJ4ddC + 2*J4d*C),Ci) + dyadic_product<nsd>(dJ4ddC,C)
+                          - J4d*fourth_order_identity<nsd>();
       Tensor<nsd> ddInv3 = dyadic_product<nsd>(dInv3,Ci) + Inv[2]*dCidC;
       Tensor<nsd> ddInv4 = (-1.0/3.0)*(dyadic_product<nsd>(dInv4,Ci) + J2d*dyadic_product<nsd>(Ci,N1) + Inv[3]*dCidC);
-      Tensor<nsd> ddInv5 = (-1.0/3.0)*(dyadic_product<nsd>(dInv5,Ci) + Inv[4]*dCidC + 2*J4d*dyadic_product<nsd>(Ci,(N1*C + C*N1))) + J4d*(2*symmetric_dyadic_product<nsd>(N1,Idm) - dyadic_product<nsd>(N1,Idm) + 2*symmetric_dyadic_product<nsd>(Idm,N1) - dyadic_product<nsd>(Idm,N1));
+      Tensor<nsd> ddInv5 = (-1.0/3.0)*(dyadic_product<nsd>(dInv5,Ci) + Inv[4]*dCidC + 2*J4d*dyadic_product<nsd>(Ci,(N1*C + C*N1))) 
+                          + J4d*(2*symmetric_dyadic_product<nsd>(N1,Idm) - dyadic_product<nsd>(N1,Idm) 
+                          + 2*symmetric_dyadic_product<nsd>(Idm,N1) - dyadic_product<nsd>(Idm,N1));
       
       // Higher invariants are zero for 1 fiber family
       Tensor<nsd> ddInv6;
@@ -815,9 +815,13 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
 
         // 2nd Derivatives of Invariants wrt C
         ddInv6 = -1.0/3.0*(dyadic_product<nsd>(dInv6,Ci) + J2d*dyadic_product<nsd>(Ci,N12) + Inv[5]*dCidC);
-        ddInv7 = -1.0/3.0*(dyadic_product<nsd>(dInv7,Ci) + Inv[6]*dCidC + 2*J4d*dyadic_product<nsd>(Ci,(N12*C + C*N12))) + J4d*(2*symmetric_dyadic_product<nsd>(N12,Idm) - dyadic_product<nsd>(N12,Idm) + 2*symmetric_dyadic_product<nsd>(Idm,N12) - dyadic_product<nsd>(Idm,N12));
+        ddInv7 = -1.0/3.0*(dyadic_product<nsd>(dInv7,Ci) + Inv[6]*dCidC + 2*J4d*dyadic_product<nsd>(Ci,(N12*C + C*N12))) 
+                + J4d*(2*symmetric_dyadic_product<nsd>(N12,Idm) - dyadic_product<nsd>(N12,Idm) 
+                + 2*symmetric_dyadic_product<nsd>(Idm,N12) - dyadic_product<nsd>(Idm,N12));
         ddInv8 = -1.0/3.0*(dyadic_product<nsd>(dInv8,Ci) + J2d*dyadic_product<nsd>(Ci,N2) + Inv[7]*dCidC);
-        ddInv9 = -1.0/3.0*(dyadic_product<nsd>(dInv9,Ci) + Inv[8]*dCidC + 2*J4d*dyadic_product<nsd>(Ci,(N2*C + C*N2))) + J4d*(2*symmetric_dyadic_product<nsd>(N2,Idm) - dyadic_product<nsd>(N2,Idm) + 2*symmetric_dyadic_product<nsd>(Idm,N2) - dyadic_product<nsd>(Idm,N2));
+        ddInv9 = -1.0/3.0*(dyadic_product<nsd>(dInv9,Ci) + Inv[8]*dCidC + 2*J4d*dyadic_product<nsd>(Ci,(N2*C + C*N2))) 
+                + J4d*(2*symmetric_dyadic_product<nsd>(N2,Idm) - dyadic_product<nsd>(N2,Idm) 
+                + 2*symmetric_dyadic_product<nsd>(Idm,N2) - dyadic_product<nsd>(Idm,N2));
       }
 
       // Storing the invariant derivatives in array of matrices/tensors
