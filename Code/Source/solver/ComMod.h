@@ -53,6 +53,8 @@
 
 #include "Parameters.h"
 
+#include "ArtificialNeuralNetMaterial.h"
+
 #include <array>
 #include <iostream>
 #include <string>
@@ -344,31 +346,6 @@ class fibStrsType
     fcType gt;
 };
 
-// Class for parameter table for material models discovered by constitutive artificial neural network (CANN)
-
-/* This material model implementation is based on the following paper: 
-Peirlinck, M., Hurtado, J.A., Rausch, M.K. et al. A universal material model subroutine 
-for soft matter systems. Engineering with Computers 41, 905–927 (2025). 
-https://doi.org/10.1007/s00366-024-02031-w */
-
-class ConstitutiveArtificialNeuralNetModel
-{
-  public:
-
-    // Invariant indices
-    Vector<int> invariant_indices;
-
-    // Activation functions
-    Array<int> activation_functions;
-
-    // Weights
-    Array<double> weights;
-
-    // Number of rows in parameter table
-    int num_rows;
-
-};
-
 /// @brief Structural domain type
 //
 class stModelType
@@ -416,7 +393,7 @@ class stModelType
     fibStrsType Tf;
 
     // CANN Model/UAnisoHyper_inv
-    ConstitutiveArtificialNeuralNetModel paramTable;
+    ArtificialNeuralNetMaterial paramTable;
   
     stModelType();
 };

@@ -41,12 +41,42 @@ https://doi.org/10.1007/s00366-024-02031-w */
 #include "Parameters.h"
 #include <vector>
 
-namespace ConstitutiveArtificialNeuralNet_model {
-    void uCANN_h0(const double x, const int kf, double &f, double &df, double &ddf);
-    void uCANN_h1(const double x, const int kf, const double W, double &f, double &df, double &ddf);
-    void uCANN_h2(const double x, const int kf, const double W, double &f, double &df, double &ddf);
-    void uCANN(const double xInv, const int kf0, const int kf1, const int kf2, const double W0, const double W1, const double W2, double &psi, double (&dpsi)[9], double (&ddpsi)[9]);
-    void ConstitutiveArtificialNeuralNet_model(const double aInv[9],const ConstitutiveArtificialNeuralNetModel paramTable, double &psi, double (&dpsi)[9], double (&ddpsi)[9]);
-}
+// Class for parameter table for material models discovered by constitutive artificial neural network (CANN)
+
+/* This material model implementation is based on the following paper: 
+Peirlinck, M., Hurtado, J.A., Rausch, M.K. et al. A universal material model subroutine 
+for soft matter systems. Engineering with Computers 41, 905–927 (2025). 
+https://doi.org/10.1007/s00366-024-02031-w */
+
+class ArtificialNeuralNetMaterial
+{
+  public:
+
+    // Invariant indices
+    Vector<int> invariant_indices;
+
+    // Activation functions
+    Array<int> activation_functions;
+
+    // Weights
+    Array<double> weights;
+
+    // Number of rows in parameter table
+    int num_rows;
+
+    // Outputs from each layer
+    void uCANN_h0(const double x, const int kf, double &f, double &df, double &ddf) const;
+    void uCANN_h1(const double x, const int kf, const double W, double &f, double &df, double &ddf) const;
+    void uCANN_h2(const double x, const int kf, const double W, double &f, double &df, double &ddf) const;
+
+    // Strain energy and derivatives
+    void uCANN(const double xInv, const int kInv,
+           const int kf0, const int kf1, const int kf2,
+           const double W0, const double W1, const double W2,
+           double &psi, double (&dpsi)[9], double (&ddpsi)[9]) const;
+
+
+    void evaluate(const double aInv[9], double &psi, double (&dpsi)[9], double (&ddpsi)[9]) const;
+};
 
 #endif // ConstitutiveArtificialNeuralNet_model_H

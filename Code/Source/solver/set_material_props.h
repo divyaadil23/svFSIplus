@@ -200,18 +200,9 @@ SeMaterialPropertiesMapType set_material_props = {
     // Store activation function and weight values
     for (size_t j = 0; j < 3; j++)
     {
-      lDmn.stM.paramTable.activation_functions(i,j) = params.rows[i]->row.activation_functions[j];
-      lDmn.stM.paramTable.weights(i,j) = params.rows[i]->row.weights[j];
+      lDmn.stM.paramTable.activation_functions(i,j) = params.rows[i]->row.activation_functions.value_[j];
+      lDmn.stM.paramTable.weights(i,j) = params.rows[i]->row.weights.value_[j];
     }
-    
-    // lDmn.stM.paramTable.activation_functions(i,0) = params.rows[i]->row.activation_functions.value_[0];
-    // lDmn.stM.paramTable.activation_functions(i,1) = params.rows[i]->row.activation_functions.value_[1];
-    // lDmn.stM.paramTable.activation_functions(i,2) = params.rows[i]->row.activation_functions.value_[2];
-
-    // Store weight values
-    // lDmn.stM.paramTable.weights(i,0) = params.rows[i]->row.weights.value_[0];
-    // lDmn.stM.paramTable.weights(i,1) = params.rows[i]->row.weights.value_[1];
-    // lDmn.stM.paramTable.weights(i,2) = params.rows[i]->row.weights.value_[2];
 
   }
   

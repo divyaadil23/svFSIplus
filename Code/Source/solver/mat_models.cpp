@@ -35,7 +35,7 @@
 #include "fft.h"
 #include "mat_fun.h"
 #include "utils.h"
-#include "ConstitutiveArtificialNeuralNet_model.h"
+#include "ArtificialNeuralNetMaterial.h"
 
 #include <math.h>
 #include <utility> // std::pair
@@ -833,7 +833,7 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
 
       // Strain energy function and derivatives
       double psi,dpsi[9],ddpsi[9];
-      ConstitutiveArtificialNeuralNet_model::ConstitutiveArtificialNeuralNet_model(Inv,CANNTable,psi,dpsi,ddpsi);
+      CANNTable.evaluate(Inv, psi, dpsi, ddpsi);
 
       for (int i = 0; i < 9; i++) {
         S += 2*dInv[i]*dpsi[i];
