@@ -829,7 +829,7 @@ void CANNRowParameters::set_values(tinyxml2::XMLElement* row_elem)
   }
 }
 
-/// @brief Constructor for CANNParameters class. Initializes CANNTable
+/// @brief Constructor for CANNParameters class. Initializes parameter table
 CANNParameters::CANNParameters()
 {
   // A parameter that must be defined.

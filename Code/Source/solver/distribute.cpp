@@ -1236,7 +1236,7 @@ void dist_mat_consts(const ComMod& com_mod, const CmMod& cm_mod, const cmType& c
   }
   
   cm.bcast(cm_mod, lStM.paramTable.invariant_indices);
-  cm.bcast(cm_mod, lStM.paramTable.activation_functions, "paramTable.CANNTable_act_func");
+  cm.bcast(cm_mod, lStM.paramTable.activation_functions, "paramTable.act_func");
   cm.bcast(cm_mod, lStM.paramTable.weights, "paramTable.weights");
 
 }
