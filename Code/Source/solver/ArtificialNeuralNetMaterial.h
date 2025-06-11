@@ -40,6 +40,11 @@ https://doi.org/10.1007/s00366-024-02031-w */
 #include "utils.h"
 #include "Parameters.h"
 #include <vector>
+#include "eigen3/Eigen/Core"
+#include "eigen3/Eigen/Dense"
+#include "eigen3/unsupported/Eigen/CXX11/Tensor"
+
+using namespace mat_fun;
 
 // Class for parameter table for material models discovered by constitutive artificial neural network (CANN)
 
@@ -77,6 +82,14 @@ class ArtificialNeuralNetMaterial
 
 
     void evaluate(const double aInv[9], double &psi, double (&dpsi)[9], double (&ddpsi)[9]) const;
+
+    // For compute_pk2cc
+    template<size_t nsd>
+    void computeInvariantsAndDerivatives(
+    const Matrix<nsd>& C, const Matrix<nsd>& fl, int nfd, double J2d, double J4d, const Matrix<nsd>& Ci,
+    const Matrix<nsd>& Idm, const double Tfa, Matrix<nsd>& N1, double& psi, std::array<Matrix<nsd>,9>& dInv,
+    std::array<Tensor<nsd>,9>& ddInv) const; 
+    
 };
 
 #endif // ConstitutiveArtificialNeuralNet_model_H
