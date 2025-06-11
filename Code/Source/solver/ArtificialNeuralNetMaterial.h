@@ -33,8 +33,8 @@ Peirlinck, M., Hurtado, J.A., Rausch, M.K. et al. A universal material model sub
 for soft matter systems. Engineering with Computers 41, 905–927 (2025). 
 https://doi.org/10.1007/s00366-024-02031-w */
 
-#ifndef ConstitutiveArtificialNeuralNet_model_H
-#define ConstitutiveArtificialNeuralNet_model_H
+#ifndef ArtificialNeuralNet_model_H
+#define ArtificialNeuralNet_model_H
 
 #include "mat_fun.h"
 #include "utils.h"
@@ -92,4 +92,4 @@ class ArtificialNeuralNetMaterial
     
 };
 
-#endif // ConstitutiveArtificialNeuralNet_model_H
+#endif // ArtificialNeuralNet_model_H

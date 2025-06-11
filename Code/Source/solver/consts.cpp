@@ -142,8 +142,8 @@ const std::map<std::string,ConstitutiveModelType> constitutive_model_name_to_typ
   {"M94", ConstitutiveModelType::stVol_M94},
   {"Miehe94", ConstitutiveModelType::stVol_M94},
 
-  {"CANN", ConstitutiveModelType::stConstitutiveArtificialNeuralNet},
-  {"AnisoHyper", ConstitutiveModelType::stConstitutiveArtificialNeuralNet},
+  {"CANN", ConstitutiveModelType::stArtificialNeuralNet},
+  {"AnisoHyper", ConstitutiveModelType::stArtificialNeuralNet},
 };
 
 /// @brief Map for contact model string name to ContacteModelType

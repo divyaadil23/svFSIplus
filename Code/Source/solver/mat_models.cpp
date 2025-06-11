@@ -752,7 +752,7 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
 
     // Universal Material Subroutine - CANN Model
     
-    case ConstitutiveModelType::stConstitutiveArtificialNeuralNet: {
+    case ConstitutiveModelType::stArtificialNeuralNet: {
       
       // Reading parameter table
       auto &CANNModel = stM.paramTable;
