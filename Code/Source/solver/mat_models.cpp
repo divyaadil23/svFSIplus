@@ -832,13 +832,13 @@ void compute_pk2cc(const ComMod& com_mod, const CepMod& cep_mod, const dmnType& 
       auto &CANNTable = stM.paramTable;
 
       double psi,dpsi[9],ddpsi[9];
-      double Inv[9];
+      double Inv[9] = {0,0,0,0,0,0,0,0,0};
       std::array<Matrix<nsd>, 9> dInv;
       std::array<Tensor<nsd>,9> ddInv;
       Matrix<nsd> N1;
 
       // Compute and store invariants and derivatives wrt C in array of matrices/tensors
-      CANNTable.computeInvariantsAndDerivatives<nsd>(C, fl, nfd, J2d, J4d, Ci, Idm, Tfa, N1, psi, dInv, ddInv);
+      CANNTable.computeInvariantsAndDerivatives<nsd>(C, fl, nfd, J2d, J4d, Ci, Idm, Tfa, N1, psi, Inv, dInv, ddInv);
 
       // Strain energy function and derivatives
       CANNTable.evaluate(Inv, psi, dpsi, ddpsi);
