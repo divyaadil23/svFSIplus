@@ -1229,11 +1229,16 @@ void dist_mat_consts(const ComMod& com_mod, const CmMod& cm_mod, const cmType& c
   // Distribute CANN parameter table
   cm.bcast(cm_mod, &lStM.paramTable.num_rows);
 
-  if (lStM.paramTable.num_rows <= 0) {
-    std::cerr << "Error: num_rows is invalid (" << lStM.paramTable.num_rows << ")\n";
-    std::abort();
+  if (lStM.paramTable.num_rows == 0) {
+    // Nothing to broadcast; skip
+    return;
   }
-  
+
+  // if (lStM.paramTable.num_rows <= 0) {
+  //   std::cerr << "Error: num_rows is invalid (" << lStM.paramTable.num_rows << ")\n";
+  //   std::abort();
+  // }
+
   if (cm.slv(cm_mod))
   {
     lStM.paramTable.invariant_indices.resize(lStM.paramTable.num_rows);
