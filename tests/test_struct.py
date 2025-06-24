@@ -32,13 +32,10 @@ def test_LV_HolzapfelOgden_passive_CANN(n_proc):
     test_folder = "LV_HolzapfelOgden_passive_CANN"
     run_with_reference(base_folder, test_folder, fields, n_proc)
 
-<<<<<<< HEAD
 def test_LV_CANN_artery_model(n_proc):
     test_folder = "LV_CANN_artery_model"
     run_with_reference(base_folder, test_folder, fields, n_proc)
 
-=======
->>>>>>> f4445d2 (Adding CANN material model framework (#406))
 def test_LV_HolzapfelOgdenModifiedAnisotropy_passive(n_proc):
     test_folder = "LV_HolzapfelOgdenModifiedAnisotropy_passive"
     run_with_reference(base_folder, test_folder, fields, n_proc)
