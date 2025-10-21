@@ -62,6 +62,10 @@ def test_spatially_variable_robin(n_proc):
 def test_LV_NeoHookean_passive(n_proc):
     test_folder = "LV_NeoHookean_passive"
     run_with_reference(base_folder, test_folder, fields, n_proc, t_max=5)
+
+def test_pipe_3d_prestress(n_proc):
+    test_folder = "pipe_3d_prestress"
+    run_with_reference(base_folder, test_folder, fields, n_proc, t_max=10)
     
 def test_LV_NeoHookean_passive_genBC(n_proc):
     test_folder = "LV_NeoHookean_passive_genBC"
